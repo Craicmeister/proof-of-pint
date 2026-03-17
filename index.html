@@ -1,0 +1,38 @@
+import React, { useState } from 'react';
+
+export default function CraicApp() {
+  const [status, setStatus] = useState('Ready for a pint? 🍻');
+
+  // This is the "Magic Button" logic
+  const takePhoto = () => {
+    setStatus('Camera opening... Get that pint ready!');
+    // In a real app, this triggers the phone camera
+  };
+
+  return (
+    <div style={{ textAlign: 'center', padding: '50px', fontFamily: 'sans-serif' }}>
+      <h1 style={{ color: '#16a34a' }}>☘️ Proof of Pint</h1>
+      <p style={{ fontSize: '1.2rem' }}>{status}</p>
+      
+      <div style={{ marginTop: '30px' }}>
+        <button 
+          onClick={() => alert('Connecting Wallet...')}
+          style={{ padding: '15px 30px', fontSize: '1rem', backgroundColor: '#0052FF', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' }}
+        >
+          Connect Wallet
+        </button>
+      </div>
+
+      <div style={{ marginTop: '20px' }}>
+        <button 
+          onClick={takePhoto}
+          style={{ padding: '15px 30px', fontSize: '1rem', backgroundColor: '#16a34a', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer' }}
+        >
+          📸 Snap a Pint
+        </button>
+      </div>
+      
+      <p style={{ marginTop: '40px', color: '#666' }}>Powered by $CRAIC</p>
+    </div>
+  );
+}
