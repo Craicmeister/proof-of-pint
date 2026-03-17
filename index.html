@@ -3,10 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- YOUR OFFICIAL BASE ID -->
     <meta name="base:app_id" content="69b9956973c302e579087532" />
-    
     <title>Proof of Pint ☘️</title>
 </head>
 <body style="text-align: center; padding: 50px; font-family: sans-serif; background-color: #f9fafb; color: #333;">
@@ -15,24 +12,77 @@
     <p id="status" style="font-size: 1.2rem; margin-bottom: 30px;">Ready for a pint? 🍻</p>
     
     <div style="margin-top: 30px;">
-        <button 
-            onclick="alert('Connecting Wallet...')"
-            style="padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #0052FF; color: white; border: none; border-radius: 12px; cursor: pointer; width: 220px;"
-        >
+        <button id="walletBtn" style="padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #0052FF; color: white; border: none; border-radius: 12px; cursor: pointer; width: 220px;">
             Connect Wallet
         </button>
     </div>
 
     <div style="margin-top: 20px;">
-        <button 
-            onclick="document.getElementById('status').innerText = 'Camera opening... Get that pint ready!'"
-            style="padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border: none; border-radius: 12px; cursor: pointer; width: 220px;"
-        >
-            📸 Snap a Pint
+        <button id="pintBtn" style="padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border: none; border-radius: 12px; cursor: pointer; width: 220px;">
+            📸 Proof of Pint
         </button>
     </div>
     
     <p style="margin-top: 50px; color: #888; font-style: italic;">Powered by $CRAIC</p>
 
+    <script>
+        const pintBtn = document.getElementById('pintBtn');
+        const status = document.getElementById('status');
+
+        pintBtn.onclick = async () => {
+            status.innerText = "Locating pub... 📍";
+
+            // 1. Get GPS Location
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+
+                status.innerText = "Get that pint ready! 📸";
+                
+                // 2. Open Camera
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.capture = 'environment';
+                
+                input.onchange = async (e) => {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    
+                    reader.onloadend = async () => {
+                        status.innerText = "Verifying with $CRAIC... ☘️";
+                        const base64Image = reader.result;
+
+                        try {
+                            // 3. SEND TO YOUR PYTHON BACKEND
+                            // REPLACE THE URL BELOW WITH YOUR ACTUAL GOOGLE CLOUD FUNCTION URL
+                            const response = await fetch('YOUR_CLOUD_FUNCTION_URL', {
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    image_base64: base64Image,
+                                    lat: lat,
+                                    lng: lng,
+                                    user_id: "0x7e1A62Ce20c3306FaEE687D1000bbcd661c1D510" 
+                                }),
+                                headers: { 'Content-Type': 'application/json' }
+                            });
+
+                            const result = await response.json();
+                            status.innerText = result.message || "Pint Verified! 🍻";
+                        } catch (err) {
+                            status.innerText = "Connection Error. Try again! 📉";
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                };
+                input.click();
+                
+            }, (error) => {
+                status.innerText = "GPS Error: Please allow location! 📍";
+            });
+        };
+
+        document.getElementById('walletBtn').onclick = () => alert('Wallet connection coming on April 9th! 🚀');
+    </script>
 </body>
 </html>
