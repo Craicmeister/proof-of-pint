@@ -32,14 +32,11 @@
         pintBtn.onclick = async () => {
             status.innerText = "Locating pub... 📍";
 
-            // 1. Get GPS Location
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
-
                 status.innerText = "Get that pint ready! 📸";
                 
-                // 2. Open Camera
                 const input = document.createElement('input');
                 input.type = 'file';
                 input.accept = 'image/*';
@@ -54,9 +51,8 @@
                         const base64Image = reader.result;
 
                         try {
-                            // 3. SEND TO YOUR PYTHON BACKEND
-                            // REPLACE THE URL BELOW WITH YOUR ACTUAL GOOGLE CLOUD FUNCTION URL
-                            const response = await fetch('https://us-central1-craic-bot.cloudfunctions.net/pint_verifier', {
+                            // This talks to the /api/verify.js file we are about to create
+                            const response = await fetch('/api/verify', {
                                 method: 'POST',
                                 body: JSON.stringify({
                                     image_base64: base64Image,
