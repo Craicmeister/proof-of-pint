@@ -46,28 +46,45 @@
                     const file = e.target.files[0];
                     const reader = new FileReader();
                     
-                    reader.onloadend = async () => {
-                        status.innerText = "Verifying with $CRAIC... ☘️";
-                        const base64Image = reader.result;
+                    reader.onload = (event) => {
+                        status.innerText = "Compressing pint... 🧊";
+                        
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = async () => {
+                            // Create a canvas to resize the image
+                            const canvas = document.createElement('canvas');
+                            const MAX_WIDTH = 800; 
+                            const scaleSize = MAX_WIDTH / img.width;
+                            canvas.width = MAX_WIDTH;
+                            canvas.height = img.height * scaleSize;
 
-                        try {
-                            // This talks to the /api/verify.js file we are about to create
-                            const response = await fetch('/api/verify', {
-                                method: 'POST',
-                                body: JSON.stringify({
-                                    image_base64: base64Image,
-                                    lat: lat,
-                                    lng: lng,
-                                    user_id: "0x7e1A62Ce20c3306FaEE687D1000bbcd661c1D510" 
-                                }),
-                                headers: { 'Content-Type': 'application/json' }
-                            });
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                            const result = await response.json();
-                            status.innerText = result.message || "Pint Verified! 🍻";
-                        } catch (err) {
-                            status.innerText = "Connection Error. Try again! 📉";
-                        }
+                            // Convert to JPEG at 70% quality to bypass "Payload Too Large"
+                            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                            
+                            status.innerText = "Verifying with $CRAIC... ☘️";
+
+                            try {
+                                const response = await fetch('/api/verify', {
+                                    method: 'POST',
+                                    body: JSON.stringify({
+                                        image_base64: compressedBase64,
+                                        lat: lat,
+                                        lng: lng,
+                                        user_id: "0x7e1A62Ce20c3306FaEE687D1000bbcd661c1D510" 
+                                    }),
+                                    headers: { 'Content-Type': 'application/json' }
+                                });
+
+                                const result = await response.json();
+                                status.innerText = result.message || "Pint Verified! 🍻";
+                            } catch (err) {
+                                status.innerText = "Connection Error. Try again! 📉";
+                            }
+                        };
                     };
                     reader.readAsDataURL(file);
                 };
