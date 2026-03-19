@@ -43,8 +43,8 @@
                 input.capture = 'environment';
                 
                 input.onchange = async (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
+                    const file = e.target.files;
+                    if (!file[0]) return;
 
                     const reader = new FileReader();
                     reader.onload = (event) => {
@@ -64,17 +64,16 @@
                             status.innerText = "Verifying with $CRAIC... ☘️";
 
                             try {
-                                // TALKING DIRECTLY TO GOOGLE
                                 const response = await fetch('https://us-central1-craic-bot.cloudfunctions.net', {
                                     method: 'POST',
                                     mode: 'cors',
+                                    headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({
                                         image_base64: compressedBase64,
                                         lat: lat,
                                         lng: lng,
                                         user_id: "0x7e1A62Ce20c3306FaEE687D1000bbcd661c1D510" 
-                                    }),
-                                    headers: { 'Content-Type': 'application/json' }
+                                    })
                                 });
 
                                 const result = await response.json();
@@ -85,7 +84,7 @@
                             }
                         };
                     };
-                    reader.readAsDataURL(file);
+                    reader.readAsDataURL(file[0]);
                 };
                 input.click();
                 
