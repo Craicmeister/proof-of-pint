@@ -74,7 +74,7 @@
                             status.innerText = "Verifying with $CRAIC... ☘️";
 
                             try {
-                                const response = await fetch('https://us-central1-craic-bot.cloudfunctions.net', {
+                                const response = await fetch('https://us-central1-craic-bot.cloudfunctions.net/pint_verifier', {
                                     method: 'POST',
                                     mode: 'cors',
                                     headers: { 'Content-Type': 'application/json' },
