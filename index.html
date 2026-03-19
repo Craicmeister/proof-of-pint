@@ -6,30 +6,39 @@
     <meta name="base:app_id" content="69b9956973c302e579087532" />
     <title>Proof of Pint ☘️</title>
 </head>
-<body style="text-align: center; padding: 50px; font-family: sans-serif; background-color: #f9fafb; color: #333;">
+<body style="text-align: center; padding: 50px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f9fafb; color: #333;">
 
-    <h1 style="color: #16a34a; font-size: 2.5rem;">☘️ Proof of Pint</h1>
-    <p id="status" style="font-size: 1.2rem; margin-bottom: 30px;">Ready for a pint? 🍻</p>
+    <h1 style="color: #16a34a; font-size: 2.5rem; margin-bottom: 10px;">☘️ Proof of Pint</h1>
+    <p id="status" style="font-size: 1.2rem; margin-bottom: 30px; min-height: 3em; padding: 0 20px;">Ready for a pint? 🍻</p>
     
     <div style="margin-top: 30px;">
-        <button id="walletBtn" style="padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #0052FF; color: white; border: none; border-radius: 12px; cursor: pointer; width: 220px;">
+        <button id="walletBtn" style="padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #0052FF; color: white; border: none; border-radius: 12px; cursor: pointer; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
             Connect Wallet
         </button>
     </div>
 
     <div style="margin-top: 20px;">
-        <button id="pintBtn" style="padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border: none; border-radius: 12px; cursor: pointer; width: 220px;">
+        <button id="pintBtn" style="padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border: none; border-radius: 12px; cursor: pointer; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
             📸 Proof of Pint
         </button>
     </div>
     
-    <p style="margin-top: 50px; color: #888; font-style: italic;">Powered by $CRAIC</p>
+    <div id="txLinkContainer" style="margin-top: 25px; display: none;">
+        <a id="txLink" href="#" target="_blank" style="color: #0052FF; text-decoration: none; font-weight: bold;">View Transaction on BaseScan 🔗</a>
+    </div>
+
+    <p style="margin-top: 50px; color: #888; font-style: italic; font-size: 0.9rem;">Powered by $CRAIC</p>
 
     <script>
         const pintBtn = document.getElementById('pintBtn');
         const status = document.getElementById('status');
+        const txLinkContainer = document.getElementById('txLinkContainer');
+        const txLink = document.getElementById('txLink');
 
         pintBtn.onclick = async () => {
+            // Reset UI
+            status.style.color = "#333";
+            txLinkContainer.style.display = "none";
             status.innerText = "Locating pub... 📍";
 
             navigator.geolocation.getCurrentPosition(async (position) => {
@@ -52,6 +61,7 @@
                         const img = new Image();
                         img.src = event.target.result;
                         img.onload = async () => {
+                            // Canvas Compression
                             const canvas = document.createElement('canvas');
                             const MAX_WIDTH = 800; 
                             const scaleSize = MAX_WIDTH / img.width;
@@ -77,10 +87,24 @@
                                 });
 
                                 const result = await response.json();
-                                status.innerText = result.message || "Pint Verified! 🍻";
+
+                                if (response.ok) {
+                                    status.style.color = "#16a34a";
+                                    status.innerText = result.message || "Pint Verified! 🍻";
+                                    
+                                    // Show Transaction Link
+                                    if(result.tx_hash) {
+                                        txLink.href = `https://basescan.org{result.tx_hash}`;
+                                        txLinkContainer.style.display = "block";
+                                    }
+                                } else {
+                                    status.style.color = "#dc2626";
+                                    status.innerText = result.message || "That's not a pint! 🧐";
+                                }
                             } catch (err) {
                                 console.error(err);
-                                status.innerText = "Connection Error. Try again! 📉";
+                                status.style.color = "#dc2626";
+                                status.innerText = "Connection Error. Is the tap broken? 📉";
                             }
                         };
                     };
@@ -89,7 +113,8 @@
                 input.click();
                 
             }, (error) => {
-                status.innerText = "GPS Error: Please allow location! 📍";
+                status.style.color = "#dc2626";
+                status.innerText = "GPS Error: Please allow location access! 📍";
             });
         };
 
