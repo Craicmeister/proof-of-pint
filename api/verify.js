@@ -3,8 +3,8 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  // FIXED: Added the specific function suffix
-  const GOOGLE_URL = 'https://us-central1-craic-bot.cloudfunctions.net';
+  // FIXED: Added the mandatory function name suffix
+  const GOOGLE_URL = 'https://us-central1-craic-bot.cloudfunctions.net/pint_verifier';
 
   try {
     const controller = new AbortController();
@@ -21,9 +21,10 @@ export default async function handler(req, res) {
     const data = await response.json();
     return res.status(response.status).json(data);
   } catch (error) {
-    console.error("Proxy Error:", error.message);
-    return res.status(504).json({ status: "error", message: "The tap is slow! Try again. 🍺" });
+    console.error("Vercel Proxy Error:", error.message);
+    return res.status(504).json({ status: "error", message: "The tap is running slow! Try again. 🍺" });
   }
 }
+
 
 
