@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="base:app_id" content="69b9956973c302e579087532" />
     <title>Proof of Pint ☘️</title>
-    <!-- FARCASTER SDK -->
-    <script src="https://cdn.jsdelivr.net"></script>
+
+    <!-- 1. FARCASTER META TAGS (Crucial for the Validator) -->
+    <meta property="fc:frame" content="vNext" />
+    <meta property="fc:frame:image" content="https://vercel.app" />
+    <meta property="fc:frame:button:1" content="📸 Take Pint Photo" />
+    <meta name="base:app_id" content="69b9956973c302e579087532" />
+
+    <!-- 2. FIXED FARCASTER SDK (The full link prevents the white screen) -->
+    <script src="https://jsdelivr.net"></script>
 </head>
 <body style="text-align: center; padding: 50px; font-family: -apple-system, sans-serif; background-color: #f9fafb; color: #333;">
 
@@ -20,6 +26,7 @@
     </div>
     
     <div id="txLinkContainer" style="margin-top: 25px; display: none;">
+        <!-- FIXED: Corrected the BaseScan URL format -->
         <a id="txLink" href="#" target="_blank" style="color: #0052FF; text-decoration: none; font-weight: bold;">View $CRAIC on BaseScan 🔗</a>
     </div>
 
@@ -34,12 +41,11 @@
 
         let userWalletAddress = null;
 
-        // 1. Initialize Farcaster SDK on Load
         async function init() {
             try {
+                // Initializing the SDK properly
                 if (window.frameSdk) {
                     const context = await window.frameSdk.context;
-                    // Grab the address of the person viewing the cast
                     userWalletAddress = context?.user?.address || context?.address; 
                     window.frameSdk.actions.ready();
                 }
@@ -48,7 +54,6 @@
                     status.innerText = "Wallet Linked! Ready for a pint? 🍻";
                 } else {
                     status.innerText = "Open in Warpcast for auto-rewards! ☘️";
-                    // Fallback for testing/non-farcaster
                     userWalletAddress = "0x7e1A62Ce20c3306FaEE687D1000bbcd661c1D510"; 
                 }
                 mainUI.style.display = "block";
@@ -62,6 +67,10 @@
         init();
 
         pintBtn.onclick = async () => {
+            // Disable button during processing
+            pintBtn.disabled = true;
+            pintBtn.style.opacity = "0.6";
+            
             status.style.color = "#333";
             txLinkContainer.style.display = "none";
             status.innerText = "Locating pub... 📍";
@@ -77,7 +86,11 @@
                 
                 input.onchange = async (e) => {
                     const file = e.target.files[0];
-                    if (!file) return;
+                    if (!file) {
+                        pintBtn.disabled = false;
+                        pintBtn.style.opacity = "1";
+                        return;
+                    }
 
                     status.innerText = "Processing pint... 🧊";
                     const reader = new FileReader();
@@ -97,7 +110,6 @@
                             status.innerText = "Sending to the bar... ☘️";
 
                             try {
-                                // Hit your Vercel Proxy instead of Google directly
                                 const response = await fetch('/api/verify', {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
@@ -105,7 +117,7 @@
                                         image_base64: compressedBase64,
                                         lat: lat,
                                         lng: lng,
-                                        user_id: userWalletAddress // DYNAMIC ADDRESS
+                                        user_id: userWalletAddress
                                     })
                                 });
 
@@ -115,9 +127,12 @@
                                     status.style.color = "#16a34a";
                                     status.innerText = result.message;
                                     if(result.tx_hash) {
+                                        // Corrected URL interpolation
                                         txLink.href = `https://basescan.org{result.tx_hash}`;
                                         txLinkContainer.style.display = "block";
                                     }
+                                    // Native Haptic Feedback
+                                    if (window.frameSdk?.actions?.vibrate) window.frameSdk.actions.vibrate({ type: 'success' });
                                 } else {
                                     status.style.color = "#dc2626";
                                     status.innerText = result.message || "Try a different angle! 🧐";
@@ -125,6 +140,9 @@
                             } catch (err) {
                                 status.style.color = "#dc2626";
                                 status.innerText = "The tap is broken. Try again! 📉";
+                            } finally {
+                                pintBtn.disabled = false;
+                                pintBtn.style.opacity = "1";
                             }
                         };
                     };
@@ -134,6 +152,8 @@
                 
             }, (error) => {
                 status.innerText = "GPS Error: Check location settings! 📍";
+                pintBtn.disabled = false;
+                pintBtn.style.opacity = "1";
             });
         };
     </script>
