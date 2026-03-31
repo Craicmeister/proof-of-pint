@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proof of Pint ☘️</title>
 
-    <!-- 1. FARCASTER META TAGS (Corrected URL) -->
+    <!-- 1. FARCASTER META TAGS -->
     <meta property="fc:frame" content="vNext" />
+    <!-- Note: Replace this with a direct link to an actual image file for the frame to render -->
     <meta property="fc:frame:image" content="https://vercel.app" />
     <meta property="fc:frame:button:1" content="📸 Take Pint Photo" />
     <meta name="base:app_id" content="69b9956973c302e579087532" />
 
-    <!-- 2. FIXED FULL SDK LINK (Ends in .js) -->
-    <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk/dist/index.min.js"></script>
-
+    <!-- 2. CORRECTED SDK LINK -->
+    <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk/dist/index
 </head>
 <body style="text-align: center; padding: 50px; font-family: -apple-system, sans-serif; background-color: #f9fafb; color: #333;">
 
@@ -40,13 +40,18 @@
         const txLink = document.getElementById('txLink');
 
         let userWalletAddress = null;
+        let userLocation = { lat: null, lng: null };
 
         async function init() {
+            // Corrected SDK global object for v2
+            const sdk = window.frame?.sdk;
+
             try {
-                if (window.frameSdk) {
-                    const context = await window.frameSdk.context;
+                if (sdk) {
+                    const context = await sdk.context;
                     userWalletAddress = context?.user?.address || context?.address; 
-                    window.frameSdk.actions.ready();
+                    // Tells Farcaster client the frame is ready to display
+                    sdk.actions.ready(); 
                 }
                 
                 if (userWalletAddress) {
@@ -61,96 +66,89 @@
                 mainUI.style.display = "block";
                 status.innerText = "Ready to pour! 🍻";
             }
+
+            // Pre-fetch location to speed up the button click
+            navigator.geolocation.getCurrentPosition((pos) => {
+                userLocation.lat = pos.coords.latitude;
+                userLocation.lng = pos.coords.longitude;
+            });
         }
 
         init();
 
-        pintBtn.onclick = async () => {
-            pintBtn.disabled = true;
-            pintBtn.style.opacity = "0.6";
+        pintBtn.onclick = () => {
+            // Trigger file input FIRST (Required for mobile browsers to allow camera)
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'environment';
             
-            status.style.color = "#333";
-            txLinkContainer.style.display = "none";
-            status.innerText = "Locating pub... 📍";
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
 
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = 'image/*';
-                input.capture = 'environment';
-                
-                input.onchange = async (e) => {
-                    const file = e.target.files[0];
-                    if (!file) {
-                        pintBtn.disabled = false;
-                        pintBtn.style.opacity = "1";
-                        return;
-                    }
+                pintBtn.disabled = true;
+                pintBtn.style.opacity = "0.6";
+                status.innerText = "Processing pint... 🧊";
 
-                    status.innerText = "Processing pint... 🧊";
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        const img = new Image();
-                        img.src = event.target.result;
-                        img.onload = async () => {
-                            const canvas = document.createElement('canvas');
-                            const MAX_WIDTH = 800; 
-                            const scaleSize = MAX_WIDTH / img.width;
-                            canvas.width = MAX_WIDTH;
-                            canvas.height = img.height * scaleSize;
-                            const ctx = canvas.getContext('2d');
-                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                            
-                            status.innerText = "Sending to the bar... ☘️";
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = async () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800; 
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                        
+                        status.innerText = "Verifying with the bar... ☘️";
 
-                            try {
-                                const response = await fetch('/api/verify', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                        image_base64: compressedBase64,
-                                        lat: lat,
-                                        lng: lng,
-                                        user_id: userWalletAddress
-                                    })
-                                });
+                        try {
+                            const response = await fetch('/api/verify', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    image_base64: compressedBase64,
+                                    lat: userLocation.lat,
+                                    lng: userLocation.lng,
+                                    user_id: userWalletAddress
+                                })
+                            });
 
-                                const result = await response.json();
+                            const result = await response.json();
 
-                                if (response.ok) {
-                                    status.style.color = "#16a34a";
-                                    status.innerText = result.message;
-                                    if(result.tx_hash) {
-                                        txLink.href = `https://basescan.org{result.tx_hash}`;
-                                        txLinkContainer.style.display = "block";
-                                    }
-                                    if (window.frameSdk?.actions?.vibrate) window.frameSdk.actions.vibrate({ type: 'success' });
-                                } else {
-                                    status.style.color = "#dc2626";
-                                    status.innerText = result.message || "Try a different angle! 🧐";
+                            if (response.ok) {
+                                status.style.color = "#16a34a";
+                                status.innerText = result.message;
+                                if(result.tx_hash) {
+                                    // Corrected template literal and path
+                                    txLink.href = `https://basescan.org{result.tx_hash}`;
+                                    txLinkContainer.style.display = "block";
                                 }
-                            } catch (err) {
+                                if (window.frame?.sdk?.actions?.vibrate) {
+                                    window.frame.sdk.actions.vibrate({ type: 'success' });
+                                }
+                            } else {
                                 status.style.color = "#dc2626";
-                                status.innerText = "The tap is broken. Try again! 📉";
-                            } finally {
-                                pintBtn.disabled = false;
-                                pintBtn.style.opacity = "1";
+                                status.innerText = result.message || "Try a different angle! 🧐";
                             }
-                        };
+                        } catch (err) {
+                            status.style.color = "#dc2626";
+                            status.innerText = "The tap is broken. Try again! 📉";
+                        } finally {
+                            pintBtn.disabled = false;
+                            pintBtn.style.opacity = "1";
+                        }
                     };
-                    reader.readAsDataURL(file);
                 };
-                input.click();
-                
-            }, (error) => {
-                status.innerText = "GPS Error: Check location settings! 📍";
-                pintBtn.disabled = false;
-                pintBtn.style.opacity = "1";
-            });
+                reader.readAsDataURL(file);
+            };
+
+            input.click();
         };
     </script>
 </body>
