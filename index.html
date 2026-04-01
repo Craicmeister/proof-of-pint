@@ -17,16 +17,31 @@
     <h1 style="color: #16a34a; font-size: 2.5rem; margin-bottom: 10px;">☘️ Proof of Pint</h1>
     <p id="status" style="font-size: 1.2rem; margin-bottom: 30px; min-height: 3em; padding: 0 20px;">Checking your $CRAIC status... ⏳</p>
     
+    <!-- MAIN UI - shown inside Warpcast -->
     <div id="mainUI" style="display: none;">
         <button id="pintBtn" style="padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border: none; border-radius: 12px; cursor: pointer; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
             📸 Take Pint Photo
         </button>
     </div>
 
+    <!-- SHARE BUTTON - shown after successful verification -->
     <div id="shareContainer" style="margin-top: 20px; display: none;">
         <button id="shareBtn" style="padding: 12px 24px; font-size: 1rem; font-weight: bold; background-color: #7c3aed; color: white; border: none; border-radius: 12px; cursor: pointer; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
             🟣 Share on Farcaster
         </button>
+    </div>
+
+    <!-- NO WALLET UI - shown outside Warpcast -->
+    <div id="noWalletUI" style="display: none; margin-top: 10px;">
+        <p style="font-size: 1rem; color: #555; margin-bottom: 20px; padding: 0 20px;">
+            To earn $CRAIC you need a Farcaster account with a connected wallet.
+        </p>
+        <a href="https://warpcast.com/download" target="_blank" style="display: inline-block; padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border-radius: 12px; text-decoration: none; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+            Open in Warpcast ☘️
+        </a>
+        <p style="margin-top: 16px; font-size: 0.9rem; color: #888;">
+            Don't have Warpcast yet? <a href="https://warpcast.com/download" target="_blank" style="color: #16a34a; font-weight: bold;">Download here</a>
+        </p>
     </div>
     
     <div id="txLinkContainer" style="margin-top: 25px; display: none;">
@@ -41,6 +56,7 @@
         const shareContainer = document.getElementById('shareContainer');
         const status = document.getElementById('status');
         const mainUI = document.getElementById('mainUI');
+        const noWalletUI = document.getElementById('noWalletUI');
         const txLinkContainer = document.getElementById('txLinkContainer');
         const txLink = document.getElementById('txLink');
 
@@ -58,16 +74,18 @@
                 }
                 
                 if (userWalletAddress) {
-                    status.innerText = "Wallet Linked! Ready for a pint? 🍻";
+                    // Inside Warpcast with wallet
+                    status.innerText = "Wallet linked! Ready for a pint? 🍻";
+                    mainUI.style.display = "block";
                 } else {
-                    status.innerText = "Open in Warpcast for auto-rewards! ☘️";
-                    userWalletAddress = "0x7e1A62Ce20c3306FaEE687D1000bbcd661c1D510";
+                    // Outside Warpcast or no wallet detected
+                    status.innerText = "You need Warpcast to earn $CRAIC ☘️";
+                    noWalletUI.style.display = "block";
                 }
-                mainUI.style.display = "block";
             } catch (e) {
                 console.error("SDK Error", e);
-                mainUI.style.display = "block";
-                status.innerText = "Ready to pour! 🍻";
+                status.innerText = "You need Warpcast to earn $CRAIC ☘️";
+                noWalletUI.style.display = "block";
             }
 
             navigator.geolocation.getCurrentPosition((pos) => {
@@ -84,7 +102,6 @@
             const appUrl = "https://proof-of-pint.vercel.app";
             const castUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(castText)}&embeds[]=${encodeURIComponent(appUrl)}`;
             
-            // Use SDK if available, otherwise open in browser
             const sdk = window.frame?.sdk;
             if (sdk?.actions?.openUrl) {
                 sdk.actions.openUrl(castUrl);
@@ -145,7 +162,6 @@
                                     txLink.href = `https://basescan.org/tx/${result.tx_hash}`;
                                     txLinkContainer.style.display = "block";
                                 }
-                                // Show share button on success
                                 shareContainer.style.display = "block";
                                 if (window.frame?.sdk?.actions?.vibrate) {
                                     window.frame.sdk.actions.vibrate({ type: 'success' });
