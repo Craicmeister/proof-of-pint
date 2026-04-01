@@ -6,9 +6,3 @@
     }
   ]
 }
-```
-4. Commit changes
-
-Then visit:
-```
-https://proof-of-pint.vercel.app/.well-known/farcaster.json
