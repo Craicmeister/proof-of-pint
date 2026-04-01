@@ -1,16 +1,1 @@
-{
-  "rewrites": [
-    {
-      "source": "/.well-known/farcaster.json",
-      "destination": "/public/.well-known/farcaster.json"
-    },
-    {
-      "source": "/craic.png",
-      "destination": "/public/craic.png"
-    },
-    {
-      "source": "/",
-      "destination": "/index.html"
-    }
-  ]
-}
+{}
