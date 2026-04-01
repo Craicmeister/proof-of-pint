@@ -1,0 +1,13 @@
+{
+  "name": "proof-of-pint",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "echo 'No build needed'"
+  }
+}
+```
+4. Click **Commit changes**
+
+Then wait for Vercel to redeploy and try:
+```
+https://proof-of-pint.vercel.app/test.html
