@@ -7,7 +7,7 @@
     <title>Proof of Pint ☘️</title>
 
     <!-- FARCASTER MINI APP META TAG -->
-    <meta name="fc:frame" content='{"version":"next","imageUrl":"https://proof-of-pint.vercel.app/craic.png","button":{"title":"Check-in Pint","action":{"type":"launch_frame","name":"Proof of Pint","url":"https://proof-of-pint.vercel.app","splashImageUrl":"https://proof-of-pint.vercel.app/craic.png","splashBackgroundColor":"#16a34a"}}}' />
+    <meta name="fc:frame" content='{"version":"next","imageUrl":"https://proof-of-pint.vercel.app/frame.png","button":{"title":"Check-in Pint","action":{"type":"launch_frame","name":"Proof of Pint","url":"https://proof-of-pint.vercel.app","splashImageUrl":"https://proof-of-pint.vercel.app/craic.png","splashBackgroundColor":"#16a34a"}}}' />
 
     <!-- FARCASTER FRAME SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk/dist/index.umd.js"></script>
@@ -22,6 +22,12 @@
             📸 Take Pint Photo
         </button>
     </div>
+
+    <div id="shareContainer" style="margin-top: 20px; display: none;">
+        <button id="shareBtn" style="padding: 12px 24px; font-size: 1rem; font-weight: bold; background-color: #7c3aed; color: white; border: none; border-radius: 12px; cursor: pointer; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+            🟣 Share on Farcaster
+        </button>
+    </div>
     
     <div id="txLinkContainer" style="margin-top: 25px; display: none;">
         <a id="txLink" href="#" target="_blank" style="color: #0052FF; text-decoration: none; font-weight: bold;">View $CRAIC on BaseScan 🔗</a>
@@ -31,6 +37,8 @@
 
     <script>
         const pintBtn = document.getElementById('pintBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const shareContainer = document.getElementById('shareContainer');
         const status = document.getElementById('status');
         const mainUI = document.getElementById('mainUI');
         const txLinkContainer = document.getElementById('txLinkContainer');
@@ -62,7 +70,6 @@
                 status.innerText = "Ready to pour! 🍻";
             }
 
-            // Pre-fetch location to speed up the button click
             navigator.geolocation.getCurrentPosition((pos) => {
                 userLocation.lat = pos.coords.latitude;
                 userLocation.lng = pos.coords.longitude;
@@ -70,6 +77,21 @@
         }
 
         init();
+
+        // Share on Farcaster button
+        shareBtn.onclick = () => {
+            const castText = "Just earned $CRAIC for my daily pint! ☘️🍺 Proof of Pint";
+            const appUrl = "https://proof-of-pint.vercel.app";
+            const castUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(castText)}&embeds[]=${encodeURIComponent(appUrl)}`;
+            
+            // Use SDK if available, otherwise open in browser
+            const sdk = window.frame?.sdk;
+            if (sdk?.actions?.openUrl) {
+                sdk.actions.openUrl(castUrl);
+            } else {
+                window.open(castUrl, '_blank');
+            }
+        };
 
         pintBtn.onclick = () => {
             const input = document.createElement('input');
@@ -83,6 +105,7 @@
 
                 pintBtn.disabled = true;
                 pintBtn.style.opacity = "0.6";
+                shareContainer.style.display = "none";
                 status.innerText = "Processing pint... 🧊";
 
                 const reader = new FileReader();
@@ -122,6 +145,8 @@
                                     txLink.href = `https://basescan.org/tx/${result.tx_hash}`;
                                     txLinkContainer.style.display = "block";
                                 }
+                                // Show share button on success
+                                shareContainer.style.display = "block";
                                 if (window.frame?.sdk?.actions?.vibrate) {
                                     window.frame.sdk.actions.vibrate({ type: 'success' });
                                 }
