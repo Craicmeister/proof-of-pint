@@ -1,8 +1,8 @@
 {
-  "accountAssociation": { 
-    "header": "eyJmaWQiOiA0NTY3ODksICJ0eXAiOiAiZnJhbWUiLCAiYWxnIjogImV稳定In0", 
-    "payload": "eyJkb21haW4iOiAicHJvb2Ytb2YtcGludC52ZXJjZWwuYXBwIn0", 
-    "signature": "this-will-be-your-secret-code" 
+  "accountAssociation": {
+    "header": "eyJmaWQiOjI4NDg3ODksInR5cGUiOiJhdXRoIiwia2V5IjoiMHhlMzZiRUE3MmNGQjY4MWIwOTA4MjkwMjRiMTBBNGUyODQxYzc3M2I2In0",
+    "payload": "eyJkb21haW4iOiJwcm9vZi1vZi1waW50LnZlcmNlbC5hcHAifQ",
+    "signature": "fdS+1CB63s+nN9uc3kJBNEH5Hn9j7YIYBS4IiEr/+sV4saEW6gXQWwaqZXowUeTcXG/ge+rS11zLcrzBZnsMFxs="
   },
   "frame": {
     "version": "1",
