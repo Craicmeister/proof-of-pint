@@ -126,7 +126,7 @@
                                 status.innerText = result.message;
                                 if(result.tx_hash) {
                                     // Corrected template literal and path
-                                    txLink.href = `https://basescan.org{result.tx_hash}`;
+                                    txLink.href = `https://basescan.org/tx/${result.tx_hash}`;
                                     txLinkContainer.style.display = "block";
                                 }
                                 if (window.frame?.sdk?.actions?.vibrate) {
