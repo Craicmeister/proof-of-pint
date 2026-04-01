@@ -7,12 +7,11 @@
   "frame": {
     "version": "1",
     "name": "Proof of Pint",
-    "iconUrl": "https://vercel.app",
+    "iconUrl": "https://proof-of-pint.vercel.app/craic.png",
     "homeUrl": "https://proof-of-pint.vercel.app",
-    "imageUrl": "https://vercel.app",
+    "imageUrl": "https://proof-of-pint.vercel.app/craic.png",
     "buttonTitle": "Check-in Pint",
-    "splashImageUrl": "https://vercel.app",
+    "splashImageUrl": "https://proof-of-pint.vercel.app/craic.png",
     "splashBackgroundColor": "#16a34a"
   }
 }
-
