@@ -1,1 +1,14 @@
-{}
+{
+  "rewrites": [
+    {
+      "source": "/.well-known/farcaster.json",
+      "destination": "/public/.well-known/farcaster.json"
+    }
+  ]
+}
+```
+4. Commit changes
+
+Then visit:
+```
+https://proof-of-pint.vercel.app/.well-known/farcaster.json
