@@ -7,57 +7,70 @@
     <title>Proof of Pint ☘️</title>
     <meta name="fc:frame" content='{"version":"next","imageUrl":"https://proof-of-pint.vercel.app/frame.png","button":{"title":"Check-in Pint","action":{"type":"launch_frame","name":"Proof of Pint","url":"https://proof-of-pint.vercel.app","splashImageUrl":"https://proof-of-pint.vercel.app/craic.png","splashBackgroundColor":"#16a34a"}}}' />
 </head>
-<body style="text-align: center; padding: 50px; font-family: -apple-system, sans-serif; background-color: #f9fafb; color: #333;">
+<body style="text-align: center; padding: 20px; font-family: -apple-system, sans-serif; background-color: #f9fafb; color: #333;">
 
-    <h1 style="color: #16a34a; font-size: 2.5rem; margin-bottom: 10px;">☘️ Proof of Pint</h1>
-    <p id="status" style="font-size: 1.2rem; margin-bottom: 30px; min-height: 3em; padding: 0 20px;">Checking your $CRAIC status... ⏳</p>
-    
-    <div id="mainUI" style="display: none;">
-        <label for="fileInput" style="display: inline-block; padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border-radius: 12px; cursor: pointer; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
-            📸 Take Pint Photo
-        </label>
-        <input id="fileInput" type="file" accept="image/*" capture="environment" style="display: none;" />
+    <h1 style="color: #16a34a; font-size: 2rem; margin-bottom: 10px;">☘️ Proof of Pint</h1>
+    <p id="status" style="font-size: 1.1rem; margin-bottom: 20px; min-height: 3em; padding: 0 20px;">Checking your $CRAIC status... ⏳</p>
+
+    <!-- Camera UI -->
+    <div id="cameraUI" style="display: none;">
+        <video id="video" autoplay playsinline style="width: 100%; max-width: 320px; border-radius: 12px; margin-bottom: 12px;"></video>
+        <br>
+        <button id="snapBtn" style="padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border: none; border-radius: 12px; cursor: pointer; width: 240px;">
+            📸 Snap Pint!
+        </button>
+        <canvas id="canvas" style="display:none;"></canvas>
     </div>
 
+    <!-- MAIN UI -->
+    <div id="mainUI" style="display: none;">
+        <button id="pintBtn" style="padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border: none; border-radius: 12px; cursor: pointer; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+            📸 Take Pint Photo
+        </button>
+    </div>
+
+    <!-- SHARE BUTTON -->
     <div id="shareContainer" style="margin-top: 20px; display: none;">
-        <button id="shareBtn" style="padding: 12px 24px; font-size: 1rem; font-weight: bold; background-color: #7c3aed; color: white; border: none; border-radius: 12px; cursor: pointer; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+        <button id="shareBtn" style="padding: 12px 24px; font-size: 1rem; font-weight: bold; background-color: #7c3aed; color: white; border: none; border-radius: 12px; cursor: pointer; width: 240px;">
             🟣 Share on Farcaster
         </button>
     </div>
 
+    <!-- NO WALLET UI -->
     <div id="noWalletUI" style="display: none; margin-top: 10px;">
         <p style="font-size: 1rem; color: #555; margin-bottom: 20px; padding: 0 20px;">
             To earn $CRAIC you need a Farcaster account with a connected wallet.
         </p>
-        <a href="https://warpcast.com/download" target="_blank" style="display: inline-block; padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border-radius: 12px; text-decoration: none; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+        <a href="https://warpcast.com/download" target="_blank" style="display: inline-block; padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border-radius: 12px; text-decoration: none; width: 240px;">
             Open in Warpcast ☘️
         </a>
-        <p style="margin-top: 16px; font-size: 0.9rem; color: #888;">
-            Don't have Warpcast yet? <a href="https://warpcast.com/download" target="_blank" style="color: #16a34a; font-weight: bold;">Download here</a>
-        </p>
     </div>
     
     <div id="txLinkContainer" style="margin-top: 25px; display: none;">
         <a id="txLink" href="#" target="_blank" style="color: #0052FF; text-decoration: none; font-weight: bold;">View $CRAIC on BaseScan 🔗</a>
     </div>
 
-    <p style="margin-top: 50px; color: #888; font-style: italic; font-size: 0.9rem;">Powered by $CRAIC • Built for Farcaster</p>
+    <p style="margin-top: 30px; color: #888; font-style: italic; font-size: 0.9rem;">Powered by $CRAIC • Built for Farcaster</p>
 
     <script type="module">
         import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
 
-        const fileInput = document.getElementById('fileInput');
+        const pintBtn = document.getElementById('pintBtn');
+        const snapBtn = document.getElementById('snapBtn');
         const shareBtn = document.getElementById('shareBtn');
         const shareContainer = document.getElementById('shareContainer');
         const status = document.getElementById('status');
         const mainUI = document.getElementById('mainUI');
+        const cameraUI = document.getElementById('cameraUI');
         const noWalletUI = document.getElementById('noWalletUI');
         const txLinkContainer = document.getElementById('txLinkContainer');
         const txLink = document.getElementById('txLink');
-        const label = document.querySelector('label[for="fileInput"]');
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
 
         let userWalletAddress = null;
         let userLocation = { lat: null, lng: null };
+        let stream = null;
 
         async function init() {
             try {
@@ -70,14 +83,11 @@
 
                 if (fid) {
                     userWalletAddress = `fid:${fid}`;
-
-                    // Request camera permission immediately on load
                     try {
                         await sdk.actions.requestCameraAndMicrophoneAccess();
                     } catch(camErr) {
                         console.log("Camera permission:", camErr);
                     }
-
                     status.innerText = "Wallet linked! Ready for a pint? 🍻";
                     mainUI.style.display = "block";
                 } else {
@@ -97,69 +107,69 @@
 
         init();
 
-        fileInput.onchange = async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+        // Open camera using getUserMedia
+        pintBtn.onclick = async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' }, 
+                    audio: false 
+                });
+                video.srcObject = stream;
+                mainUI.style.display = "none";
+                cameraUI.style.display = "block";
+                status.innerText = "Point at your pint and snap! 🍺";
+            } catch(err) {
+                status.style.color = "#dc2626";
+                status.innerText = "Camera error: " + err.message;
+            }
+        };
 
-            label.style.opacity = "0.6";
-            label.style.pointerEvents = "none";
-            shareContainer.style.display = "none";
-            status.innerText = "Processing pint... 🧊";
+        // Snap photo from video stream
+        snapBtn.onclick = async () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            // Stop camera stream
+            if (stream) stream.getTracks().forEach(t => t.stop());
+            cameraUI.style.display = "none";
+            mainUI.style.display = "block";
+            status.innerText = "Verifying with the bar... ☘️";
+            status.style.color = "#333";
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = async () => {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800;
-                    const scaleSize = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scaleSize;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                    
-                    status.innerText = "Verifying with the bar... ☘️";
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
 
-                    try {
-                        const response = await fetch('/api/verify', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                image_base64: compressedBase64,
-                                lat: userLocation.lat,
-                                lng: userLocation.lng,
-                                user_id: userWalletAddress
-                            })
-                        });
+            try {
+                const response = await fetch('/api/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        image_base64: compressedBase64,
+                        lat: userLocation.lat,
+                        lng: userLocation.lng,
+                        user_id: userWalletAddress
+                    })
+                });
 
-                        const result = await response.json();
+                const result = await response.json();
 
-                        if (response.ok) {
-                            status.style.color = "#16a34a";
-                            status.innerText = result.message;
-                            if (result.tx_hash) {
-                                txLink.href = `https://basescan.org/tx/${result.tx_hash}`;
-                                txLinkContainer.style.display = "block";
-                            }
-                            shareContainer.style.display = "block";
-                            try { sdk.actions.vibrate({ type: 'success' }); } catch {}
-                        } else {
-                            status.style.color = "#dc2626";
-                            status.innerText = result.message || "Try a different angle! 🧐";
-                        }
-                    } catch (err) {
-                        status.style.color = "#dc2626";
-                        status.innerText = "The tap is broken. Try again! 📉";
-                    } finally {
-                        label.style.opacity = "1";
-                        label.style.pointerEvents = "auto";
-                        fileInput.value = "";
+                if (response.ok) {
+                    status.style.color = "#16a34a";
+                    status.innerText = result.message;
+                    if (result.tx_hash) {
+                        txLink.href = `https://basescan.org/tx/${result.tx_hash}`;
+                        txLinkContainer.style.display = "block";
                     }
-                };
-            };
-            reader.readAsDataURL(file);
+                    shareContainer.style.display = "block";
+                    try { sdk.actions.vibrate({ type: 'success' }); } catch {}
+                } else {
+                    status.style.color = "#dc2626";
+                    status.innerText = result.message || "Try a different angle! 🧐";
+                }
+            } catch (err) {
+                status.style.color = "#dc2626";
+                status.innerText = "The tap is broken. Try again! 📉";
+            }
         };
 
         shareBtn.onclick = () => {
