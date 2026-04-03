@@ -69,7 +69,7 @@
         const canvas = document.getElementById('canvas');
 
         let userWalletAddress = null;
-        let userLocation = { lat: null, lng: null };
+        let userLocation = { lat: 53.2707, lng: -9.0568 }; // Default to Galway
         let stream = null;
 
         async function init() {
@@ -99,15 +99,17 @@
                 noWalletUI.style.display = "block";
             }
 
+            // Get real location — update from default if available
             navigator.geolocation.getCurrentPosition((pos) => {
                 userLocation.lat = pos.coords.latitude;
                 userLocation.lng = pos.coords.longitude;
+            }, (err) => {
+                console.log("Location unavailable, using default", err);
             });
         }
 
         init();
 
-        // Open camera using getUserMedia
         pintBtn.onclick = async () => {
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ 
@@ -124,13 +126,11 @@
             }
         };
 
-        // Snap photo from video stream
         snapBtn.onclick = async () => {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
             
-            // Stop camera stream
             if (stream) stream.getTracks().forEach(t => t.stop());
             cameraUI.style.display = "none";
             mainUI.style.display = "block";
@@ -145,8 +145,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         image_base64: compressedBase64,
-                        lat: userLocation.lat,
-                        lng: userLocation.lng,
+                        lat: userLocation.lat || 53.2707,
+                        lng: userLocation.lng || -9.0568,
                         user_id: userWalletAddress
                     })
                 });
