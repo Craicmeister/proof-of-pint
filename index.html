@@ -10,39 +10,174 @@
 <body style="text-align: center; padding: 50px; font-family: -apple-system, sans-serif; background-color: #f9fafb; color: #333;">
 
     <h1 style="color: #16a34a; font-size: 2.5rem; margin-bottom: 10px;">☘️ Proof of Pint</h1>
+    <p id="status" style="font-size: 1.2rem; margin-bottom: 30px; min-height: 3em; padding: 0 20px;">Checking your $CRAIC status... ⏳</p>
     
-    <div id="debug" style="background:#f0f0f0; padding:20px; margin:20px; border-radius:8px; text-align:left; font-size:12px; font-family:monospace; word-break:break-all;">
-        Loading...
+    <!-- MAIN UI - shown inside Warpcast -->
+    <div id="mainUI" style="display: none;">
+        <button id="pintBtn" style="padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border: none; border-radius: 12px; cursor: pointer; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+            📸 Take Pint Photo
+        </button>
     </div>
+
+    <!-- SHARE BUTTON - shown after successful verification -->
+    <div id="shareContainer" style="margin-top: 20px; display: none;">
+        <button id="shareBtn" style="padding: 12px 24px; font-size: 1rem; font-weight: bold; background-color: #7c3aed; color: white; border: none; border-radius: 12px; cursor: pointer; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+            🟣 Share on Farcaster
+        </button>
+    </div>
+
+    <!-- NO WALLET UI - shown outside Warpcast -->
+    <div id="noWalletUI" style="display: none; margin-top: 10px;">
+        <p style="font-size: 1rem; color: #555; margin-bottom: 20px; padding: 0 20px;">
+            To earn $CRAIC you need a Farcaster account with a connected wallet.
+        </p>
+        <a href="https://warpcast.com/download" target="_blank" style="display: inline-block; padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border-radius: 12px; text-decoration: none; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+            Open in Warpcast ☘️
+        </a>
+        <p style="margin-top: 16px; font-size: 0.9rem; color: #888;">
+            Don't have Warpcast yet? <a href="https://warpcast.com/download" target="_blank" style="color: #16a34a; font-weight: bold;">Download here</a>
+        </p>
+    </div>
+    
+    <div id="txLinkContainer" style="margin-top: 25px; display: none;">
+        <a id="txLink" href="#" target="_blank" style="color: #0052FF; text-decoration: none; font-weight: bold;">View $CRAIC on BaseScan 🔗</a>
+    </div>
+
+    <p style="margin-top: 50px; color: #888; font-style: italic; font-size: 0.9rem;">Powered by $CRAIC • Built for Farcaster</p>
 
     <script type="module">
         import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
-        
-        const debug = document.getElementById('debug');
-        let info = {};
 
-        try {
-            // Small delay to let Warpcast inject context
-            await new Promise(r => setTimeout(r, 500));
+        const pintBtn = document.getElementById('pintBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const shareContainer = document.getElementById('shareContainer');
+        const status = document.getElementById('status');
+        const mainUI = document.getElementById('mainUI');
+        const noWalletUI = document.getElementById('noWalletUI');
+        const txLinkContainer = document.getElementById('txLinkContainer');
+        const txLink = document.getElementById('txLink');
 
-            // Call ready() 
-            sdk.actions.ready();
-            info.ready_called = true;
+        let userWalletAddress = null;
+        let userLocation = { lat: null, lng: null };
 
-            // Wait a bit more then get context
-            await new Promise(r => setTimeout(r, 500));
-            const context = await sdk.context;
-            info.context = JSON.stringify(context);
-            info.fid = context?.user?.fid;
-            info.username = context?.user?.username;
+        async function init() {
+            try {
+                // Small delay to let Warpcast inject context
+                await new Promise(r => setTimeout(r, 500));
 
-        } catch(e) {
-            info.error = e.message;
+                // Call ready() to hide splash screen
+                sdk.actions.ready();
+
+                // Wait then get context
+                await new Promise(r => setTimeout(r, 500));
+                const context = await sdk.context;
+                const fid = context?.user?.fid;
+
+                if (fid) {
+                    userWalletAddress = `fid:${fid}`;
+                    status.innerText = "Wallet linked! Ready for a pint? 🍻";
+                    mainUI.style.display = "block";
+                } else {
+                    throw new Error("No FID");
+                }
+
+            } catch(e) {
+                console.error("SDK Error", e);
+                status.innerText = "You need Warpcast to earn $CRAIC ☘️";
+                noWalletUI.style.display = "block";
+            }
+
+            navigator.geolocation.getCurrentPosition((pos) => {
+                userLocation.lat = pos.coords.latitude;
+                userLocation.lng = pos.coords.longitude;
+            });
         }
 
-        debug.innerHTML = JSON.stringify(info, null, 2)
-            .replace(/\n/g, '<br>')
-            .replace(/ /g, '&nbsp;');
+        init();
+
+        shareBtn.onclick = () => {
+            const castText = "Just earned $CRAIC for my daily pint! ☘️🍺 Proof of Pint";
+            const appUrl = "https://proof-of-pint.vercel.app";
+            const castUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(castText)}&embeds[]=${encodeURIComponent(appUrl)}`;
+            try {
+                sdk.actions.openUrl(castUrl);
+            } catch {
+                window.open(castUrl, '_blank');
+            }
+        };
+
+        pintBtn.onclick = () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'environment';
+            
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                pintBtn.disabled = true;
+                pintBtn.style.opacity = "0.6";
+                shareContainer.style.display = "none";
+                status.innerText = "Processing pint... 🧊";
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = async () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800;
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                        
+                        status.innerText = "Verifying with the bar... ☘️";
+
+                        try {
+                            const response = await fetch('/api/verify', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    image_base64: compressedBase64,
+                                    lat: userLocation.lat,
+                                    lng: userLocation.lng,
+                                    user_id: userWalletAddress
+                                })
+                            });
+
+                            const result = await response.json();
+
+                            if (response.ok) {
+                                status.style.color = "#16a34a";
+                                status.innerText = result.message;
+                                if (result.tx_hash) {
+                                    txLink.href = `https://basescan.org/tx/${result.tx_hash}`;
+                                    txLinkContainer.style.display = "block";
+                                }
+                                shareContainer.style.display = "block";
+                                try { sdk.actions.vibrate({ type: 'success' }); } catch {}
+                            } else {
+                                status.style.color = "#dc2626";
+                                status.innerText = result.message || "Try a different angle! 🧐";
+                            }
+                        } catch (err) {
+                            status.style.color = "#dc2626";
+                            status.innerText = "The tap is broken. Try again! 📉";
+                        } finally {
+                            pintBtn.disabled = false;
+                            pintBtn.style.opacity = "1";
+                        }
+                    };
+                };
+                reader.readAsDataURL(file);
+            };
+
+            input.click();
+        };
     </script>
 </body>
 </html>
