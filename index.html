@@ -24,31 +24,20 @@
             
             try {
                 const sdk = miniapp?.sdk;
-                info.sdk_found = !!sdk;
-
-                // Call ready() first
                 sdk.actions.ready();
-                info.ready_called = true;
 
-                // Try context as direct property first
-                const contextDirect = sdk.context;
-                info.context_type = typeof contextDirect;
-                info.context_is_promise = contextDirect instanceof Promise;
+                // context is a function — call it!
+                const result = sdk.context();
+                info.result_type = typeof result;
+                info.result_is_promise = result instanceof Promise;
 
-                // Try both ways
-                let context;
-                if (contextDirect instanceof Promise) {
-                    context = await contextDirect;
-                } else {
-                    context = contextDirect;
-                }
-
+                // await it if it returns a promise
+                const context = result instanceof Promise ? await result : result;
                 info.context = JSON.stringify(context);
                 info.fid = context?.user?.fid;
 
             } catch(e) {
                 info.error = e.message;
-                info.stack = e.stack;
             }
 
             debug.innerHTML = JSON.stringify(info, null, 2)
