@@ -9,8 +9,8 @@
     <!-- FARCASTER MINI APP META TAG -->
     <meta name="fc:frame" content='{"version":"next","imageUrl":"https://proof-of-pint.vercel.app/frame.png","button":{"title":"Check-in Pint","action":{"type":"launch_frame","name":"Proof of Pint","url":"https://proof-of-pint.vercel.app","splashImageUrl":"https://proof-of-pint.vercel.app/craic.png","splashBackgroundColor":"#16a34a"}}}' />
 
-    <!-- FARCASTER FRAME SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk/dist/index.umd.js"></script>
+    <!-- FARCASTER MINI APP SDK - correct package -->
+    <script src="https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk/dist/index.umd.js"></script>
 </head>
 <body style="text-align: center; padding: 50px; font-family: -apple-system, sans-serif; background-color: #f9fafb; color: #333;">
 
@@ -62,28 +62,38 @@
 
         let userWalletAddress = null;
         let userLocation = { lat: null, lng: null };
+        let farcasterSdk = null;
 
         async function init() {
-            const sdk = window.frame?.sdk;
-
             try {
-                if (sdk) {
-                    const context = await sdk.context;
-                    userWalletAddress = context?.user?.address || context?.address;
-                    sdk.actions.ready();
-                }
-                
-                if (userWalletAddress) {
-                    // Inside Warpcast with wallet
-                    status.innerText = "Wallet linked! Ready for a pint? 🍻";
-                    mainUI.style.display = "block";
+                // Get SDK from correct global — miniapp-sdk exposes as window.FarcasterMiniAppSDK
+                farcasterSdk = window.FarcasterMiniAppSDK?.sdk || window.sdk || null;
+
+                if (farcasterSdk) {
+                    // Get context
+                    const context = await farcasterSdk.context;
+                    const user = context?.user;
+                    
+                    // FID means they are in Warpcast — use their FID as identifier
+                    if (user?.fid) {
+                        userWalletAddress = context?.client?.verifiedAddresses?.[0] 
+                            || `fid:${user.fid}`;
+                        status.innerText = `Wallet linked! Ready for a pint? 🍻`;
+                        mainUI.style.display = "block";
+                    } else {
+                        throw new Error("No user found");
+                    }
+
+                    // Signal app is ready — hides splash screen
+                    await farcasterSdk.actions.ready();
+
                 } else {
-                    // Outside Warpcast or no wallet detected
-                    status.innerText = "You need Warpcast to earn $CRAIC ☘️";
-                    noWalletUI.style.display = "block";
+                    throw new Error("No SDK");
                 }
+
             } catch (e) {
                 console.error("SDK Error", e);
+                // Not in Warpcast — show download prompt
                 status.innerText = "You need Warpcast to earn $CRAIC ☘️";
                 noWalletUI.style.display = "block";
             }
@@ -94,17 +104,15 @@
             });
         }
 
-        init();
+        window.addEventListener('load', init);
 
         // Share on Farcaster button
         shareBtn.onclick = () => {
             const castText = "Just earned $CRAIC for my daily pint! ☘️🍺 Proof of Pint";
             const appUrl = "https://proof-of-pint.vercel.app";
             const castUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(castText)}&embeds[]=${encodeURIComponent(appUrl)}`;
-            
-            const sdk = window.frame?.sdk;
-            if (sdk?.actions?.openUrl) {
-                sdk.actions.openUrl(castUrl);
+            if (farcasterSdk?.actions?.openUrl) {
+                farcasterSdk.actions.openUrl(castUrl);
             } else {
                 window.open(castUrl, '_blank');
             }
@@ -163,8 +171,8 @@
                                     txLinkContainer.style.display = "block";
                                 }
                                 shareContainer.style.display = "block";
-                                if (window.frame?.sdk?.actions?.vibrate) {
-                                    window.frame.sdk.actions.vibrate({ type: 'success' });
+                                if (farcasterSdk?.actions?.vibrate) {
+                                    farcasterSdk.actions.vibrate({ type: 'success' });
                                 }
                             } else {
                                 status.style.color = "#dc2626";
