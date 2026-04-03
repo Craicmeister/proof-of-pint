@@ -4,12 +4,12 @@
     "payload": "eyJkb21haW4iOiJwcm9vZi1vZi1waW50LnZlcmNlbC5hcHAifQ",
     "signature": "fdS+1CB63s+nN9uc3kJBNEH5Hn9j7YIYBS4IiEr/+sV4saEW6gXQWwaqZXowUeTcXG/ge+rS11zLcrzBZnsMFxs="
   },
-  "frame": {
+  "miniapp": {
     "version": "1",
     "name": "Proof of Pint",
     "iconUrl": "https://proof-of-pint.vercel.app/craic.png",
     "homeUrl": "https://proof-of-pint.vercel.app",
-    "imageUrl": "https://proof-of-pint.vercel.app/craic.png",
+    "imageUrl": "https://proof-of-pint.vercel.app/frame.png",
     "buttonTitle": "Check-in Pint",
     "splashImageUrl": "https://proof-of-pint.vercel.app/craic.png",
     "splashBackgroundColor": "#16a34a"
