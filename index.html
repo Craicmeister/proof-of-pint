@@ -26,15 +26,11 @@
                 const sdk = miniapp?.sdk;
                 sdk.actions.ready();
 
-                // context is a function — call it!
-                const result = sdk.context();
-                info.result_type = typeof result;
-                info.result_is_promise = result instanceof Promise;
-
-                // await it if it returns a promise
-                const context = result instanceof Promise ? await result : result;
+                // Call context() and await the promise
+                const context = await sdk.context();
                 info.context = JSON.stringify(context);
                 info.fid = context?.user?.fid;
+                info.username = context?.user?.username;
 
             } catch(e) {
                 info.error = e.message;
