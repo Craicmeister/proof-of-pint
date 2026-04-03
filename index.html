@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proof of Pint ☘️</title>
     <meta name="fc:frame" content='{"version":"next","imageUrl":"https://proof-of-pint.vercel.app/frame.png","button":{"title":"Check-in Pint","action":{"type":"launch_frame","name":"Proof of Pint","url":"https://proof-of-pint.vercel.app","splashImageUrl":"https://proof-of-pint.vercel.app/craic.png","splashBackgroundColor":"#16a34a"}}}' />
-    <script src="https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk/dist/index.min.js"></script>
 </head>
 <body style="text-align: center; padding: 50px; font-family: -apple-system, sans-serif; background-color: #f9fafb; color: #333;">
 
@@ -16,32 +15,30 @@
         Loading...
     </div>
 
-    <script>
+    <script type="module">
+        import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+        
         const debug = document.getElementById('debug');
+        let info = {};
 
-        async function init() {
-            let info = {};
-            
-            try {
-                const sdk = miniapp?.sdk;
-                sdk.actions.ready();
+        try {
+            // Call ready() first
+            sdk.actions.ready();
+            info.ready_called = true;
 
-                // Call context() and await the promise
-                const context = await sdk.context();
-                info.context = JSON.stringify(context);
-                info.fid = context?.user?.fid;
-                info.username = context?.user?.username;
+            // Get context
+            const context = await sdk.context;
+            info.context = JSON.stringify(context);
+            info.fid = context?.user?.fid;
+            info.username = context?.user?.username;
 
-            } catch(e) {
-                info.error = e.message;
-            }
-
-            debug.innerHTML = JSON.stringify(info, null, 2)
-                .replace(/\n/g, '<br>')
-                .replace(/ /g, '&nbsp;');
+        } catch(e) {
+            info.error = e.message;
         }
 
-        window.addEventListener('load', init);
+        debug.innerHTML = JSON.stringify(info, null, 2)
+            .replace(/\n/g, '<br>')
+            .replace(/ /g, '&nbsp;');
     </script>
 </body>
 </html>
