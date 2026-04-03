@@ -22,11 +22,15 @@
         let info = {};
 
         try {
-            // Call ready() first
+            // Small delay to let Warpcast inject context
+            await new Promise(r => setTimeout(r, 500));
+
+            // Call ready() 
             sdk.actions.ready();
             info.ready_called = true;
 
-            // Get context
+            // Wait a bit more then get context
+            await new Promise(r => setTimeout(r, 500));
             const context = await sdk.context;
             info.context = JSON.stringify(context);
             info.fid = context?.user?.fid;
