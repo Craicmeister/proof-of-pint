@@ -12,7 +12,6 @@
     <h1 style="color: #16a34a; font-size: 2.5rem; margin-bottom: 10px;">☘️ Proof of Pint</h1>
     <p id="status" style="font-size: 1.2rem; margin-bottom: 30px; min-height: 3em; padding: 0 20px;">Checking your $CRAIC status... ⏳</p>
     
-    <!-- MAIN UI - file input is visible and inline, not triggered by JS -->
     <div id="mainUI" style="display: none;">
         <label for="fileInput" style="display: inline-block; padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border-radius: 12px; cursor: pointer; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
             📸 Take Pint Photo
@@ -20,14 +19,12 @@
         <input id="fileInput" type="file" accept="image/*" capture="environment" style="display: none;" />
     </div>
 
-    <!-- SHARE BUTTON -->
     <div id="shareContainer" style="margin-top: 20px; display: none;">
         <button id="shareBtn" style="padding: 12px 24px; font-size: 1rem; font-weight: bold; background-color: #7c3aed; color: white; border: none; border-radius: 12px; cursor: pointer; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
             🟣 Share on Farcaster
         </button>
     </div>
 
-    <!-- NO WALLET UI -->
     <div id="noWalletUI" style="display: none; margin-top: 10px;">
         <p style="font-size: 1rem; color: #555; margin-bottom: 20px; padding: 0 20px;">
             To earn $CRAIC you need a Farcaster account with a connected wallet.
@@ -57,6 +54,7 @@
         const noWalletUI = document.getElementById('noWalletUI');
         const txLinkContainer = document.getElementById('txLinkContainer');
         const txLink = document.getElementById('txLink');
+        const label = document.querySelector('label[for="fileInput"]');
 
         let userWalletAddress = null;
         let userLocation = { lat: null, lng: null };
@@ -66,11 +64,20 @@
                 await new Promise(r => setTimeout(r, 500));
                 sdk.actions.ready();
                 await new Promise(r => setTimeout(r, 500));
+
                 const context = await sdk.context;
                 const fid = context?.user?.fid;
 
                 if (fid) {
                     userWalletAddress = `fid:${fid}`;
+
+                    // Request camera permission immediately on load
+                    try {
+                        await sdk.actions.requestCameraAndMicrophoneAccess();
+                    } catch(camErr) {
+                        console.log("Camera permission:", camErr);
+                    }
+
                     status.innerText = "Wallet linked! Ready for a pint? 🍻";
                     mainUI.style.display = "block";
                 } else {
@@ -90,12 +97,10 @@
 
         init();
 
-        // File input change handler
         fileInput.onchange = async (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
-            const label = document.querySelector('label[for="fileInput"]');
             label.style.opacity = "0.6";
             label.style.pointerEvents = "none";
             shareContainer.style.display = "none";
