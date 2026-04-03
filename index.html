@@ -12,7 +12,6 @@
 
     <h1 style="color: #16a34a; font-size: 2.5rem; margin-bottom: 10px;">☘️ Proof of Pint</h1>
     
-    <!-- DEBUG BOX -->
     <div id="debug" style="background:#f0f0f0; padding:20px; margin:20px; border-radius:8px; text-align:left; font-size:12px; font-family:monospace; word-break:break-all;">
         Loading...
     </div>
@@ -27,16 +26,29 @@
                 const sdk = miniapp?.sdk;
                 info.sdk_found = !!sdk;
 
-                // Call ready() FIRST before anything else
+                // Call ready() first
                 sdk.actions.ready();
                 info.ready_called = true;
 
-                // Now get context
-                const context = await sdk.context;
+                // Try context as direct property first
+                const contextDirect = sdk.context;
+                info.context_type = typeof contextDirect;
+                info.context_is_promise = contextDirect instanceof Promise;
+
+                // Try both ways
+                let context;
+                if (contextDirect instanceof Promise) {
+                    context = await contextDirect;
+                } else {
+                    context = contextDirect;
+                }
+
                 info.context = JSON.stringify(context);
+                info.fid = context?.user?.fid;
 
             } catch(e) {
                 info.error = e.message;
+                info.stack = e.stack;
             }
 
             debug.innerHTML = JSON.stringify(info, null, 2)
