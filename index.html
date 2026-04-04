@@ -41,9 +41,12 @@
         <p style="font-size: 1rem; color: #555; margin-bottom: 20px; padding: 0 20px;">
             To earn $CRAIC you need a Farcaster account with a connected wallet.
         </p>
-        <a href="https://warpcast.com/download" target="_blank" style="display: inline-block; padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border-radius: 12px; text-decoration: none; width: 240px;">
+        <a href="https://warpcast.com" target="_blank" style="display: inline-block; padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border-radius: 12px; text-decoration: none; width: 240px;">
             Open in Warpcast ☘️
         </a>
+        <p style="margin-top: 16px; font-size: 0.9rem; color: #888;">
+            Don't have Warpcast yet? <a href="https://warpcast.com" target="_blank" style="color: #16a34a; font-weight: bold;">Download here</a>
+        </p>
     </div>
     
     <div id="txLinkContainer" style="margin-top: 25px; display: none;">
@@ -68,8 +71,9 @@
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
 
-        let userWalletAddress = null;
-        let userLocation = { lat: 53.2707, lng: -9.0568 }; // Default Galway
+        // Always use fid: prefix — let backend do wallet lookup via Neynar
+        let userFID = null;
+        let userLocation = { lat: 53.2707, lng: -9.0568 };
         let stream = null;
 
         async function init() {
@@ -82,10 +86,7 @@
                 const fid = context?.user?.fid;
 
                 if (fid) {
-                    // Try to get verified Ethereum wallet address from context
-                    const verifiedAddresses = context?.user?.verifiedAddresses?.ethAddresses;
-                    userWalletAddress = verifiedAddresses?.[0] || "0x7e1A62Ce20c3306FaEE687D1000bbcd661c1D510";
-
+                    userFID = `fid:${fid}`;
                     try {
                         await sdk.actions.requestCameraAndMicrophoneAccess();
                     } catch(camErr) {
@@ -149,7 +150,7 @@
                         image_base64: compressedBase64,
                         lat: userLocation.lat || 53.2707,
                         lng: userLocation.lng || -9.0568,
-                        user_id: userWalletAddress
+                        user_id: userFID  // Always sends fid:12345 — backend does wallet lookup
                     })
                 });
 
