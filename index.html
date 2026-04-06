@@ -24,7 +24,9 @@
 
     <!-- MAIN UI -->
     <div id="mainUI" style="display: none;">
-        <button id="pintBtn" style="padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border: none; border-radius: 12px; cursor: pointer; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+        <!-- Location status -->
+        <p id="locationStatus" style="font-size: 0.85rem; color: #888; margin-bottom: 12px;">📍 Getting your location...</p>
+        <button id="pintBtn" disabled style="padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border: none; border-radius: 12px; cursor: pointer; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); opacity: 0.5;">
             📸 Take Pint Photo
         </button>
     </div>
@@ -63,6 +65,7 @@
         const shareBtn = document.getElementById('shareBtn');
         const shareContainer = document.getElementById('shareContainer');
         const status = document.getElementById('status');
+        const locationStatus = document.getElementById('locationStatus');
         const mainUI = document.getElementById('mainUI');
         const cameraUI = document.getElementById('cameraUI');
         const noWalletUI = document.getElementById('noWalletUI');
@@ -72,10 +75,25 @@
         const canvas = document.getElementById('canvas');
 
         let userFID = null;
-        let userLocation = { lat: 53.2707, lng: -9.0568 };
+        let userLocation = null; // null until real GPS confirmed
         let stream = null;
         let originalCastHash = null;
-        let verifiedPhotoUrl = null; // Store photo URL after verification
+        let verifiedPhotoUrl = null;
+
+        function enablePintBtn() {
+            pintBtn.disabled = false;
+            pintBtn.style.opacity = '1';
+            locationStatus.textContent = '📍 Location confirmed ✅';
+            locationStatus.style.color = '#16a34a';
+        }
+
+        function locationFailed() {
+            // Allow proceed with warning but no fallback coordinates
+            locationStatus.textContent = '⚠️ Location unavailable — verification may fail';
+            locationStatus.style.color = '#dc2626';
+            pintBtn.disabled = false;
+            pintBtn.style.opacity = '1';
+        }
 
         async function init() {
             try {
@@ -86,7 +104,6 @@
                 const context = await sdk.context;
                 const fid = context?.user?.fid;
 
-                // Capture original cast hash if opened from a cast embed
                 if (context?.location?.type === 'cast_embed') {
                     originalCastHash = context.location.cast?.hash || null;
                 }
@@ -100,6 +117,23 @@
                     }
                     status.innerText = "Wallet linked! Ready for a pint? 🍻";
                     mainUI.style.display = "block";
+
+                    // Request GPS — button stays disabled until we have it
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                            userLocation = {
+                                lat: pos.coords.latitude,
+                                lng: pos.coords.longitude
+                            };
+                            enablePintBtn();
+                        },
+                        (err) => {
+                            console.log("GPS error:", err);
+                            locationFailed();
+                        },
+                        { timeout: 10000, enableHighAccuracy: true }
+                    );
+
                 } else {
                     throw new Error("No FID");
                 }
@@ -108,18 +142,12 @@
                 status.innerText = "You need Warpcast to earn $CRAIC ☘️";
                 noWalletUI.style.display = "block";
             }
-
-            navigator.geolocation.getCurrentPosition((pos) => {
-                userLocation.lat = pos.coords.latitude;
-                userLocation.lng = pos.coords.longitude;
-            }, (err) => {
-                console.log("Location unavailable, using default", err);
-            });
         }
 
         init();
 
         pintBtn.onclick = async () => {
+            if (pintBtn.disabled) return;
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { facingMode: 'environment' }, 
@@ -154,8 +182,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         image_base64: compressedBase64,
-                        lat: userLocation.lat || 53.2707,
-                        lng: userLocation.lng || -9.0568,
+                        lat: userLocation?.lat || null,
+                        lng: userLocation?.lng || null,
                         user_id: userFID
                     })
                 });
@@ -169,7 +197,6 @@
                         txLink.href = `https://basescan.org/tx/${result.tx_hash}`;
                         txLinkContainer.style.display = "block";
                     }
-                    // Store photo URL for sharing
                     verifiedPhotoUrl = result.photo_url || null;
                     shareContainer.style.display = "block";
                     try { sdk.actions.vibrate({ type: 'success' }); } catch {}
@@ -187,13 +214,11 @@
             const castText = "Just scored $CRAIC for my daily pint! ☘️🍺 Proof of Pint";
             const appUrl = "https://proof-of-pint.vercel.app";
 
-            // Build embeds — always include app URL, add photo if available
             let embedsParam = `&embeds[]=${encodeURIComponent(appUrl)}`;
             if (verifiedPhotoUrl) {
                 embedsParam += `&embeds[]=${encodeURIComponent(verifiedPhotoUrl)}`;
             }
 
-            // Reply to original cast if opened from one, otherwise new cast
             let castUrl;
             if (originalCastHash) {
                 castUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(castText)}${embedsParam}&parentCastHash=${originalCastHash}`;
