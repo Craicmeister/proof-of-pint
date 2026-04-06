@@ -71,10 +71,11 @@
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
 
-        // Always use fid: prefix — let backend do wallet lookup via Neynar
         let userFID = null;
         let userLocation = { lat: 53.2707, lng: -9.0568 };
         let stream = null;
+        let originalCastHash = null;
+        let verifiedPhotoUrl = null; // Store photo URL after verification
 
         async function init() {
             try {
@@ -84,6 +85,11 @@
 
                 const context = await sdk.context;
                 const fid = context?.user?.fid;
+
+                // Capture original cast hash if opened from a cast embed
+                if (context?.location?.type === 'cast_embed') {
+                    originalCastHash = context.location.cast?.hash || null;
+                }
 
                 if (fid) {
                     userFID = `fid:${fid}`;
@@ -150,7 +156,7 @@
                         image_base64: compressedBase64,
                         lat: userLocation.lat || 53.2707,
                         lng: userLocation.lng || -9.0568,
-                        user_id: userFID  // Always sends fid:12345 — backend does wallet lookup
+                        user_id: userFID
                     })
                 });
 
@@ -163,6 +169,8 @@
                         txLink.href = `https://basescan.org/tx/${result.tx_hash}`;
                         txLinkContainer.style.display = "block";
                     }
+                    // Store photo URL for sharing
+                    verifiedPhotoUrl = result.photo_url || null;
                     shareContainer.style.display = "block";
                     try { sdk.actions.vibrate({ type: 'success' }); } catch {}
                 } else {
@@ -176,9 +184,23 @@
         };
 
         shareBtn.onclick = () => {
-            const castText = "Just earned $CRAIC for my daily pint! ☘️🍺 Proof of Pint";
+            const castText = "Just scored $CRAIC for my daily pint! ☘️🍺 Proof of Pint";
             const appUrl = "https://proof-of-pint.vercel.app";
-            const castUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(castText)}&embeds[]=${encodeURIComponent(appUrl)}`;
+
+            // Build embeds — always include app URL, add photo if available
+            let embedsParam = `&embeds[]=${encodeURIComponent(appUrl)}`;
+            if (verifiedPhotoUrl) {
+                embedsParam += `&embeds[]=${encodeURIComponent(verifiedPhotoUrl)}`;
+            }
+
+            // Reply to original cast if opened from one, otherwise new cast
+            let castUrl;
+            if (originalCastHash) {
+                castUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(castText)}${embedsParam}&parentCastHash=${originalCastHash}`;
+            } else {
+                castUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(castText)}${embedsParam}`;
+            }
+
             try {
                 sdk.actions.openUrl(castUrl);
             } catch {
