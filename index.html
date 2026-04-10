@@ -6,6 +6,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proof of Pint ☘️</title>
     <meta name="fc:frame" content='{"version":"next","imageUrl":"https://proof-of-pint.vercel.app/frame.png","button":{"title":"Check-in Pint","action":{"type":"launch_frame","name":"Proof of Pint","url":"https://proof-of-pint.vercel.app","splashImageUrl":"https://proof-of-pint.vercel.app/craic.png","splashBackgroundColor":"#16a34a"}}}' />
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            text-align: center;
+            padding: 20px;
+            font-family: -apple-system, sans-serif;
+            background-color: #f9fafb;
+            color: #333;
+        }
+
+        /* ---- PUB SELECTOR OVERLAY ---- */
+        #pubSelector {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        #pubSelector.active { display: flex; }
+        #pubSelectorSheet {
+            background: #fff;
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-width: 480px;
+            padding: 24px 20px 40px;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to   { transform: translateY(0); }
+        }
+        #pubSelectorTitle {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 6px;
+        }
+        #pubSelectorSubtitle {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 18px;
+        }
+        .pub-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            background: #f3f4f6;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: left;
+        }
+        .pub-option:hover, .pub-option:active {
+            border-color: #16a34a;
+            background: #f0fdf4;
+        }
+        .pub-option-info { flex: 1; }
+        .pub-option-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 2px;
+        }
+        .pub-option-address {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        .pub-option-dist {
+            font-size: 0.8rem;
+            color: #16a34a;
+            font-weight: 600;
+            margin-left: 12px;
+            white-space: nowrap;
+        }
+        .pub-option-arrow {
+            font-size: 1.2rem;
+            color: #16a34a;
+            margin-left: 8px;
+        }
+        #pubSelectorCancel {
+            margin-top: 8px;
+            width: 100%;
+            padding: 13px;
+            background: none;
+            border: 1.5px solid #ddd;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            color: #666;
+            cursor: pointer;
+        }
+        #pubSelectorLoading {
+            display: none;
+            padding: 20px;
+            color: #16a34a;
+            font-size: 1rem;
+        }
+    </style>
 </head>
 <body style="text-align: center; padding: 20px; font-family: -apple-system, sans-serif; background-color: #f9fafb; color: #333;">
 
@@ -24,7 +126,6 @@
 
     <!-- MAIN UI -->
     <div id="mainUI" style="display: none;">
-        <!-- Location status -->
         <p id="locationStatus" style="font-size: 0.85rem; color: #888; margin-bottom: 12px;">📍 Getting your location...</p>
         <button id="pintBtn" disabled style="padding: 15px 30px; font-size: 1.1rem; font-weight: bold; background-color: #16a34a; color: white; border: none; border-radius: 12px; cursor: pointer; width: 240px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); opacity: 0.5;">
             📸 Take Pint Photo
@@ -50,35 +151,53 @@
             Don't have Warpcast yet? <a href="https://warpcast.com" target="_blank" style="color: #16a34a; font-weight: bold;">Download here</a>
         </p>
     </div>
-    
+
     <div id="txLinkContainer" style="margin-top: 25px; display: none;">
         <a id="txLink" href="#" target="_blank" style="color: #0052FF; text-decoration: none; font-weight: bold;">View $CRAIC on BaseScan 🔗</a>
     </div>
 
     <p style="margin-top: 30px; color: #888; font-style: italic; font-size: 0.9rem;">Powered by $CRAIC</p>
 
+    <!-- PUB SELECTOR POPUP -->
+    <div id="pubSelector">
+        <div id="pubSelectorSheet">
+            <div id="pubSelectorTitle">Which pub are you in? 🍺</div>
+            <div id="pubSelectorSubtitle">We found nearby pubs — tap yours to claim your $CRAIC</div>
+            <div id="pubSelectorLoading">Finding nearby pubs... ☘️</div>
+            <div id="pubList"></div>
+            <button id="pubSelectorCancel">Cancel</button>
+        </div>
+    </div>
+
     <script type="module">
         import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
 
-        const pintBtn = document.getElementById('pintBtn');
-        const snapBtn = document.getElementById('snapBtn');
-        const shareBtn = document.getElementById('shareBtn');
+        const pintBtn       = document.getElementById('pintBtn');
+        const snapBtn       = document.getElementById('snapBtn');
+        const shareBtn      = document.getElementById('shareBtn');
         const shareContainer = document.getElementById('shareContainer');
-        const status = document.getElementById('status');
+        const status        = document.getElementById('status');
         const locationStatus = document.getElementById('locationStatus');
-        const mainUI = document.getElementById('mainUI');
-        const cameraUI = document.getElementById('cameraUI');
-        const noWalletUI = document.getElementById('noWalletUI');
+        const mainUI        = document.getElementById('mainUI');
+        const cameraUI      = document.getElementById('cameraUI');
+        const noWalletUI    = document.getElementById('noWalletUI');
         const txLinkContainer = document.getElementById('txLinkContainer');
-        const txLink = document.getElementById('txLink');
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
+        const txLink        = document.getElementById('txLink');
+        const video         = document.getElementById('video');
+        const canvas        = document.getElementById('canvas');
+        const pubSelector   = document.getElementById('pubSelector');
+        const pubList       = document.getElementById('pubList');
+        const pubSelectorCancel = document.getElementById('pubSelectorCancel');
+        const pubSelectorLoading = document.getElementById('pubSelectorLoading');
 
-        let userFID = null;
-        let userLocation = null; // null until real GPS confirmed
-        let stream = null;
+        let userFID         = null;
+        let userLocation    = null;
+        let stream          = null;
         let originalCastHash = null;
         let verifiedPhotoUrl = null;
+
+        // Stored between step 1 and step 2
+        let pendingVerification = null;
 
         function enablePintBtn() {
             pintBtn.disabled = false;
@@ -88,7 +207,6 @@
         }
 
         function locationFailed() {
-            // Allow proceed with warning but no fallback coordinates
             locationStatus.textContent = '⚠️ Location unavailable — verification may fail';
             locationStatus.style.color = '#dc2626';
             pintBtn.disabled = false;
@@ -118,22 +236,14 @@
                     status.innerText = "Wallet linked! Ready for a pint? 🍻";
                     mainUI.style.display = "block";
 
-                    // Request GPS — button stays disabled until we have it
                     navigator.geolocation.getCurrentPosition(
                         (pos) => {
-                            userLocation = {
-                                lat: pos.coords.latitude,
-                                lng: pos.coords.longitude
-                            };
+                            userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                             enablePintBtn();
                         },
-                        (err) => {
-                            console.log("GPS error:", err);
-                            locationFailed();
-                        },
+                        (err) => { console.log("GPS error:", err); locationFailed(); },
                         { timeout: 10000, enableHighAccuracy: true }
                     );
-
                 } else {
                     throw new Error("No FID");
                 }
@@ -149,9 +259,9 @@
         pintBtn.onclick = async () => {
             if (pintBtn.disabled) return;
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment' }, 
-                    audio: false 
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' },
+                    audio: false
                 });
                 video.srcObject = stream;
                 mainUI.style.display = "none";
@@ -167,20 +277,22 @@
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
-            
+
             if (stream) stream.getTracks().forEach(t => t.stop());
             cameraUI.style.display = "none";
             mainUI.style.display = "block";
-            status.innerText = "Verifying with the bar... ☘️";
+            status.innerText = "Verifying your pint... ☘️";
             status.style.color = "#333";
 
             const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
 
             try {
+                // STEP 1 — find_pubs
                 const response = await fetch('/api/verify', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        action: 'find_pubs',
                         image_base64: compressedBase64,
                         lat: userLocation?.lat || null,
                         lng: userLocation?.lng || null,
@@ -190,42 +302,129 @@
 
                 const result = await response.json();
 
-                if (response.ok) {
-                    status.style.color = "#16a34a";
-                    status.innerText = result.message;
-                    if (result.tx_hash) {
-                        txLink.href = `https://basescan.org/tx/${result.tx_hash}`;
-                        txLinkContainer.style.display = "block";
-                    }
-                    verifiedPhotoUrl = result.photo_url || null;
-                    shareContainer.style.display = "block";
-                    try { sdk.actions.vibrate({ type: 'success' }); } catch {}
+                if (result.status === 'select_pub') {
+                    // Store everything we need for step 2
+                    pendingVerification = {
+                        p_hash:       result.p_hash,
+                        photo_url:    result.photo_url,
+                        country_code: result.country_code,
+                        country_name: result.country_name,
+                        county:       result.county,
+                        is_on_island: result.is_on_island,
+                        lat:          result.lat,
+                        lng:          result.lng,
+                    };
+                    showPubSelector(result.pubs);
+
+                } else if (result.status === 'success') {
+                    // Auto-confirmed (e.g. only one result abroad)
+                    handleSuccess(result);
+
                 } else {
                     status.style.color = "#dc2626";
                     status.innerText = result.message || "Try a different angle! 🧐";
                 }
+
             } catch (err) {
                 status.style.color = "#dc2626";
                 status.innerText = "The tap is broken. Try again! 📉";
             }
         };
 
+        function showPubSelector(pubs) {
+            pubList.innerHTML = '';
+            pubSelectorLoading.style.display = 'none';
+            status.innerText = "Which pub are you in? 🍺";
+
+            if (!pubs || pubs.length === 0) {
+                pubList.innerHTML = '<p style="color:#888;padding:16px;">No nearby pubs found. Try stepping outside briefly.</p>';
+            } else {
+                pubs.forEach(pub => {
+                    const div = document.createElement('div');
+                    div.className = 'pub-option';
+                    const distText = pub.dist_m ? `${pub.dist_m}m away` : '';
+                    div.innerHTML = `
+                        <div class="pub-option-info">
+                            <div class="pub-option-name">${pub.name}</div>
+                            <div class="pub-option-address">${pub.address || ''}</div>
+                        </div>
+                        ${distText ? `<div class="pub-option-dist">${distText}</div>` : ''}
+                        <div class="pub-option-arrow">→</div>
+                    `;
+                    div.onclick = () => confirmPub(pub);
+                    pubList.appendChild(div);
+                });
+            }
+
+            pubSelector.classList.add('active');
+        }
+
+        pubSelectorCancel.onclick = () => {
+            pubSelector.classList.remove('active');
+            pendingVerification = null;
+            status.innerText = "Cancelled. Try again when you're ready! ☘️";
+        };
+
+        async function confirmPub(pub) {
+            pubSelector.classList.remove('active');
+            status.innerText = `Confirmed! Sending 5,000 $CRAIC for ${pub.name}... ⛓️`;
+            status.style.color = "#333";
+
+            try {
+                // STEP 2 — confirm_pub
+                const response = await fetch('/api/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action:       'confirm_pub',
+                        place_id:     pub.place_id,
+                        pub_name:     pub.name,
+                        user_id:      userFID,
+                        ...pendingVerification
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    handleSuccess(result);
+                } else {
+                    status.style.color = "#dc2626";
+                    status.innerText = result.message || "Something went wrong. Try again!";
+                }
+
+            } catch(err) {
+                status.style.color = "#dc2626";
+                status.innerText = "The tap is broken. Try again! 📉";
+            }
+        }
+
+        function handleSuccess(result) {
+            status.style.color = "#16a34a";
+            status.innerText = result.message;
+            if (result.tx_hash) {
+                txLink.href = `https://basescan.org/tx/${result.tx_hash}`;
+                txLinkContainer.style.display = "block";
+            }
+            verifiedPhotoUrl = result.photo_url || null;
+            shareContainer.style.display = "block";
+            pendingVerification = null;
+            try { sdk.actions.vibrate({ type: 'success' }); } catch {}
+        }
+
         shareBtn.onclick = () => {
             const castText = "Just scored $CRAIC for my daily pint! ☘️🍺 Proof of Pint";
             const appUrl = "https://proof-of-pint.vercel.app";
-
             let embedsParam = `&embeds[]=${encodeURIComponent(appUrl)}`;
             if (verifiedPhotoUrl) {
                 embedsParam += `&embeds[]=${encodeURIComponent(verifiedPhotoUrl)}`;
             }
-
             let castUrl;
             if (originalCastHash) {
                 castUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(castText)}${embedsParam}&parentCastHash=${originalCastHash}`;
             } else {
                 castUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(castText)}${embedsParam}`;
             }
-
             try {
                 sdk.actions.openUrl(castUrl);
             } catch {
