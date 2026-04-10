@@ -316,8 +316,12 @@
                     };
                     showPubSelector(result.pubs);
 
+                } else if (result.status === 'auto_confirm') {
+                    // Single result or abroad — auto-confirm without selector
+                    status.innerText = `Confirming ${result.pub.name}... ⛓️`;
+                    await confirmPub(result.pub);
+
                 } else if (result.status === 'success') {
-                    // Auto-confirmed (e.g. only one result abroad)
                     handleSuccess(result);
 
                 } else {
