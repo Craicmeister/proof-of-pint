@@ -52,8 +52,11 @@
     /* ── LANDING ── */
     #screen-landing { background: var(--off-white); }
     .landing-hero { position: relative; overflow: hidden; background: #060a0f; padding: 0 0 24px; display: flex; flex-direction: column; align-items: center; }
-    #globeMap { width: 100%; height: 260px; background: #060a0f; }
+
+    /* Globe — slightly smaller, no overflow */
+    #globeMap { width: 100%; height: 220px; background: #060a0f; }
     .mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib { display: none !important; }
+
     .live-pill { display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: var(--radius-full); padding: 6px 14px; margin: 12px 0 16px; }
     .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: livepulse 1.6s ease-in-out infinite; }
     @keyframes livepulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.85)} }
@@ -98,14 +101,16 @@
     .camera-header { background: var(--green-deep); padding: 20px 20px 16px; }
     .camera-viewfinder { flex: 1; position: relative; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; min-height: 0; }
     #video { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .viewfinder-overlay { position: absolute; inset: 0; display: flex; align-items: flex-start; justify-content: center; padding-top: 32px; pointer-events: none; }
+
+    /* Frame centred vertically */
+    .viewfinder-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
     .viewfinder-frame { width: 220px; height: 220px; position: relative; }
     .viewfinder-frame::before, .viewfinder-frame::after, .vf-br::before, .vf-br::after { content: ''; position: absolute; width: 24px; height: 24px; border-color: var(--gold); border-style: solid; }
     .viewfinder-frame::before { top: 0; left: 0; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
     .viewfinder-frame::after  { top: 0; right: 0; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
     .vf-br::before { bottom: 0; left: 0; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
     .vf-br::after  { bottom: 0; right: 0; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
-    .camera-hint-text { position: absolute; top: 268px; left: 0; right: 0; text-align: center; font-size: 13px; color: rgba(255,255,255,0.5); }
+    .camera-hint-text { position: absolute; bottom: 24px; left: 0; right: 0; text-align: center; font-size: 13px; color: rgba(255,255,255,0.5); }
     .camera-footer { background: #000; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
     #canvas { display: none; }
 
@@ -277,7 +282,9 @@
     </div>
     <div class="camera-viewfinder">
       <video id="video" autoplay playsinline muted></video>
-      <div class="viewfinder-overlay"><div class="viewfinder-frame"><div class="vf-br"></div></div></div>
+      <div class="viewfinder-overlay">
+        <div class="viewfinder-frame"><div class="vf-br"></div></div>
+      </div>
       <div class="camera-hint-text">Frame your pint</div>
     </div>
     <canvas id="canvas"></canvas>
@@ -418,7 +425,7 @@
     <div class="lb-footer"><button class="btn btn-gold" onclick="showScreen('camera'); initCamera();">Verify another pint</button></div>
   </div>
 
-  <!-- PUB SELECTOR SHEET -->
+  <!-- PUB SELECTOR -->
   <div id="pubSelector">
     <div id="pubSelectorSheet">
       <div class="sheet-handle"></div>
@@ -433,137 +440,143 @@
   'use strict';
 
   // ── STATE ──────────────────────────────────────────────
-  let userLocation = null, stream = null, pendingVerification = null, verificationResult = null, pintsData = [];
-  function getSessionId() { let s = sessionStorage.getItem('pop_session'); if (!s) { s = 'web_' + Math.random().toString(36).slice(2,11); sessionStorage.setItem('pop_session', s); } return s; }
-  let userId = sessionStorage.getItem('pop_wallet') || getSessionId();
+  let userLocation=null, stream=null, pendingVerification=null, verificationResult=null, pintsData=[];
+  function getSessionId(){let s=sessionStorage.getItem('pop_session');if(!s){s='web_'+Math.random().toString(36).slice(2,11);sessionStorage.setItem('pop_session',s);}return s;}
+  let userId=sessionStorage.getItem('pop_wallet')||getSessionId();
 
   // ── SCREEN ROUTER ──────────────────────────────────────
-  function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('screen-' + id).classList.add('active'); window.scrollTo(0,0); }
+  function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');window.scrollTo(0,0);}
 
-  // ── MAPBOX GLOBE — token fetched securely from /api/config ──
+  // ── MAPBOX GLOBE ───────────────────────────────────────
+  // Token fetched securely from /api/config — never hardcoded
   async function initGlobe() {
     try {
       const cfg = await fetch('/api/config').then(r => r.json());
+      if (!cfg.mapboxToken) { console.warn('No Mapbox token returned'); return; }
       mapboxgl.accessToken = cfg.mapboxToken;
-    } catch (e) {
-      console.error('Config fetch failed:', e);
-      return;
-    }
+    } catch (e) { console.error('Config fetch failed:', e); return; }
 
     const globeMap = new mapboxgl.Map({
       container: 'globeMap',
       style: 'mapbox://styles/mapbox/dark-v11',
       projection: 'globe',
-      zoom: 1.4,
-      center: [-8.2, 53.1],
-      pitch: 0, bearing: 0,
+      zoom: 1.5,
+      center: [0, 20],          // Atlantic-facing, equatorial start
+      pitch: 0,
+      bearing: 0,
       attributionControl: false,
       interactive: false,
     });
 
     globeMap.on('style.load', () => {
-      globeMap.setFog({ color:'rgb(4,8,14)', 'high-color':'rgb(6,20,40)', 'horizon-blend':0.04, 'space-color':'rgb(4,8,14)', 'star-intensity':0.6 });
+      globeMap.setFog({
+        color: 'rgb(4,8,14)', 'high-color': 'rgb(6,20,40)',
+        'horizon-blend': 0.04, 'space-color': 'rgb(4,8,14)', 'star-intensity': 0.6
+      });
     });
 
-    // Slow auto-rotation
-    (function rotate() { globeMap.rotateTo(globeMap.getBearing() + 0.15, { duration:0 }); requestAnimationFrame(rotate); })();
+    // Equatorial rotation — increment longitude, keep latitude fixed
+    let lng = 0;
+    function rotate() {
+      lng = (lng + 0.15) % 360;
+      globeMap.setCenter([lng - 180, 20]);
+      requestAnimationFrame(rotate);
+    }
+    globeMap.on('load', () => { rotate(); loadData(globeMap); setInterval(() => loadData(globeMap), 30000); });
 
-    // Pin image — identical to CraicGlobe
+    // ── PIN IMAGE — identical to CraicGlobe ─────────────
     function makePinCanvas(logoImg) {
-      const c = document.createElement('canvas'); c.width = 32; c.height = 48;
-      const ctx = c.getContext('2d');
-      ctx.beginPath(); ctx.moveTo(14,22); ctx.lineTo(18,22); ctx.lineTo(16.5,46); ctx.lineTo(15.5,46); ctx.closePath(); ctx.fillStyle = '#cc2200'; ctx.fill();
-      ctx.beginPath(); ctx.arc(16,13,11,0,Math.PI*2); ctx.fillStyle = '#52C47C'; ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1.5; ctx.stroke();
-      if (logoImg) { ctx.save(); ctx.beginPath(); ctx.arc(16,13,8.5,0,Math.PI*2); ctx.clip(); ctx.drawImage(logoImg,7.5,4.5,17,17); ctx.restore(); }
-      ctx.beginPath(); ctx.arc(12,9,2.5,0,Math.PI*2); ctx.fillStyle = 'rgba(255,255,255,0.22)'; ctx.fill();
+      const c=document.createElement('canvas'); c.width=32; c.height=48;
+      const ctx=c.getContext('2d');
+      ctx.beginPath(); ctx.moveTo(14,22); ctx.lineTo(18,22); ctx.lineTo(16.5,46); ctx.lineTo(15.5,46); ctx.closePath(); ctx.fillStyle='#cc2200'; ctx.fill();
+      ctx.beginPath(); ctx.arc(16,13,11,0,Math.PI*2); ctx.fillStyle='#52C47C'; ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=1.5; ctx.stroke();
+      if(logoImg){ctx.save();ctx.beginPath();ctx.arc(16,13,8.5,0,Math.PI*2);ctx.clip();ctx.drawImage(logoImg,7.5,4.5,17,17);ctx.restore();}
+      ctx.beginPath(); ctx.arc(12,9,2.5,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.22)'; ctx.fill();
       return c;
     }
 
     function loadPinImage() {
       return new Promise(resolve => {
-        if (globeMap.hasImage('pin-green')) { resolve(); return; }
-        const logo = new Image(); logo.crossOrigin = 'anonymous';
-        const done = img => { const c = makePinCanvas(img); globeMap.addImage('pin-green', { width:32, height:48, data: new Uint8Array(c.getContext('2d').getImageData(0,0,32,48).data.buffer) }, { sdf:false }); resolve(); };
-        logo.onload = () => done(logo); logo.onerror = () => done(null);
-        logo.src = 'https://proof-of-pint.vercel.app/craic.png?v=' + Date.now();
+        if(globeMap.hasImage('pin-green')){resolve();return;}
+        const logo=new Image(); logo.crossOrigin='anonymous';
+        const done=img=>{const c=makePinCanvas(img);globeMap.addImage('pin-green',{width:32,height:48,data:new Uint8Array(c.getContext('2d').getImageData(0,0,32,48).data.buffer)},{sdf:false});resolve();};
+        logo.onload=()=>done(logo); logo.onerror=()=>done(null);
+        logo.src='https://proof-of-pint.vercel.app/craic.png?v='+Date.now();
       });
     }
 
     function setupPinLayers(pints) {
-      const features = pints.filter(p => p.pub_lat && p.pub_lng).map(p => ({ type:'Feature', geometry:{ type:'Point', coordinates:[p.pub_lng, p.pub_lat] }, properties:{ pub:p.pub } }));
-      if (globeMap.getSource('pints')) { globeMap.getSource('pints').setData({ type:'FeatureCollection', features }); return; }
-      globeMap.addSource('pints', { type:'geojson', data:{ type:'FeatureCollection', features }, cluster:true, clusterMaxZoom:10, clusterRadius:40 });
-      globeMap.addLayer({ id:'clusters', type:'circle', source:'pints', filter:['has','point_count'], paint:{ 'circle-color':'#52C47C', 'circle-radius':['step',['get','point_count'],14,5,18,20,22], 'circle-opacity':0.9, 'circle-stroke-width':2, 'circle-stroke-color':'rgba(255,255,255,0.5)' } });
-      globeMap.addLayer({ id:'cluster-count', type:'symbol', source:'pints', filter:['has','point_count'], layout:{ 'text-field':'{point_count_abbreviated}', 'text-size':12 }, paint:{ 'text-color':'#060a0f' } });
-      globeMap.addLayer({ id:'pins', type:'symbol', source:'pints', filter:['!',['has','point_count']], layout:{ 'icon-image':'pin-green', 'icon-size':0.55, 'icon-allow-overlap':true, 'icon-anchor':'bottom' } });
+      const features=pints.filter(p=>p.pub_lat&&p.pub_lng).map(p=>({type:'Feature',geometry:{type:'Point',coordinates:[p.pub_lng,p.pub_lat]},properties:{pub:p.pub}}));
+      if(globeMap.getSource('pints')){globeMap.getSource('pints').setData({type:'FeatureCollection',features});return;}
+      globeMap.addSource('pints',{type:'geojson',data:{type:'FeatureCollection',features},cluster:true,clusterMaxZoom:10,clusterRadius:40});
+      globeMap.addLayer({id:'clusters',type:'circle',source:'pints',filter:['has','point_count'],paint:{'circle-color':'#52C47C','circle-radius':['step',['get','point_count'],14,5,18,20,22],'circle-opacity':0.9,'circle-stroke-width':2,'circle-stroke-color':'rgba(255,255,255,0.5)'}});
+      globeMap.addLayer({id:'cluster-count',type:'symbol',source:'pints',filter:['has','point_count'],layout:{'text-field':'{point_count_abbreviated}','text-size':12},paint:{'text-color':'#060a0f'}});
+      globeMap.addLayer({id:'pins',type:'symbol',source:'pints',filter:['!',['has','point_count']],layout:{'icon-image':'pin-green','icon-size':0.55,'icon-allow-overlap':true,'icon-anchor':'bottom'}});
     }
 
-    // Load data and plot pins
-    async function loadData() {
+    async function loadData(map) {
       try {
-        const [pr, sr] = await Promise.all([fetch('/api/pints'), fetch('/api/stats')]);
-        const pj = await pr.json(); const sj = await sr.json();
-        pintsData = pj.pints || [];
-        const total = sj.total_pints || pintsData.length || 0;
-        const el = document.getElementById('liveCount');
-        if (el) el.textContent = total.toLocaleString() + ' pints verified worldwide';
-        const tryPins = () => loadPinImage().then(() => setupPinLayers(pintsData));
-        if (globeMap.isStyleLoaded()) tryPins(); else globeMap.on('style.load', tryPins);
+        const [pr,sr]=await Promise.all([fetch('/api/pints'),fetch('/api/stats')]);
+        const pj=await pr.json(); const sj=await sr.json();
+        pintsData=pj.pints||[];
+        const total=sj.total_pints||pintsData.length||0;
+        const el=document.getElementById('liveCount');
+        if(el) el.textContent=total.toLocaleString()+' pints verified worldwide';
+        const tryPins=()=>loadPinImage().then(()=>setupPinLayers(pintsData));
+        if(map.isStyleLoaded()) tryPins(); else map.on('style.load',tryPins);
         renderLiveFeed(pintsData);
-      } catch (err) {
-        console.warn('Data load error:', err);
-        const el = document.getElementById('liveCount');
-        if (el && el.textContent === 'Loading...') el.textContent = 'Pints verified worldwide';
+      } catch(err){
+        console.warn('Data load error:',err);
+        const el=document.getElementById('liveCount');
+        if(el&&el.textContent==='Loading...') el.textContent='Pints verified worldwide';
       }
     }
-
-    globeMap.on('load', () => { loadData(); setInterval(loadData, 30000); });
   }
 
-  // Kick off globe init immediately
   initGlobe();
 
   // ── LIVE FEED ──────────────────────────────────────────
-  function timeAgo(d) { const m=Math.floor((Date.now()-d)/60000); if(m<1)return 'just now'; if(m<60)return m+'m ago'; const h=Math.floor(m/60); if(h<24)return h+'h ago'; return Math.floor(h/24)+'d ago'; }
-  function renderLiveFeed(pints) {
-    const feed = document.getElementById('liveFeed'); if (!feed) return;
-    const flags = { IE:'🇮🇪',GB:'🇬🇧',US:'🇺🇸',AU:'🇦🇺',DE:'🇩🇪',CA:'🇨🇦',FR:'🇫🇷',NZ:'🇳🇿',ZA:'🇿🇦',AE:'🇦🇪' };
-    const sorted = [...pints].sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp)).slice(0,6);
-    if (!sorted.length) { feed.innerHTML='<div class="feed-item"><div class="feed-left"><span style="font-size:18px">☘️</span><div><div class="feed-name">Be the first to verify a pint!</div></div></div></div>'; return; }
-    feed.innerHTML = sorted.map(p=>`<div class="feed-item"><div class="feed-left"><span style="font-size:18px">${flags[p.country_code]||'🍺'}</span><div><div class="feed-name">${p.pub||'Irish pub'}</div><div class="feed-pub">${[p.county,p.country].filter(Boolean).join(', ')}</div></div></div><div class="feed-time">${p.timestamp?timeAgo(new Date(p.timestamp)):''}</div></div>`).join('');
+  function timeAgo(d){const m=Math.floor((Date.now()-d)/60000);if(m<1)return 'just now';if(m<60)return m+'m ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago';}
+  function renderLiveFeed(pints){
+    const feed=document.getElementById('liveFeed');if(!feed)return;
+    const flags={IE:'🇮🇪',GB:'🇬🇧',US:'🇺🇸',AU:'🇦🇺',DE:'🇩🇪',CA:'🇨🇦',FR:'🇫🇷',NZ:'🇳🇿',ZA:'🇿🇦',AE:'🇦🇪'};
+    const sorted=[...pints].sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp)).slice(0,6);
+    if(!sorted.length){feed.innerHTML='<div class="feed-item"><div class="feed-left"><span style="font-size:18px">☘️</span><div><div class="feed-name">Be the first to verify a pint!</div></div></div></div>';return;}
+    feed.innerHTML=sorted.map(p=>`<div class="feed-item"><div class="feed-left"><span style="font-size:18px">${flags[p.country_code]||'🍺'}</span><div><div class="feed-name">${p.pub||'Irish pub'}</div><div class="feed-pub">${[p.county,p.country].filter(Boolean).join(', ')}</div></div></div><div class="feed-time">${p.timestamp?timeAgo(new Date(p.timestamp)):''}</div></div>`).join('');
   }
 
   // ── FIND A PUB ─────────────────────────────────────────
-  function loadFindPub() {
+  function loadFindPub(){
     document.getElementById('findPubLoading').classList.remove('hidden');
     document.getElementById('findPubError').classList.add('hidden');
     document.getElementById('findPubList').classList.add('hidden');
-    document.getElementById('findPubSubtitle').textContent = 'Finding nearest Irish pubs...';
-    if (!navigator.geolocation) { showFindPubError('Geolocation not supported on this device.'); return; }
+    document.getElementById('findPubSubtitle').textContent='Finding nearest Irish pubs...';
+    if(!navigator.geolocation){showFindPubError('Geolocation not supported on this device.');return;}
     navigator.geolocation.getCurrentPosition(
-      async pos => {
-        try {
-          const res = await fetch(`/api/find-pubs?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`);
-          const data = await res.json();
-          if (!data.pubs || !data.pubs.length) { showFindPubError('No Irish pubs found nearby. Try somewhere else! ☘️'); return; }
-          renderFindPubResults(data.pubs, data);
-        } catch { showFindPubError('Something went wrong. Please try again.'); }
+      async pos=>{
+        try{
+          const res=await fetch(`/api/find-pubs?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}`);
+          const data=await res.json();
+          if(data.error){showFindPubError(data.error);return;}
+          if(!data.pubs||!data.pubs.length){showFindPubError('No Irish pubs found nearby. Try somewhere else! ☘️');return;}
+          renderFindPubResults(data.pubs,data);
+        }catch(e){console.error('find-pubs error:',e);showFindPubError('Something went wrong. Please try again.');}
       },
-      () => showFindPubError('Location access denied. Please enable location and try again.'),
-      { timeout:10000, maximumAge:60000 }
+      ()=>showFindPubError('Location access denied. Please enable location and try again.'),
+      {timeout:10000,maximumAge:60000}
     );
   }
-  function showFindPubError(msg) { document.getElementById('findPubLoading').classList.add('hidden'); document.getElementById('findPubErrorMsg').textContent=msg; document.getElementById('findPubError').classList.remove('hidden'); }
-  function renderFindPubResults(pubs, data) {
+  function showFindPubError(msg){document.getElementById('findPubLoading').classList.add('hidden');document.getElementById('findPubErrorMsg').textContent=msg;document.getElementById('findPubError').classList.remove('hidden');}
+  function renderFindPubResults(pubs,data){
     document.getElementById('findPubLoading').classList.add('hidden');
-    const verified = pubs.filter(p=>p.verified).length;
-    document.getElementById('findPubSubtitle').textContent = `${pubs.length} Irish pubs found · ${verified} $CRAIC verified`;
-    const list = document.getElementById('findPubList');
-    list.innerHTML = pubs.map(pub => {
-      const stars = pub.rating ? '★'.repeat(Math.round(pub.rating))+'☆'.repeat(5-Math.round(pub.rating)) : null;
-      const open  = pub.open_now===true?'<span class="pub-open">Open Now</span>':pub.open_now===false?'<span class="pub-closed">Closed</span>':'';
-      const badge = pub.verified?`<div class="pub-verified-badge">☘️ $CRAIC Verified · ${pub.pint_count} pint${pub.pint_count!==1?'s':''}</div>`:'';
+    const verified=pubs.filter(p=>p.verified).length;
+    document.getElementById('findPubSubtitle').textContent=`${pubs.length} Irish pubs found · ${verified} $CRAIC verified`;
+    const list=document.getElementById('findPubList');
+    list.innerHTML=pubs.map(pub=>{
+      const stars=pub.rating?'★'.repeat(Math.round(pub.rating))+'☆'.repeat(5-Math.round(pub.rating)):null;
+      const open=pub.open_now===true?'<span class="pub-open">Open Now</span>':pub.open_now===false?'<span class="pub-closed">Closed</span>':'';
+      const badge=pub.verified?`<div class="pub-verified-badge">☘️ $CRAIC Verified · ${pub.pint_count} pint${pub.pint_count!==1?'s':''}</div>`:'';
       return `<div class="pub-result${pub.verified?' verified':''}">
         <div class="pub-result-top"><div class="pub-result-name">${pub.name}</div><div class="pub-result-dist">${pub.distance}</div></div>
         <div class="pub-result-addr">${pub.address}</div>
@@ -571,7 +584,7 @@
         ${badge}
         <div class="pub-result-actions">
           <a href="${pub.maps_url}" target="_blank" class="pub-dir-btn">📍 Directions</a>
-          <button class="pub-in-btn" onclick="showScreen('camera'); initCamera();">🍺 Verify here</button>
+          <button class="pub-in-btn" onclick="showScreen('camera');initCamera();">🍺 Verify here</button>
         </div>
       </div>`;
     }).join('');
@@ -579,98 +592,98 @@
   }
 
   // ── CAMERA ─────────────────────────────────────────────
-  async function initCamera() {
-    try { stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment', width:{ideal:1280}, height:{ideal:720} }, audio:false }); document.getElementById('video').srcObject=stream; getLocation().then(loc=>{if(loc)userLocation=loc;}); }
-    catch { alert('Camera access needed to verify your pint. Please allow camera access and try again.'); showScreen('landing'); }
+  async function initCamera(){
+    try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}},audio:false});document.getElementById('video').srcObject=stream;getLocation().then(loc=>{if(loc)userLocation=loc;});}
+    catch{alert('Camera access needed to verify your pint. Please allow camera access and try again.');showScreen('landing');}
   }
-  function stopCamera() { if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;} }
-  function getLocation() { return new Promise(resolve=>{if(!navigator.geolocation){resolve(null);return;}navigator.geolocation.getCurrentPosition(pos=>resolve({lat:pos.coords.latitude,lng:pos.coords.longitude}),()=>resolve(null),{timeout:8000,enableHighAccuracy:true});}); }
+  function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}}
+  function getLocation(){return new Promise(resolve=>{if(!navigator.geolocation){resolve(null);return;}navigator.geolocation.getCurrentPosition(pos=>resolve({lat:pos.coords.latitude,lng:pos.coords.longitude}),()=>resolve(null),{timeout:8000,enableHighAccuracy:true});});}
 
   // ── SNAP & VERIFY ──────────────────────────────────────
-  document.getElementById('snapBtn').addEventListener('click', async () => {
+  document.getElementById('snapBtn').addEventListener('click',async()=>{
     const video=document.getElementById('video'),canvas=document.getElementById('canvas');
-    canvas.width=video.videoWidth; canvas.height=video.videoHeight;
-    canvas.getContext('2d').drawImage(video,0,0); stopCamera();
-    const imageBase64 = canvas.toDataURL('image/jpeg',0.7);
-    showScreen('verifying'); resetVerifySteps(); setVStep(2,'running','⟳',true);
-    try {
-      const r = await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'find_pubs',image_base64:imageBase64,lat:userLocation?.lat||null,lng:userLocation?.lng||null,user_id:userId})});
-      const result = await r.json();
-      if (result.status==='select_pub') { pendingVerification={p_hash:result.p_hash,photo_url:result.photo_url,country_code:result.country_code,country_name:result.country_name,county:result.county,is_on_island:result.is_on_island,lat:result.lat,lng:result.lng}; animateVerifySteps(()=>showPubSelector(result.pubs)); }
-      else if (result.status==='auto_confirm') animateVerifySteps(()=>confirmPub(result.pub));
-      else if (result.status==='success') animateVerifySteps(()=>handleSuccess(result));
+    canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+    canvas.getContext('2d').drawImage(video,0,0);stopCamera();
+    const imageBase64=canvas.toDataURL('image/jpeg',0.7);
+    showScreen('verifying');resetVerifySteps();setVStep(2,'running','⟳',true);
+    try{
+      const r=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'find_pubs',image_base64:imageBase64,lat:userLocation?.lat||null,lng:userLocation?.lng||null,user_id:userId})});
+      const result=await r.json();
+      if(result.status==='select_pub'){pendingVerification={p_hash:result.p_hash,photo_url:result.photo_url,country_code:result.country_code,country_name:result.country_name,county:result.county,is_on_island:result.is_on_island,lat:result.lat,lng:result.lng};animateVerifySteps(()=>showPubSelector(result.pubs));}
+      else if(result.status==='auto_confirm')animateVerifySteps(()=>confirmPub(result.pub));
+      else if(result.status==='success')animateVerifySteps(()=>handleSuccess(result));
       else showVerifyError(result.message||'Try a different angle! 🧐');
-    } catch { showVerifyError('The tap is broken. Try again! 📉'); }
+    }catch{showVerifyError('The tap is broken. Try again! 📉');}
   });
 
-  function resetVerifySteps() { [2,3,4].forEach(i=>setVStep(i,'waiting','·',false)); document.getElementById('verifyError').classList.add('hidden'); }
-  function setVStep(n,state,icon,active) { const el=document.getElementById(`vstep${n}-icon`),lbl=document.getElementById(`vstep${n}-label`); el.className=`vstep-icon ${state}`; el.textContent=icon; if(lbl)lbl.style.color=active?'var(--text-dark)':'var(--gray-text)'; }
-  function animateVerifySteps(cb) { setTimeout(()=>{setVStep(2,'done','✓',true);setVStep(3,'running','⟳',true);},1200); setTimeout(()=>{setVStep(3,'done','✓',true);setVStep(4,'running','⟳',true);},2400); setTimeout(()=>{setVStep(4,'done','✓',true);setTimeout(cb,400);},3400); }
-  function showVerifyError(msg) { resetVerifySteps(); document.getElementById('verifyErrorMsg').textContent=msg; document.getElementById('verifyError').classList.remove('hidden'); }
+  function resetVerifySteps(){[2,3,4].forEach(i=>setVStep(i,'waiting','·',false));document.getElementById('verifyError').classList.add('hidden');}
+  function setVStep(n,state,icon,active){const el=document.getElementById(`vstep${n}-icon`),lbl=document.getElementById(`vstep${n}-label`);el.className=`vstep-icon ${state}`;el.textContent=icon;if(lbl)lbl.style.color=active?'var(--text-dark)':'var(--gray-text)';}
+  function animateVerifySteps(cb){setTimeout(()=>{setVStep(2,'done','✓',true);setVStep(3,'running','⟳',true);},1200);setTimeout(()=>{setVStep(3,'done','✓',true);setVStep(4,'running','⟳',true);},2400);setTimeout(()=>{setVStep(4,'done','✓',true);setTimeout(cb,400);},3400);}
+  function showVerifyError(msg){resetVerifySteps();document.getElementById('verifyErrorMsg').textContent=msg;document.getElementById('verifyError').classList.remove('hidden');}
 
   // ── PUB SELECTOR ───────────────────────────────────────
-  function showPubSelector(pubs) {
+  function showPubSelector(pubs){
     const pubList=document.getElementById('pubList');
-    pubList.innerHTML = pubs&&pubs.length ? pubs.map(pub=>{const dist=pub.dist_m?`${pub.dist_m}m away`:''; return `<div class="pub-option" onclick='pubSelected(${JSON.stringify(pub)})'><div class="pub-option-info"><div class="pub-option-name">${pub.name}</div><div class="pub-option-address">${pub.address||''}</div></div>${dist?`<div class="pub-option-dist">${dist}</div>`:''}<div class="pub-option-arrow">→</div></div>`;}).join('') : '<p style="color:var(--gray-text);padding:16px;text-align:center;">No nearby pubs found.</p>';
+    pubList.innerHTML=pubs&&pubs.length?pubs.map(pub=>{const dist=pub.dist_m?`${pub.dist_m}m away`:'';return `<div class="pub-option" onclick='pubSelected(${JSON.stringify(pub)})'><div class="pub-option-info"><div class="pub-option-name">${pub.name}</div><div class="pub-option-address">${pub.address||''}</div></div>${dist?`<div class="pub-option-dist">${dist}</div>`:''}<div class="pub-option-arrow">→</div></div>`;}).join(''):'<p style="color:var(--gray-text);padding:16px;text-align:center;">No nearby pubs found.</p>';
     document.getElementById('pubSelector').classList.add('active');
   }
-  function pubSelected(pub) { document.getElementById('pubSelector').classList.remove('active'); confirmPub(pub); }
-  document.getElementById('pubSelectorCancel').onclick = ()=>{document.getElementById('pubSelector').classList.remove('active');pendingVerification=null;showScreen('camera');initCamera();};
+  function pubSelected(pub){document.getElementById('pubSelector').classList.remove('active');confirmPub(pub);}
+  document.getElementById('pubSelectorCancel').onclick=()=>{document.getElementById('pubSelector').classList.remove('active');pendingVerification=null;showScreen('camera');initCamera();};
 
   // ── CONFIRM PUB ────────────────────────────────────────
-  async function confirmPub(pub) {
-    showScreen('verifying'); resetVerifySteps(); setVStep(2,'running','⟳',true);
-    try {
-      const r = await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'confirm_pub',place_id:pub.place_id,pub_name:pub.name,user_id:userId,...pendingVerification})});
-      const result = await r.json();
-      if (result.status==='success') animateVerifySteps(()=>handleSuccess(result));
+  async function confirmPub(pub){
+    showScreen('verifying');resetVerifySteps();setVStep(2,'running','⟳',true);
+    try{
+      const r=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'confirm_pub',place_id:pub.place_id,pub_name:pub.name,user_id:userId,...pendingVerification})});
+      const result=await r.json();
+      if(result.status==='success')animateVerifySteps(()=>handleSuccess(result));
       else showVerifyError(result.message||'Something went wrong. Try again!');
-    } catch { showVerifyError('The tap is broken. Try again! 📉'); }
+    }catch{showVerifyError('The tap is broken. Try again! 📉');}
   }
 
   // ── SUCCESS ────────────────────────────────────────────
-  function handleSuccess(result) {
-    verificationResult=result; pendingVerification=null;
-    const craic=result.craic_amount||5000, pubName=result.pub_name||'Irish pub', country=result.country_name||'';
+  function handleSuccess(result){
+    verificationResult=result;pendingVerification=null;
+    const craic=result.craic_amount||5000,pubName=result.pub_name||'Irish pub',country=result.country_name||'';
     document.getElementById('rewardAmount').textContent=craic.toLocaleString();
     document.getElementById('rewardPubName').textContent=pubName+(country?' · '+country:'');
     if(result.tx_hash){document.getElementById('txLink').href=`https://basescan.org/tx/${result.tx_hash}`;document.getElementById('txLinkContainer').classList.remove('hidden');}
     document.getElementById('shareAmount').textContent=craic.toLocaleString();
     document.getElementById('sharePubName').textContent=pubName;
     document.getElementById('confirmCraic').textContent=craic.toLocaleString();
-    updateShareText(pubName,craic); showScreen('reward');
+    updateShareText(pubName,craic);showScreen('reward');
   }
 
   // ── WALLET ─────────────────────────────────────────────
-  async function handleConnectWallet() {
-    if (typeof window.ethereum!=='undefined') {
-      try { const accounts=await window.ethereum.request({method:'eth_requestAccounts'}); if(accounts[0]){userId=accounts[0];sessionStorage.setItem('pop_wallet',userId);if(verificationResult)await sendCraic(userId);showScreen('share');} }
-      catch { alert('Wallet connection cancelled. You can still save your $CRAIC via email.'); }
-    } else { window.open('https://www.coinbase.com/wallet','_blank'); }
+  async function handleConnectWallet(){
+    if(typeof window.ethereum!=='undefined'){
+      try{const accounts=await window.ethereum.request({method:'eth_requestAccounts'});if(accounts[0]){userId=accounts[0];sessionStorage.setItem('pop_wallet',userId);if(verificationResult)await sendCraic(userId);showScreen('share');}}
+      catch{alert('Wallet connection cancelled. You can still save your $CRAIC via email.');}
+    }else{window.open('https://www.coinbase.com/wallet','_blank');}
   }
-  function handleCreateWallet() { window.open('https://www.coinbase.com/wallet/getting-started-extension','_blank'); }
-  async function sendCraic(walletAddress) { try { await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'send_craic',wallet_address:walletAddress,user_id:userId,result_ref:verificationResult?.result_ref||null})}); } catch(e){console.error('sendCraic',e);} }
+  function handleCreateWallet(){window.open('https://www.coinbase.com/wallet/getting-started-extension','_blank');}
+  async function sendCraic(walletAddress){try{await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'send_craic',wallet_address:walletAddress,user_id:userId,result_ref:verificationResult?.result_ref||null})});}catch(e){console.error('sendCraic',e);}}
 
   // ── EMAIL ──────────────────────────────────────────────
-  async function handleEmailSave() {
+  async function handleEmailSave(){
     const email=document.getElementById('emailInput').value.trim();
     if(!email||!email.includes('@')){alert('Please enter a valid email address.');return;}
-    try { await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save_email',email,user_id:userId,result_ref:verificationResult?.result_ref||null})}); } catch(e){console.error('Email save',e);}
+    try{await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save_email',email,user_id:userId,result_ref:verificationResult?.result_ref||null})});}catch(e){console.error('Email save',e);}
     showScreen('share');
   }
 
   // ── SHARE ──────────────────────────────────────────────
-  function updateShareText(pubName,craic) {
+  function updateShareText(pubName,craic){
     const text=`🍺 Pint verified at ${pubName}\nJust earned ${craic.toLocaleString()} $CRAIC — proof-of-pint.vercel.app\n#ProofOfPint`;
-    const ta=document.getElementById('shareText'); if(ta){ta.value=text;updateCharCount();}
-    const pp=document.getElementById('confirmPostPreview'); if(pp)pp.innerHTML=`🍺 Pint verified at ${pubName}<br>Just earned ${craic.toLocaleString()} $CRAIC — proof-of-pint.vercel.app<br><span class="post-preview-tag">#ProofOfPint</span>`;
+    const ta=document.getElementById('shareText');if(ta){ta.value=text;updateCharCount();}
+    const pp=document.getElementById('confirmPostPreview');if(pp)pp.innerHTML=`🍺 Pint verified at ${pubName}<br>Just earned ${craic.toLocaleString()} $CRAIC — proof-of-pint.vercel.app<br><span class="post-preview-tag">#ProofOfPint</span>`;
   }
-  function updateCharCount() { const ta=document.getElementById('shareText'),cc=document.getElementById('charCount'); if(!ta||!cc)return; const l=ta.value.length; cc.textContent=l; cc.style.color=l>260?'var(--danger)':'var(--gray-text)'; }
+  function updateCharCount(){const ta=document.getElementById('shareText'),cc=document.getElementById('charCount');if(!ta||!cc)return;const l=ta.value.length;cc.textContent=l;cc.style.color=l>260?'var(--danger)':'var(--gray-text)';}
   document.getElementById('shareText').addEventListener('input',updateCharCount);
-  function handlePostToX() { const text=document.getElementById('shareText').value; window.open('https://x.com/intent/post?text='+encodeURIComponent(text),'_blank'); showScreen('confirm'); }
+  function handlePostToX(){const text=document.getElementById('shareText').value;window.open('https://x.com/intent/post?text='+encodeURIComponent(text),'_blank');showScreen('confirm');}
 
   // ── LEADERBOARD ────────────────────────────────────────
-  function switchLb(tab) {
+  function switchLb(tab){
     ['global','county','friends'].forEach(t=>document.getElementById('lt-'+t).classList.toggle('active',t===tab));
     document.getElementById('lbList').innerHTML='<div class="lb-row"><div style="font-size:13px;color:var(--gray-text);">Coming soon</div></div>';
   }
