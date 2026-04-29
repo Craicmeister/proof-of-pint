@@ -1,8 +1,10 @@
 {
-  "rewrites": [
+  "headers": [
     {
-      "source": "/.well-known/farcaster.json",
-      "destination": "/public/.well-known/farcaster.json"
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Vercel-Deployment-Toolbar", "value": "0" }
+      ]
     }
   ]
 }
