@@ -284,7 +284,7 @@
     </div>
     <div class="camera-footer">
       <button class="back-camera-btn" id="backFromCamera">← Back</button>
-      <div class="shutter-btn" id="shutterBtn"><div class="shutter-inner"></div></div>
+      <button class="shutter-btn" id="shutterBtn"><div class="shutter-inner"></div></button>
       <div class="shutter-spacer"></div>
     </div>
     <canvas id="canvas"></canvas>
@@ -445,7 +445,7 @@
 
   function on(id,fn){
     const el=document.getElementById(id);if(!el)return;
-    el.addEventListener("click",fn);el.addEventListener("touchstart",function(e){e.preventDefault();fn(e);});
+    el.addEventListener("click",fn);el.addEventListener("touchend",function(e){e.preventDefault();e.stopPropagation();fn(e);});
   }
 
   function wireButtons(){
