@@ -445,7 +445,9 @@
 
   function on(id,fn){
     const el=document.getElementById(id);if(!el)return;
-    el.addEventListener("click",fn);el.addEventListener("touchend",function(e){e.preventDefault();e.stopPropagation();fn(e);});
+    let handled=false;
+    el.addEventListener('touchend',function(e){e.preventDefault();e.stopPropagation();handled=true;fn(e);setTimeout(()=>{handled=false;},300);});
+    el.addEventListener('click',function(e){if(handled)return;e.stopPropagation();fn(e);});
   }
 
   function wireButtons(){
