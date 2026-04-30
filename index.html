@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,7 +55,7 @@
     .hero-sub { font-size: 15px; color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 28px; position: relative; z-index: 1; }
     .hero-btns { width: 100%; display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 1; }
     .hero-btn-sec { width: 100%; padding: 14px 20px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius-full); font-size: 15px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); -webkit-tap-highlight-color: transparent; }
-    .globe-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 20px; color: rgba(255,255,255,0.45); font-size: 13px; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 2px; position: relative; z-index: 1; -webkit-tap-highlight-color: transparent; }
+    .globe-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 20px; color: rgba(255,255,255,0.45); font-size: 13px; background: none; border: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 2px; position: relative; z-index: 1; cursor: pointer; font-family: var(--font-sans); -webkit-tap-highlight-color: transparent; }
     .globe-link:active { color: rgba(255,255,255,0.8); }
     .landing-body { padding: 24px 20px; flex: 1; }
     .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-text); margin-bottom: 12px; }
@@ -88,7 +89,7 @@
     .pub-in-btn  { flex: 1; padding: 9px; background: transparent; color: var(--green-mid); font-family: var(--font-sans); font-weight: 600; font-size: 12px; border: 1.5px solid var(--green-mid); border-radius: 8px; cursor: pointer; text-align: center; }
 
     /* ── CAMERA ── */
-    #screen-camera { background: #000; height: 100vh; height: 100dvh; }
+    #screen-camera { background: #000; height: 100%; min-height: 100vh; }
     #screen-camera.active { display: flex; flex-direction: column; }
     .camera-header { background: var(--green-deep); padding: 16px 20px 14px; flex-shrink: 0; }
     .camera-viewfinder { flex: 1; position: relative; background: #000; overflow: hidden; min-height: 0; }
@@ -101,12 +102,10 @@
     .vf-br::before { bottom: 0; left: 0; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
     .vf-br::after  { bottom: 0; right: 0; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
 
-    /* Camera controls — fixed height footer, always visible above Samsung toolbar */
+    /* Camera controls — fixed height footer, always visible */
     .camera-footer {
       background: #000;
-      padding: 16px 20px;
-      /* 80px gives enough clearance for Samsung Internet toolbar */
-      padding-bottom: max(24px, env(safe-area-inset-bottom, 24px));
+      padding: 20px 20px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -245,7 +244,7 @@
   <div id="screen-landing" class="screen active">
     <div class="landing-hero">
       <div class="hero-pint">🍺</div>
-      <div class="live-pill"><div class="live-dot"></div><span id="liveCount">Loading...</span></div>
+      <div class="live-pill"><div class="live-dot"></div><span id="liveCount">Pints verified worldwide</span></div>
       <h1 class="hero-headline">Your pint.<br>Verified on&#x2011;chain.</h1>
       <p class="hero-sub">Snap your pint in any Irish pub. Earn $CRAIC.</p>
       <div class="hero-btns">
@@ -254,6 +253,7 @@
       </div>
       <button class="globe-link" onclick="window.open('https://craic-globe.vercel.app','_blank')">🌍 See pints verified worldwide →</button>
     </div>
+  </div>
 
   <!-- FIND A PUB -->
   <div id="screen-findpub" class="screen">
@@ -445,7 +445,7 @@
 
   function on(id,fn){
     const el=document.getElementById(id);if(!el)return;
-    el.addEventListener('click',function(e){e.preventDefault();fn(e);});
+    el.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();fn(e);});
   }
 
   function wireButtons(){
@@ -655,11 +655,8 @@
 
   document.addEventListener('DOMContentLoaded',function(){
     wireButtons();
-    loadLiveData();
-    setInterval(loadLiveData,30000);
     switchLb('global');
   });
   </script>
 </body>
 </html>
- 
