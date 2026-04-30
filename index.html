@@ -445,7 +445,7 @@
 
   function on(id,fn){
     const el=document.getElementById(id);if(!el)return;
-    el.addEventListener('click',fn);
+    el.addEventListener("click",fn);el.addEventListener("touchstart",function(e){e.preventDefault();fn(e);});
   }
 
   function wireButtons(){
