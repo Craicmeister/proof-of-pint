@@ -247,8 +247,8 @@
       <h1 class="hero-headline">Your pint.<br>Verified on&#x2011;chain.</h1>
       <p class="hero-sub">Snap your pint in any Irish pub. Earn $CRAIC.</p>
       <div class="hero-btns">
-        <button class="btn btn-gold" id="verifyBtn">Verify a Pint →</button>
-        <button class="hero-btn-sec" id="findPubBtn">📍 Find an Irish pub near me</button>
+        <button class="btn btn-gold" onclick="startCamera()">Verify a Pint →</button>
+        <button class="hero-btn-sec" onclick="showScreen('findpub');loadFindPub();">📍 Find an Irish pub near me</button>
       </div>
       <button class="globe-link" onclick="window.open('https://craic-globe.vercel.app','_blank')">🌍 See pints verified worldwide →</button>
     </div>
@@ -271,21 +271,19 @@
   </div>
 
   <!-- CAMERA -->
-  <div id="screen-camera" class="screen" style="height:100vh;max-height:100vh;overflow:hidden;background:#000;display:none;flex-direction:column;">
-    <div class="camera-header" style="flex-shrink:0;">
+  <div id="screen-camera" class="screen" style="height:100vh;max-height:-webkit-fill-available;overflow:hidden;background:#000;display:none;flex-direction:column;">
+    <div style="background:var(--green-deep);padding:16px 20px;flex-shrink:0;">
       <div class="step-dots"><div class="step-dot on"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div>
-      <div class="screen-header-title">Take your photo</div>
-      <div class="screen-header-sub">Frame your pint in the square</div>
+      <div style="font-family:var(--font-serif);font-size:22px;color:#fff;margin-bottom:3px;">Take your photo</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.6);">Point at your pint in an Irish pub</div>
     </div>
     <div style="flex:1;background:#111;display:flex;align-items:center;justify-content:center;">
-      <div style="width:220px;height:220px;position:relative;border:2px solid rgba(255,215,0,0.4);border-radius:12px;display:flex;align-items:center;justify-content:center;">
-        <span style="font-size:60px;">🍺</span>
-      </div>
+      <div style="width:220px;height:220px;border:2px solid rgba(255,215,0,0.5);border-radius:12px;"></div>
     </div>
-    <input type="file" id="pintPhotoInput" accept="image/*" capture="environment" style="display:none;">
-    <div style="background:#000;padding:24px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-      <button onclick="stopCamera();showScreen('landing');" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;font-size:14px;font-weight:600;padding:12px 20px;border-radius:9999px;cursor:pointer;font-family:var(--font-sans);">← Back</button>
-      <button onclick="document.getElementById('pintPhotoInput').click();" style="width:68px;height:68px;border-radius:50%;background:#fff;border:4px solid rgba(255,255,255,0.5);cursor:pointer;flex-shrink:0;"></button>
+    <input type="file" id="pintPhotoInput" accept="image/*" capture="environment" style="position:absolute;left:-9999px;opacity:0;">
+    <div style="background:#000;padding:20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <button onclick="showScreen('landing')" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;font-size:14px;font-weight:600;padding:14px 22px;border-radius:9999px;font-family:var(--font-sans);">← Back</button>
+      <button onclick="document.getElementById('pintPhotoInput').click()" style="width:72px;height:72px;border-radius:50%;background:#fff;border:5px solid rgba(255,255,255,0.4);flex-shrink:0;"></button>
       <div style="width:80px;"></div>
     </div>
     <canvas id="canvas" style="display:none;"></canvas>
