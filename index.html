@@ -42,7 +42,7 @@
     .screen-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
 
     /* ── LANDING ── */
-    #screen-landing { background: var(--off-white); }
+    #screen-landing { background: #060a0f; }
     .landing-hero { background: #060a0f; padding: 48px 24px 36px; display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden; }
     .landing-hero::before { content: ''; position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, rgba(26,107,58,0.35) 0%, transparent 70%); top: 0; left: 50%; transform: translateX(-50%); pointer-events: none; }
     .hero-pint { font-size: 72px; margin-bottom: 20px; position: relative; z-index: 1; animation: pintFloat 3s ease-in-out infinite; }
@@ -57,7 +57,7 @@
     .hero-btn-sec { width: 100%; padding: 14px 20px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius-full); font-size: 15px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); -webkit-tap-highlight-color: transparent; }
     .globe-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 20px; color: rgba(255,255,255,0.45); font-size: 13px; background: none; border: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 2px; position: relative; z-index: 1; cursor: pointer; font-family: var(--font-sans); -webkit-tap-highlight-color: transparent; }
     .globe-link:active { color: rgba(255,255,255,0.8); }
-    .landing-body { padding: 24px 20px; flex: 1; }
+    .landing-body { display: none; }
     .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-text); margin-bottom: 12px; }
     .feed-item { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid var(--gray-light); }
     .feed-left { display: flex; align-items: center; gap: 10px; }
@@ -125,7 +125,7 @@
     /* ── VERIFYING ── */
     #screen-verifying { background: var(--off-white); }
     .pint-preview { height: 140px; background: var(--green-deep); display: flex; align-items: center; justify-content: center; font-size: 56px; }
-    .verify-steps { display: flex; flex-direction: column; gap: 10px; padding: 20px; flex: 1; }
+    .verify-steps { display: flex; flex-direction: column; gap: 10px; padding: 20px; flex: 1; padding-bottom: 160px; }
     .vstep { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--white); border-radius: var(--radius-md); border: 1px solid var(--gray-light); }
     .vstep-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
     .vstep-icon.done    { background: #d1fae5; color: #065f46; }
@@ -308,10 +308,8 @@
       <div class="vstep"><div class="vstep-icon waiting" id="vstep3-icon">·</div><div><div class="vstep-label" id="vstep3-label" style="color:var(--gray-text)">Confirming pub location</div></div></div>
       <div class="vstep"><div class="vstep-icon waiting" id="vstep4-icon">·</div><div><div class="vstep-label" id="vstep4-label" style="color:var(--gray-text)">Calculating $CRAIC</div></div></div>
     </div>
-    <div id="verifyError" class="hidden" style="padding:20px;">
-      <div id="verifyErrorMsg" style="color:var(--danger);font-size:14px;text-align:center;margin-bottom:16px;line-height:1.5;"></div>
-    </div>
     <div id="verifyErrorBtns" class="hidden" style="position:fixed;bottom:0;left:0;right:0;background:var(--off-white);padding:16px 20px 40px;display:flex;flex-direction:column;gap:10px;z-index:100;">
+      <div id="verifyError" class="hidden"><div id="verifyErrorMsg" style="color:var(--danger);font-size:14px;text-align:center;margin-bottom:16px;line-height:1.5;"></div></div>
       <button class="btn btn-gold" onclick="startCamera()">Try again</button>
       <button class="btn btn-ghost" onclick="showScreen('landing')">← Back to home</button>
     </div>
@@ -594,7 +592,7 @@
     }catch(e){showVerifyError('Connection error. Please try again.');}
   }
 
-  function resetVerifySteps(){[2,3,4].forEach(i=>setVStep(i,'waiting','·',false));document.getElementById('verifyError').classList.add('hidden');}
+  function resetVerifySteps(){[2,3,4].forEach(i=>setVStep(i,'waiting','·',false));document.getElementById('verifyError').classList.add('hidden');document.getElementById('verifyErrorBtns').classList.add('hidden');}
   function setVStep(n,state,icon,active){const el=document.getElementById(`vstep${n}-icon`),lbl=document.getElementById(`vstep${n}-label`);el.className=`vstep-icon ${state}`;el.textContent=icon;if(lbl)lbl.style.color=active?'var(--text-dark)':'var(--gray-text)';}
   function animateVerifySteps(cb){setTimeout(()=>{setVStep(2,'done','✓',true);setVStep(3,'running','⟳',true);},1200);setTimeout(()=>{setVStep(3,'done','✓',true);setVStep(4,'running','⟳',true);},2400);setTimeout(()=>{setVStep(4,'done','✓',true);setTimeout(cb,400);},3400);}
   function showVerifyError(msg){resetVerifySteps();document.getElementById('verifyErrorMsg').textContent=msg;document.getElementById('verifyError').classList.remove('hidden');document.getElementById('verifyErrorBtns').classList.remove('hidden');}
