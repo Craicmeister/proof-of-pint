@@ -308,12 +308,12 @@
       <div class="vstep"><div class="vstep-icon waiting" id="vstep3-icon">·</div><div><div class="vstep-label" id="vstep3-label" style="color:var(--gray-text)">Confirming pub location</div></div></div>
       <div class="vstep"><div class="vstep-icon waiting" id="vstep4-icon">·</div><div><div class="vstep-label" id="vstep4-label" style="color:var(--gray-text)">Calculating $CRAIC</div></div></div>
     </div>
-    <div id="verifyError" class="hidden" style="padding:20px 20px 40px;margin-top:auto;">
-      <div id="verifyErrorMsg" style="color:var(--danger);font-size:14px;text-align:center;margin-bottom:12px;line-height:1.5;"></div>
-      <div class="btn-stack">
-        <button class="btn btn-gold" id="tryAgainBtn" onclick="startCamera()">Try again</button>
-        <button class="btn btn-ghost" id="backFromErrorBtn" onclick="showScreen('landing')">← Back to home</button>
-      </div>
+    <div id="verifyError" class="hidden" style="padding:20px;">
+      <div id="verifyErrorMsg" style="color:var(--danger);font-size:14px;text-align:center;margin-bottom:16px;line-height:1.5;"></div>
+    </div>
+    <div id="verifyErrorBtns" class="hidden" style="position:fixed;bottom:0;left:0;right:0;background:var(--off-white);padding:16px 20px 40px;display:flex;flex-direction:column;gap:10px;z-index:100;">
+      <button class="btn btn-gold" onclick="startCamera()">Try again</button>
+      <button class="btn btn-ghost" onclick="showScreen('landing')">← Back to home</button>
     </div>
   </div>
 
@@ -597,7 +597,7 @@
   function resetVerifySteps(){[2,3,4].forEach(i=>setVStep(i,'waiting','·',false));document.getElementById('verifyError').classList.add('hidden');}
   function setVStep(n,state,icon,active){const el=document.getElementById(`vstep${n}-icon`),lbl=document.getElementById(`vstep${n}-label`);el.className=`vstep-icon ${state}`;el.textContent=icon;if(lbl)lbl.style.color=active?'var(--text-dark)':'var(--gray-text)';}
   function animateVerifySteps(cb){setTimeout(()=>{setVStep(2,'done','✓',true);setVStep(3,'running','⟳',true);},1200);setTimeout(()=>{setVStep(3,'done','✓',true);setVStep(4,'running','⟳',true);},2400);setTimeout(()=>{setVStep(4,'done','✓',true);setTimeout(cb,400);},3400);}
-  function showVerifyError(msg){resetVerifySteps();document.getElementById('verifyErrorMsg').textContent=msg;document.getElementById('verifyError').classList.remove('hidden');}
+  function showVerifyError(msg){resetVerifySteps();document.getElementById('verifyErrorMsg').textContent=msg;document.getElementById('verifyError').classList.remove('hidden');document.getElementById('verifyErrorBtns').classList.remove('hidden');}
 
   function showPubSelector(pubs){
     const pubList=document.getElementById('pubList');
