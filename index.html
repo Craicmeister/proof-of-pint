@@ -276,18 +276,19 @@
     <div class="camera-header">
       <div class="step-dots"><div class="step-dot on"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div>
       <div class="screen-header-title">Take your photo</div>
-      <div class="screen-header-sub">Press the button to shoot</div>
+      <div class="screen-header-sub">Point at your pint in an Irish pub</div>
     </div>
-    <div class="camera-viewfinder">
-      <video id="video" autoplay playsinline muted></video>
-      <div class="viewfinder-overlay"><div class="viewfinder-frame"><div class="vf-br"></div></div></div>
+    <div class="camera-viewfinder" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;padding:40px 24px;background:#111;">
+      <div style="font-size:80px;line-height:1;">📸</div>
+      <p style="color:rgba(255,255,255,0.7);font-size:15px;text-align:center;line-height:1.6;max-width:260px;">Tap the button below to open your camera and snap your pint</p>
+      <input type="file" id="pintPhotoInput" accept="image/*" capture="environment" style="display:none;">
     </div>
     <div class="camera-footer">
       <button class="back-camera-btn" id="backFromCamera">← Back</button>
       <button class="shutter-btn" id="shutterBtn"><div class="shutter-inner"></div></button>
       <div class="shutter-spacer"></div>
     </div>
-    <canvas id="canvas"></canvas>
+    <canvas id="canvas" style="display:none;"></canvas>
   </div>
 
   <!-- VERIFYING -->
@@ -549,36 +550,29 @@
 
   async function startCamera(){
     showScreen('camera');
-    stopCamera();
-    try{
-      stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
-      const video=document.getElementById('video');
-      video.srcObject=stream;
-      video.play().catch(e=>console.log('play:',e));
-      getLocation().then(loc=>{if(loc)userLocation=loc;});
-    }catch(e){
-      alert('Camera access needed. Please allow camera access and try again.');
-      showScreen('landing');
-    }
+    getLocation().then(loc=>{if(loc)userLocation=loc;});
+    // Wire up file input each time (in case of re-entry)
+    const input=document.getElementById('pintPhotoInput');
+    input.value='';
+    input.onchange=function(){
+      if(!input.files||!input.files[0])return;
+      const file=input.files[0];
+      const reader=new FileReader();
+      reader.onload=function(ev){
+        const imageBase64=ev.target.result;
+        showScreen('verifying');resetVerifySteps();setVStep(2,'running','⟳',true);
+        submitVerification(imageBase64);
+      };
+      reader.readAsDataURL(file);
+    };
   }
 
-  function stopCamera(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}const v=document.getElementById('video');if(v)v.srcObject=null;}
+  function stopCamera(){stream=null;}
   function getLocation(){return new Promise(resolve=>{if(!navigator.geolocation){resolve(null);return;}navigator.geolocation.getCurrentPosition(pos=>resolve({lat:pos.coords.latitude,lng:pos.coords.longitude}),()=>resolve(null),{timeout:8000,enableHighAccuracy:true});});}
 
-  let photoTaken=false;
   function takePhoto(){
-    if(photoTaken)return;
-    const video=document.getElementById('video');
-    if(!video||!video.srcObject||!video.videoWidth)return;
-    photoTaken=true;
-    const canvas=document.getElementById('canvas');
-    canvas.width=video.videoWidth;canvas.height=video.videoHeight;
-    canvas.getContext('2d').drawImage(video,0,0);
-    stopCamera();
-    const imageBase64=canvas.toDataURL('image/jpeg',0.7);
-    showScreen('verifying');resetVerifySteps();setVStep(2,'running','⟳',true);
-    photoTaken=false;
-    submitVerification(imageBase64);
+    const input=document.getElementById('pintPhotoInput');
+    if(input)input.click();
   }
 
   async function submitVerification(imageBase64){
