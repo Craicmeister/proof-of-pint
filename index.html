@@ -45,7 +45,8 @@
     #screen-landing { background: #060a0f; }
     .landing-hero { background: #060a0f; padding: 48px 24px 36px; display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden; }
     .landing-hero::before { content: ''; position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, rgba(26,107,58,0.35) 0%, transparent 70%); top: 0; left: 50%; transform: translateX(-50%); pointer-events: none; }
-    .hero-pint { font-size: 72px; margin-bottom: 20px; position: relative; z-index: 1; animation: pintFloat 3s ease-in-out infinite; }
+    .hero-logo-wrap { position: relative; z-index: 1; margin-bottom: 20px; animation: pintFloat 3s ease-in-out infinite; }
+    .hero-logo-img { width: 88px; height: 88px; border-radius: 50%; box-shadow: 0 0 0 3px rgba(255,215,0,0.4), 0 8px 32px rgba(0,0,0,0.5); display: block; }
     @keyframes pintFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
     .live-pill { display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: var(--radius-full); padding: 6px 14px; margin-bottom: 20px; position: relative; z-index: 1; }
     .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: livepulse 1.6s ease-in-out infinite; }
@@ -55,8 +56,8 @@
     .hero-sub { font-size: 15px; color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 28px; position: relative; z-index: 1; }
     .hero-btns { width: 100%; display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 1; }
     .hero-btn-sec { width: 100%; padding: 14px 20px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius-full); font-size: 15px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); -webkit-tap-highlight-color: transparent; }
-    .globe-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 20px; color: rgba(255,255,255,0.45); font-size: 13px; background: none; border: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 2px; position: relative; z-index: 1; cursor: pointer; font-family: var(--font-sans); -webkit-tap-highlight-color: transparent; }
-    .globe-link:active { color: rgba(255,255,255,0.8); }
+    .globe-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; color: var(--gold); font-size: 14px; font-weight: 600; background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3); border-radius: var(--radius-full); padding: 10px 20px; position: relative; z-index: 1; cursor: pointer; font-family: var(--font-sans); -webkit-tap-highlight-color: transparent; transition: background 0.15s; }
+    .globe-link:active { background: rgba(255,215,0,0.2); }
     .landing-body { display: none; }
     .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-text); margin-bottom: 12px; }
     .feed-item { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid var(--gray-light); }
@@ -91,12 +92,13 @@
     /* ── CAMERA ── */
     #screen-camera { background: #000; height: 100%; min-height: 100vh; }
     #screen-camera.active { display: flex; flex-direction: column; }
-    .camera-header { background: var(--green-deep); padding: 16px 20px 14px; flex-shrink: 0; }
-    .camera-viewfinder { flex: 1; position: relative; background: #000; overflow: hidden; min-height: 0; padding-bottom: 130px; }
+    .camera-header { background: rgba(0,0,0,0.7); padding: 16px 20px 14px; flex-shrink: 0; position: relative; z-index: 10; }
+    .camera-viewfinder { position: fixed; inset: 0; background: #000; }
     #video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-    .viewfinder-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; padding-bottom: 80px; padding-top: 20px; }
-    .viewfinder-frame { width: 200px; height: 200px; position: relative; }
-    .viewfinder-frame::before, .viewfinder-frame::after, .vf-br::before, .vf-br::after { content: ''; position: absolute; width: 22px; height: 22px; border-color: var(--gold); border-style: solid; }
+    .viewfinder-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; padding-bottom: 120px; }
+    .viewfinder-hint { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 16px; font-family: var(--font-sans); letter-spacing: 0.05em; }
+    .viewfinder-frame { width: 220px; height: 220px; position: relative; }
+    .viewfinder-frame::before, .viewfinder-frame::after, .vf-br::before, .vf-br::after { content: ''; position: absolute; width: 28px; height: 28px; border-color: var(--gold); border-style: solid; }
     .viewfinder-frame::before { top: 0; left: 0; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
     .viewfinder-frame::after  { top: 0; right: 0; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
     .vf-br::before { bottom: 0; left: 0; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
@@ -247,7 +249,10 @@
   <!-- LANDING -->
   <div id="screen-landing" class="screen active">
     <div class="landing-hero">
-      <div class="hero-pint">🍺</div>
+      <div class="hero-logo-wrap">
+        <img src="/craic.png" alt="$CRAIC" class="hero-logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <div style="display:none;font-size:72px;">🍺</div>
+      </div>
       <div class="live-pill"><div class="live-dot"></div><span id="liveCount">Pints verified worldwide</span></div>
       <h1 class="hero-headline">Your pint.<br>Verified on&#x2011;chain.</h1>
       <p class="hero-sub">Snap your pint in any Irish pub. Earn $CRAIC.</p>
@@ -255,36 +260,34 @@
         <button class="btn btn-gold" id="verifyBtn" onclick="startCamera()">Verify a Pint →</button>
         <button class="hero-btn-sec" id="findPubBtn" onclick="showScreen('findpub');loadFindPub();">📍 Find an Irish pub near me</button>
       </div>
-      <button class="globe-link" onclick="window.open('https://craic-globe.vercel.app','_blank')">🌍 See pints verified worldwide →</button>
+      <button class="globe-link" onclick="window.open('https://craic-globe.vercel.app','_blank')">🌍 See pints being verified worldwide →</button>
     </div>
   </div>
 
   <!-- FIND A PUB -->
   <div id="screen-findpub" class="screen">
-    <div class="screen-header">
-      <div class="screen-header-title">Find an Irish pub</div>
-      <div class="screen-header-sub" id="findPubSubtitle">Finding nearest Irish pubs...</div>
+    <div class="screen-header" style="display:flex;align-items:flex-start;gap:12px;">
+      <button onclick="showScreen('landing')" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:20px;cursor:pointer;padding:0;margin-top:2px;flex-shrink:0;">←</button>
+      <div>
+        <div class="screen-header-title">Find an Irish pub</div>
+        <div class="screen-header-sub" id="findPubSubtitle">Finding nearest Irish pubs...</div>
+      </div>
     </div>
     <div class="screen-body">
       <div id="findPubLoading" class="findpub-loading"><div class="spinner"></div><p>Searching near you...</p></div>
       <div id="findPubError" class="findpub-error hidden"><p id="findPubErrorMsg">Couldn't find pubs near you.</p><button class="btn btn-dark" id="findPubRetry" style="width:auto;padding:10px 24px;">Try again</button></div>
       <div id="findPubList" class="hidden"></div>
-      <div class="btn-stack mt-auto" style="padding-top:16px;">
-        <button class="btn btn-ghost" id="findPubBack" onclick="showScreen('landing')">← Back</button>
-      </div>
     </div>
   </div>
 
   <!-- CAMERA -->
   <div id="screen-camera" class="screen">
-    <div class="camera-header">
-      <div class="step-dots"><div class="step-dot on"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div>
-      <div class="screen-header-title">Take your photo</div>
-      <div class="screen-header-sub">Press the button to shoot</div>
-    </div>
     <div class="camera-viewfinder">
       <video id="video" autoplay playsinline muted></video>
-      <div class="viewfinder-overlay"><div class="viewfinder-frame"><div class="vf-br"></div></div></div>
+      <div class="viewfinder-overlay">
+        <div class="viewfinder-hint">Centre your pint in the frame</div>
+        <div class="viewfinder-frame"><div class="vf-br"></div></div>
+      </div>
     </div>
     <div class="camera-footer">
       <button class="back-camera-btn" id="backFromCamera">← Back</button>
