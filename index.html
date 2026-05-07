@@ -478,8 +478,8 @@
   <script>
   'use strict';
   let userLocation=null,stream=null,pendingVerification=null,verificationResult=null,pintsData=[];
-  function getSessionId(){let s=sessionStorage.getItem('pop_session');if(!s){s='web_'+Math.random().toString(36).slice(2,11);sessionStorage.setItem('pop_session',s);}return s;}
-  let userId=sessionStorage.getItem('pop_wallet')||getSessionId();
+  function getSessionId(){try{let s=sessionStorage.getItem('pop_session');if(!s){s='web_'+Math.random().toString(36).slice(2,11);sessionStorage.setItem('pop_session',s);}return s;}catch(e){return 'web_'+Math.random().toString(36).slice(2,11);}}
+  let userId;try{userId=sessionStorage.getItem('pop_wallet')||getSessionId();}catch(e){userId='web_'+Math.random().toString(36).slice(2,11);}
 
   function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');window.scrollTo(0,0);}
 
@@ -707,7 +707,7 @@
       }
 
       // 2. Fallback — WalletConnect (Rainbow, Trust, mobile wallets)
-      if (!walletAddress && typeof WalletConnectProvider !== 'undefined') {
+      if (false && !walletAddress && typeof WalletConnectProvider !== 'undefined') {
         try {
           const provider = new WalletConnectProvider.default({
             rpc: { 8453: 'https://mainnet.base.org' },
