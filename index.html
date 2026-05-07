@@ -10,8 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  
-  
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -478,8 +477,8 @@
   <script>
   'use strict';
   let userLocation=null,stream=null,pendingVerification=null,verificationResult=null,pintsData=[];
-  function getSessionId(){try{let s=sessionStorage.getItem('pop_session');if(!s){s='web_'+Math.random().toString(36).slice(2,11);sessionStorage.setItem('pop_session',s);}return s;}catch(e){return 'web_'+Math.random().toString(36).slice(2,11);}}
-  let userId;try{userId=sessionStorage.getItem('pop_wallet')||getSessionId();}catch(e){userId='web_'+Math.random().toString(36).slice(2,11);}
+  function getSessionId(){let s=sessionStorage.getItem('pop_session');if(!s){s='web_'+Math.random().toString(36).slice(2,11);sessionStorage.setItem('pop_session',s);}return s;}
+  let userId=sessionStorage.getItem('pop_wallet')||getSessionId();
 
   function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');window.scrollTo(0,0);}
 
@@ -623,7 +622,21 @@
       const r=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'find_pubs',image_base64:imageBase64,lat:userLocation?.lat||null,lng:userLocation?.lng||null,user_id:userId})});
       const result=await r.json();
       if(result.status==='select_pub'){pendingVerification={p_hash:result.p_hash,photo_url:result.photo_url,country_code:result.country_code,country_name:result.country_name,county:result.county,is_on_island:result.is_on_island,lat:result.lat,lng:result.lng};animateVerifySteps(()=>showPubSelector(result.pubs));}
-      else if(result.status==='auto_confirm')animateVerifySteps(()=>confirmPub(result.pub));
+      else if(result.status==='auto_confirm'){
+        // Bake p_hash + location fields onto pub so confirmPub never depends on
+        // pendingVerification (which is null on the auto_confirm path).
+        const autoPub=Object.assign({},result.pub,{
+          _p_hash:result.p_hash,
+          _photo_url:result.photo_url,
+          _country_code:result.country_code,
+          _country_name:result.country_name,
+          _county:result.county,
+          _is_on_island:result.is_on_island,
+          _lat:result.lat,
+          _lng:result.lng
+        });
+        confirmPub(autoPub);
+      }
       else if(result.status==='success')animateVerifySteps(()=>handleSuccess(result));
       else showVerifyError(result.message||'Try a different angle! 🧐');
     }catch(e){showVerifyError('Connection error. Please try again.');}
@@ -643,8 +656,25 @@
 
   async function confirmPub(pub){
     showScreen('verifying');resetVerifySteps();setVStep(2,'running','⟳',true);
+    // Use pendingVerification when set (select_pub path); fall back to
+    // _-prefixed fields baked onto pub (auto_confirm path).
+    const pv=pendingVerification||{};
+    const body={
+      action:'confirm_pub',
+      place_id:pub.place_id,
+      pub_name:pub.name,
+      user_id:userId,
+      p_hash:pv.p_hash||pub._p_hash||null,
+      photo_url:pv.photo_url||pub._photo_url||null,
+      country_code:pv.country_code||pub._country_code||null,
+      country_name:pv.country_name||pub._country_name||null,
+      county:pv.county||pub._county||null,
+      is_on_island:(pv.is_on_island!=null?pv.is_on_island:(pub._is_on_island!=null?pub._is_on_island:null)),
+      lat:pv.lat||pub._lat||null,
+      lng:pv.lng||pub._lng||null
+    };
     try{
-      const r=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'confirm_pub',place_id:pub.place_id,pub_name:pub.name,user_id:userId,...pendingVerification})});
+      const r=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
       const result=await r.json();
       if(result.status==='success')animateVerifySteps(()=>handleSuccess(result));
       else showVerifyError(result.message||'Something went wrong. Try again!');
@@ -707,7 +737,7 @@
       }
 
       // 2. Fallback — WalletConnect (Rainbow, Trust, mobile wallets)
-      if (false && !walletAddress && typeof WalletConnectProvider !== 'undefined') {
+      if (!walletAddress && typeof WalletConnectProvider !== 'undefined') {
         try {
           const provider = new WalletConnectProvider.default({
             rpc: { 8453: 'https://mainnet.base.org' },
