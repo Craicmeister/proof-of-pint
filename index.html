@@ -382,7 +382,7 @@
     </div>
     <div class="email-body">
       <p class="email-desc">Your $CRAIC is safe with us. Drop your email and we'll send a claim link whenever you're ready to set up a wallet.</p>
-      <input class="email-input" type="email" id="emailInput" placeholder="your@email.com" autocomplete="email" />
+      <input class="email-input" type="email" id="emailInput" placeholder="your@email.com" autocomplete="email" inputmode="email" enterkeyhint="done" />
       <div class="btn-stack mt-auto">
         <button class="btn btn-gold" id="saveEmailBtn">Save my $CRAIC →</button>
         <button class="btn btn-ghost" id="backFromEmailBtn">← Back</button>
@@ -511,6 +511,9 @@
     on('lt-friends',        function(){switchLb('friends');});
     on('pubSelectorCancel', function(){document.getElementById('pubSelector').classList.remove('active');pendingVerification=null;startCamera();});
     document.getElementById('shareText').addEventListener('input',updateCharCount);
+    document.getElementById('emailInput').addEventListener('keydown',function(e){
+      if(e.key==='Enter'){e.preventDefault();handleEmailSave();}
+    });
   }
 
   async function loadLiveData(){
@@ -684,6 +687,7 @@
 
   function handleSuccess(result){
     verificationResult=result;pendingVerification=null;
+    if(result.result_ref) sessionStorage.setItem('pop_result_ref', result.result_ref);
     const craic=result.craic_amount||5000,pubName=result.pub_name||'Irish pub',country=result.country_name||'';
     document.getElementById('rewardAmount').textContent=craic.toLocaleString();
     document.getElementById('rewardPubName').textContent=pubName+(country?' · '+country:'');
@@ -814,15 +818,17 @@
   }
 
   async function handleEmailSave() {
-    const email = document.getElementById('emailInput').value.trim();
+    const emailInput = document.getElementById('emailInput');
+    const email = emailInput.value.trim();
     if (!email || !email.includes('@')) {
       alert('Please enter a valid email address.');
       return;
     }
+    // Dismiss keyboard on mobile
+    emailInput.blur();
     const btn = document.getElementById('saveEmailBtn');
     btn.textContent = 'Saving...';
     btn.disabled = true;
-
     // Best-effort save — 8s timeout, never blocks the user
     try {
       await Promise.race([
@@ -833,16 +839,14 @@
             action: 'save_email',
             email,
             user_id: userId,
-            result_ref: verificationResult?.result_ref || null
+            result_ref: verificationResult?.result_ref || sessionStorage.getItem('pop_result_ref') || null
           })
         }),
         new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
       ]);
     } catch (e) {
-      // Non-blocking — log and continue regardless
       console.error('Email save error (non-blocking):', e);
     }
-
     // Always advance to success screen
     document.getElementById('emailSuccessAmount').textContent =
       (verificationResult?.craic_amount || 5000).toLocaleString();
