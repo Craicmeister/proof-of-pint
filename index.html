@@ -822,19 +822,28 @@
     const btn = document.getElementById('saveEmailBtn');
     btn.textContent = 'Saving...';
     btn.disabled = true;
+
+    // Best-effort save — 8s timeout, never blocks the user
     try {
-      await fetch('/api/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'save_email',
-          email,
-          user_id: userId,
-          result_ref: verificationResult?.result_ref || null
-        })
-      });
-    } catch (e) { console.error(e); }
-    // Update email success screen amount
+      await Promise.race([
+        fetch('/api/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'save_email',
+            email,
+            user_id: userId,
+            result_ref: verificationResult?.result_ref || null
+          })
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
+      ]);
+    } catch (e) {
+      // Non-blocking — log and continue regardless
+      console.error('Email save error (non-blocking):', e);
+    }
+
+    // Always advance to success screen
     document.getElementById('emailSuccessAmount').textContent =
       (verificationResult?.craic_amount || 5000).toLocaleString();
     btn.textContent = 'Save my $CRAIC →';
