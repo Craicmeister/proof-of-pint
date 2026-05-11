@@ -1,1 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Claim your $CRAIC ☘️</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green-deep: #0d3d20; --green-mid: #1a6b3a;
+      --gold: #FFD700; --white: #ffffff; --off-white: #f7f7f5;
+      --gray-light: #f0f0ec; --gray-mid: #d0d0c8; --gray-text: #888880;
+      --text-dark: #111110; --danger: #dc2626;
+      --font-serif: 'DM Serif Display', Georgia, serif;
+      --font-sans: 'DM Sans', -apple-system, sans-serif;
+      --radius-full: 9999px; --radius-lg: 20px; --radius-md: 14px;
+    }
+    html, body { min-height: 100%; font-family: var(--font-sans); background: #060a0f; color: var(--text-dark); overflow-x: hidden; }
+    .bg-glow { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .bg-glow::before { content: ''; position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, rgba(26,107,58,0.3) 0%, transparent 70%); top: -80px; left: 50%; transform: translateX(-50%); }
+    .page { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 48px 20px 40px; }
+    .brand { display: flex; flex-direction: column; align-items: center; margin-bottom: 36px; }
+    .brand-logo { width: 72px; height: 72px; border-radius: 50%; box-shadow: 0 0 0 3px rgba(255,215,0,0.4), 0 8px 32px rgba(0,0,0,0.5); margin-bottom: 14px; animation: pintFloat 3s ease-in-out infinite; }
+    @keyframes pintFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+    .brand-name { font-family: var(--font-serif); font-size: 18px; color: var(--white); margin-bottom: 3px; }
+    .brand-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
+    .card { width: 100%; max-width: 420px; background: var(--white); border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 4px 32px rgba(0,0,0,0.3); }
+    .card-header { background: var(--green-deep); padding: 24px 24px 20px; }
+    .card-header-title { font-family: var(--font-serif); font-size: 24px; color: var(--white); margin-bottom: 6px; }
+    .card-header-sub { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+    .card-body { padding: 24px; }
+    .reward-chip { display: flex; align-items: center; justify-content: space-between; background: var(--off-white); border: 1.5px solid var(--gray-light); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 20px; }
+    .reward-label { font-size: 12px; color: var(--gray-text); margin-bottom: 2px; }
+    .reward-amount { font-family: var(--font-serif); font-size: 22px; color: var(--green-deep); }
+    .reward-icon { font-size: 28px; }
+    .wallet-connected { background: rgba(26,107,58,0.06); border: 1.5px solid rgba(26,107,58,0.2); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 16px; display: none; }
+    .wallet-connected.visible { display: block; }
+    .wallet-label { font-size: 11px; color: var(--gray-text); margin-bottom: 3px; }
+    .wallet-address { font-size: 13px; font-weight: 600; color: var(--green-deep); font-family: monospace; word-break: break-all; }
+    .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 16px 20px; font-family: var(--font-sans); font-size: 15px; font-weight: 600; border: none; border-radius: var(--radius-full); cursor: pointer; transition: transform 0.12s, opacity 0.15s; -webkit-tap-highlight-color: transparent; text-decoration: none; }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-gold { background: var(--gold); color: var(--green-deep); }
+    .btn-dark { background: var(--green-deep); color: var(--white); }
+    .btn-ghost { background: transparent; color: var(--gray-text); border: 1.5px solid var(--gray-mid); margin-top: 10px; }
+    .btn-stack { display: flex; flex-direction: column; gap: 0; }
+    .hidden { display: none !important; }
+    .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(0,0,0,0.2); border-top-color: var(--green-deep); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+    .spinner-white { border-color: rgba(255,255,255,0.3); border-top-color: var(--white); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #state-loading { display: flex; flex-direction: column; align-items: center; padding: 40px 24px; gap: 14px; }
+    #state-loading p { font-size: 13px; color: var(--gray-text); }
+    #state-loading .spinner { width: 28px; height: 28px; border-width: 3px; border-color: var(--gray-light); border-top-color: var(--green-mid); }
+    #state-claim { display: none; }
+    #state-success { display: none; flex-direction: column; align-items: center; padding: 32px 24px; text-align: center; }
+    .success-icon { font-size: 56px; margin-bottom: 16px; animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    @keyframes popIn { 0%{transform:scale(0.4);opacity:0} 100%{transform:scale(1);opacity:1} }
+    .success-title { font-family: var(--font-serif); font-size: 26px; color: var(--green-deep); margin-bottom: 8px; }
+    .success-sub { font-size: 14px; color: var(--gray-text); line-height: 1.6; margin-bottom: 20px; }
+    .tx-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--green-mid); font-weight: 600; background: rgba(26,107,58,0.06); border: 1px solid rgba(26,107,58,0.2); border-radius: var(--radius-full); padding: 8px 16px; text-decoration: none; margin-bottom: 24px; }
+    #state-error { display: none; flex-direction: column; align-items: center; padding: 32px 24px; text-align: center; }
+    .error-icon { font-size: 44px; margin-bottom: 14px; }
+    .error-title { font-family: var(--font-serif); font-size: 22px; color: var(--text-dark); margin-bottom: 8px; }
+    .error-sub { font-size: 14px; color: var(--gray-text); line-height: 1.6; margin-bottom: 20px; }
+    .footer { margin-top: 24px; font-size: 12px; color: rgba(255,255,255,0.3); text-align: center; }
+    .footer a { color: rgba(255,215,0,0.6); text-decoration: none; }
+    .no-metamask-note { display: none; font-size: 12px; color: var(--gray-text); text-align: center; margin-top: 12px; line-height: 1.5; }
+    .no-metamask-note a { color: var(--green-mid); font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="page">
+  <div class="brand">
+    <img src="https://proof-of-pint.vercel.app/craic.png" alt="Proof of Pint" class="brand-logo">
+    <div class="brand-name">Proof of Pint</div>
+    <div class="brand-sub">Your pint. Verified on-chain.</div>
+  </div>
+
+  <div class="card">
+    <div id="state-loading">
+      <div class="spinner"></div>
+      <p>Checking your claim…</p>
+    </div>
+
+    <div id="state-claim">
+      <div class="card-header">
+        <div class="card-header-title">Claim your $CRAIC</div>
+        <div class="card-header-sub">Connect a wallet on Base to receive your tokens.</div>
+      </div>
+      <div class="card-body">
+        <div class="reward-chip">
+          <div>
+            <div class="reward-label">You've earned</div>
+            <div class="reward-amount" id="claim-amount">5,000 $CRAIC</div>
+          </div>
+          <div class="reward-icon">🍺</div>
+        </div>
+        <div class="wallet-connected" id="wallet-connected-box">
+          <div class="wallet-label">Wallet connected</div>
+          <div class="wallet-address" id="wallet-address-display"></div>
+        </div>
+        <div class="btn-stack">
+          <button class="btn btn-gold" id="btn-connect" onclick="connectWallet()">Connect Wallet</button>
+          <button class="btn btn-dark hidden" id="btn-claim" onclick="claimCraic()">Claim my $CRAIC →</button>
+          <button class="btn btn-ghost hidden" id="btn-disconnect" onclick="disconnectWallet()">Use a different wallet</button>
+        </div>
+        <div class="no-metamask-note" id="no-metamask-note">
+          No wallet detected. Install <a href="https://metamask.io/download/" target="_blank">MetaMask</a> or open this link in a mobile wallet browser.
+        </div>
+      </div>
+    </div>
+
+    <div id="state-success">
+      <div class="success-icon">🍀</div>
+      <div class="success-title">Sláinte!</div>
+      <div class="success-sub" id="success-sub">Your $CRAIC is on its way. Welcome to the pub on-chain.</div>
+      <a class="tx-link" id="tx-link" href="#" target="_blank">View on Basescan ↗</a>
+      <a class="btn btn-dark" href="https://proof-of-pint.com">Back to Proof of Pint</a>
+    </div>
+
+    <div id="state-error">
+      <div class="error-icon" id="error-icon">⚠️</div>
+      <div class="error-title" id="error-title">Something went wrong</div>
+      <div class="error-sub" id="error-sub">This claim link may be invalid or expired.</div>
+      <a class="btn btn-dark" href="https://proof-of-pint.com">Go to Proof of Pint</a>
+    </div>
+  </div>
+
+  <div class="footer">Need help? Email <a href="mailto:hello@proof-of-pint.com">hello@proof-of-pint.com</a></div>
+</div>
+
+<script>
+  const BACKEND_URL   = 'https://proof-of-pint.vercel.app/api/verify';
+  const BASE_CHAIN_ID = '0x2105';
+  let claimToken    = null;
+  let walletAddress = null;
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    claimToken = params.get('ref');
+    if (!claimToken) {
+      showError('No claim token', 'This link looks broken. Please check your email and try again.', 'link');
+      return;
+    }
+    showState('claim');
+  });
+
+  function showState(state) {
+    ['loading','claim','success','error'].forEach(s => {
+      document.getElementById('state-' + s).style.display = 'none';
+    });
+    const el = document.getElementById('state-' + state);
+    if (state === 'loading' || state === 'success' || state === 'error') {
+      el.style.display = 'flex';
+    } else {
+      el.style.display = 'block';
+    }
+  }
+
+  function showError(title, sub, icon) {
+    document.getElementById('error-icon').textContent  = icon  || 'error';
+    document.getElementById('error-title').textContent = title || 'Something went wrong';
+    document.getElementById('error-sub').textContent   = sub   || 'Please try again.';
+    showState('error');
+  }
+
+  async function connectWallet() {
+    if (!window.ethereum) {
+      document.getElementById('no-metamask-note').style.display = 'block';
+      return;
+    }
+    const btn = document.getElementById('btn-connect');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Connecting...';
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      walletAddress  = accounts[0];
+      try {
+        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: BASE_CHAIN_ID }] });
+      } catch (switchErr) {
+        if (switchErr.code === 4902) {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{ chainId: BASE_CHAIN_ID, chainName: 'Base', nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 }, rpcUrls: ['https://mainnet.base.org'], blockExplorerUrls: ['https://basescan.org'] }]
+          });
+        }
+      }
+      document.getElementById('wallet-address-display').textContent = walletAddress.slice(0,6) + '...' + walletAddress.slice(-4);
+      document.getElementById('wallet-connected-box').classList.add('visible');
+      document.getElementById('btn-connect').classList.add('hidden');
+      document.getElementById('btn-claim').classList.remove('hidden');
+      document.getElementById('btn-disconnect').classList.remove('hidden');
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = 'Connect Wallet';
+      if (err.code !== 4001) showError('Connection failed', 'Could not connect wallet. Please try again.', 'connect');
+    }
+  }
+
+  function disconnectWallet() {
+    walletAddress = null;
+    document.getElementById('wallet-connected-box').classList.remove('visible');
+    document.getElementById('wallet-address-display').textContent = '';
+    document.getElementById('btn-connect').classList.remove('hidden');
+    document.getElementById('btn-connect').disabled = false;
+    document.getElementById('btn-connect').innerHTML = 'Connect Wallet';
+    document.getElementById('btn-claim').classList.add('hidden');
+    document.getElementById('btn-disconnect').classList.add('hidden');
+  }
+
+  async function claimCraic() {
+    if (!walletAddress || !claimToken) return;
+    const btn = document.getElementById('btn-claim');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner spinner-white"></div> Sending $CRAIC...';
+    try {
+      const res  = await fetch(BACKEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'claim_by_token', token: claimToken, wallet_address: walletAddress })
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        document.getElementById('success-sub').textContent = data.message || 'Your $CRAIC is on its way. Welcome to the pub on-chain.';
+        const txLink = document.getElementById('tx-link');
+        if (data.tx_hash) {
+          txLink.href = 'https://basescan.org/tx/' + data.tx_hash;
+          txLink.style.display = 'inline-flex';
+        } else {
+          txLink.style.display = 'none';
+        }
+        showState('success');
+      } else {
+        const msg = data.message || '';
+        if (msg === 'Already claimed!') showError('Already claimed', 'These tokens have already been claimed. Each pint can only be claimed once.', 'claimed');
+        else if (msg === 'Claim link has expired') showError('Link expired', 'This claim link has expired. Links are valid for 30 days.', 'expired');
+        else if (msg === 'Claim not found') showError('Not found', "We couldn't find this claim. Check your email link and try again.", 'notfound');
+        else showError('Claim failed', msg || 'Something went wrong. Email hello@proof-of-pint.com for help.');
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = 'Claim my $CRAIC ->';
+      showError('Network error', 'Could not reach the server. Check your connection and try again.', 'network');
+    }
+  }
+</script>
+</body>
+</html>
 
