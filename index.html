@@ -10,6 +10,31 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- WalletConnect AppKit v2 -->
+  <script type="module">
+    import { createAppKit } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.6.8/dist/esm/index.js';
+    import { WagmiAdapter } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-adapter-wagmi@1.6.8/dist/esm/index.js';
+    import { base } from 'https://cdn.jsdelivr.net/npm/@reown/appkit/networks';
+
+    const projectId = 'YOUR_PROJECT_ID';
+    const networks  = [base];
+    const wagmiAdapter = new WagmiAdapter({ networks, projectId });
+
+    const modal = createAppKit({
+      adapters:  [wagmiAdapter],
+      networks,
+      projectId,
+      metadata: {
+        name:        'Proof of Pint',
+        description: 'Verify your pint. Earn $CRAIC.',
+        url:         'https://proof-of-pint.com',
+        icons:       ['https://proof-of-pint.vercel.app/craic.png'],
+      },
+      features: { analytics: false },
+    });
+
+    window._wcModal = modal;
+  </script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -699,77 +724,47 @@
   }
 
   async function handleConnectWallet() {
-    const btn = document.getElementById('connectWalletBtn');
+    const btn    = document.getElementById('connectWalletBtn');
     const errBar = document.getElementById('walletErrorBar');
     errBar.style.display = 'none';
 
-    // Show spinner
+    // Wait for AppKit to be ready (loaded via module script)
+    const modal = window._wcModal;
+    if (!modal) {
+      errBar.textContent = 'Wallet connect loading — please try again in a moment.';
+      errBar.style.display = 'block';
+      return;
+    }
+
     btn.classList.add('connecting');
     btn.querySelector('.wallet-opt-icon').textContent = '⏳';
 
     try {
-      let walletAddress = null;
+      // Open the WalletConnect modal — works with MetaMask, Coinbase, Rainbow,
+      // Trust, and 400+ other wallets on any mobile browser
+      await modal.open();
 
-      // 1. Try injected wallet first (MetaMask, Coinbase browser extension, etc.)
-      if (typeof window.ethereum !== 'undefined') {
-        try {
-          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          if (accounts && accounts[0]) {
-            walletAddress = accounts[0];
-            // Switch to Base network
-            try {
-              await window.ethereum.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: '0x2105' }], // Base mainnet
-              });
-            } catch (switchErr) {
-              // If Base not added, add it
-              if (switchErr.code === 4902) {
-                await window.ethereum.request({
-                  method: 'wallet_addEthereumChain',
-                  params: [{ chainId: '0x2105', chainName: 'Base', nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 }, rpcUrls: ['https://mainnet.base.org'], blockExplorerUrls: ['https://basescan.org'] }]
-                });
-              }
-            }
+      // Poll for connection (modal is async — user picks wallet and approves)
+      const walletAddress = await new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('timeout')), 120000); // 2 min
+        const unsubscribe = modal.subscribeState(state => {
+          if (state.selectedNetworkId && modal.getAddress()) {
+            clearTimeout(timeout);
+            unsubscribe();
+            resolve(modal.getAddress());
           }
-        } catch (e) {
-          if (e.code === 4001) { // User rejected
-            btn.classList.remove('connecting');
-            btn.querySelector('.wallet-opt-icon').textContent = '👛';
-            return;
+          // User closed modal without connecting
+          if (!state.open && !modal.getAddress()) {
+            clearTimeout(timeout);
+            unsubscribe();
+            reject(new Error('closed'));
           }
-        }
-      }
+        });
+      });
 
-      // 2. Fallback — WalletConnect (Rainbow, Trust, mobile wallets)
-      if (!walletAddress && typeof WalletConnectProvider !== 'undefined') {
-        try {
-          const provider = new WalletConnectProvider.default({
-            rpc: { 8453: 'https://mainnet.base.org' },
-            chainId: 8453,
-          });
-          await provider.enable();
-          const accounts = provider.accounts;
-          if (accounts && accounts[0]) walletAddress = accounts[0];
-        } catch (e) {
-          if (e.message && e.message.includes('User closed')) {
-            btn.classList.remove('connecting');
-            btn.querySelector('.wallet-opt-icon').textContent = '👛';
-            return;
-          }
-        }
-      }
+      if (!walletAddress) throw new Error('No address returned');
 
-      if (!walletAddress) {
-        // No wallet found — suggest Coinbase Wallet
-        btn.classList.remove('connecting');
-        btn.querySelector('.wallet-opt-icon').textContent = '👛';
-        errBar.textContent = 'No wallet found. Install MetaMask or Coinbase Wallet to continue.';
-        errBar.style.display = 'block';
-        return;
-      }
-
-      // Connected — save and send $CRAIC
+      // Save wallet and send $CRAIC
       userId = walletAddress;
       sessionStorage.setItem('pop_wallet', userId);
 
@@ -782,19 +777,16 @@
       document.getElementById('walletSuccessMsg').textContent = `${(verificationResult?.craic_amount || 5000).toLocaleString()} $CRAIC sent to ${shortAddr}`;
       document.getElementById('walletSuccessBar').classList.remove('hidden');
       document.getElementById('txLinkContainer').classList.remove('hidden');
-
-      // Hide wallet options
       document.querySelector('.wallet-options').style.display = 'none';
-
-      // Auto-advance to share after 2 seconds
       setTimeout(() => showScreen('share'), 2000);
 
     } catch (e) {
-      console.error('Wallet connect error:', e);
       btn.classList.remove('connecting');
       btn.querySelector('.wallet-opt-icon').textContent = '👛';
-      errBar.textContent = 'Something went wrong. Please try again.';
-      errBar.style.display = 'block';
+      if (e.message !== 'closed' && e.message !== 'timeout') {
+        errBar.textContent = 'Something went wrong. Please try again.';
+        errBar.style.display = 'block';
+      }
     }
   }
 
