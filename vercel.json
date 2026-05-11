@@ -6,5 +6,8 @@
         { "key": "X-Vercel-Deployment-Toolbar", "value": "0" }
       ]
     }
+  ],
+  "rewrites": [
+    { "source": "/claim", "destination": "/claim.html" }
   ]
 }
