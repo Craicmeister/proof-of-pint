@@ -57,7 +57,7 @@
       justify-content: center;
       position: relative;
       overflow: hidden;
-      padding: 60px 24px 80px;
+      padding: 20px 24px 80px;
       text-align: center;
     }
 
@@ -396,6 +396,31 @@
     footer a:hover { color: var(--gold); }
     .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
 
+    /* ── HOW IT WORKS COLLAPSIBLE ── */
+    .hiw-section { padding-top: 0; padding-bottom: 0; }
+    .hiw-toggle {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 18px 22px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; color: var(--white);
+      font-family: var(--font-sans);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .hiw-toggle:hover { background: rgba(255,255,255,0.07); border-color: rgba(34,197,94,0.25); }
+    .hiw-toggle-label { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+    .hiw-toggle-hint { font-size: 11px; color: rgba(255,255,255,0.3); font-weight: 400; }
+    .hiw-arrow { font-size: 12px; color: var(--green-bright); transition: transform 0.3s ease; }
+    .hiw-arrow.open { transform: rotate(180deg); }
+    .hiw-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.5s ease, opacity 0.4s ease;
+      opacity: 0;
+    }
+    .hiw-body.open { max-height: 600px; opacity: 1; }
+
     /* ── DIVIDER ── */
     .divider {
       width: 48px; height: 2px;
@@ -441,45 +466,6 @@
     </div>
   </section>
 
-  <!-- ── HOW IT WORKS ── -->
-  <section class="section">
-    <div class="reveal">
-      <div class="section-label">How it works</div>
-      <div class="divider"></div>
-      <h2 class="section-title">The only consensus mechanism<br>that ends with a cold one.</h2>
-    </div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">📍</div>
-        <div class="step-content">
-          <div class="step-title">Find an Irish pub</div>
-          <div class="step-sub">Anywhere in the world. Dublin, New York, Tokyo — we'll find the nearest one to you.</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">📸</div>
-        <div class="step-content">
-          <div class="step-title">Snap your pint</div>
-          <div class="step-sub">Open the app and take a photo of your pint. That's it.</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">🤖</div>
-        <div class="step-content">
-          <div class="step-title">AI verifies it's real</div>
-          <div class="step-sub">Google Vision AI checks it's a proper pint. Google Maps confirms you're actually in a pub.</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">⛓️</div>
-        <div class="step-content">
-          <div class="step-title">Earn $CRAIC on Base</div>
-          <div class="step-sub">5,000 $CRAIC lands in your wallet. One reward per day. On-chain, every time.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ── REWARD STRIP ── -->
   <div class="reward-strip">
     <div class="reward-amount">5,000</div>
@@ -503,7 +489,7 @@
       <div class="feature-card">
         <div class="feature-icon">📍</div>
         <div class="feature-title">Location Verification</div>
-        <div class="feature-sub">Google Maps confirms you're physically in a pub. Can't claim from your sofa.</div>
+        <div class="feature-sub">Google Maps confirms that you're physically in an Irish pub. Can't claim from the sofa.</div>
       </div>
       <div class="feature-card">
         <div class="feature-icon">🌍</div>
@@ -518,7 +504,7 @@
       <div class="feature-card">
         <div class="feature-icon">🏆</div>
         <div class="feature-title">Leaderboards</div>
-        <div class="feature-sub">Countries, Irish counties, pubs, and players. Who's drinking the most?</div>
+        <div class="feature-sub">Countries, Irish counties, pubs, and players. Who's having the most craic?</div>
       </div>
       <div class="feature-card">
         <div class="feature-icon">⛓️</div>
@@ -596,6 +582,66 @@
     </div>
   </section>
 
+  <!-- ── HOW IT WORKS (collapsible) ── -->
+  <section class="section hiw-section" id="how-it-works">
+    <button class="hiw-toggle" onclick="toggleHIW()" aria-expanded="false">
+      <span class="hiw-toggle-label">
+        <span class="section-label" style="margin:0;">How it works</span>
+        <span class="hiw-toggle-hint">Tap to expand</span>
+      </span>
+      <span class="hiw-arrow" id="hiw-arrow">▼</span>
+    </button>
+    <div class="hiw-body" id="hiw-body">
+      <div class="divider" style="margin-top:24px;"></div>
+      <h2 class="section-title">The only consensus mechanism<br>that ends with a cold one.</h2>
+      <div class="steps">
+        <div class="step visible">
+          <div class="step-num">📍</div>
+          <div class="step-content">
+            <div class="step-title">Find an Irish pub</div>
+            <div class="step-sub">Anywhere in the world. Dublin, New York, Tokyo — we'll find the nearest one to you.</div>
+          </div>
+        </div>
+        <div class="step visible">
+          <div class="step-num">📸</div>
+          <div class="step-content">
+            <div class="step-title">Snap your pint</div>
+            <div class="step-sub">Open the app and take a photo of your pint. That's it.</div>
+          </div>
+        </div>
+        <div class="step visible">
+          <div class="step-num">🤖</div>
+          <div class="step-content">
+            <div class="step-title">AI verifies it's real</div>
+            <div class="step-sub">Google Vision AI checks it's a proper pint. Google Maps confirms you're actually in an Irish pub anywhere in the world.</div>
+          </div>
+        </div>
+        <div class="step visible">
+          <div class="step-num">⛓️</div>
+          <div class="step-content">
+            <div class="step-title">Earn $CRAIC on Base</div>
+            <div class="step-sub">5,000 $CRAIC lands in your wallet. One reward per day. On-chain, every time.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CRAIC VERIFIED DATABASE ── -->
+  <section class="section" style="padding-top:0;">
+    <div class="reveal">
+      <div class="section-label">Craic Verified</div>
+      <div class="divider"></div>
+      <h2 class="section-title">Building the world's only<br>craic-verified database<br>of Irish pubs.</h2>
+    </div>
+    <div class="reveal" style="margin-top: -12px;">
+      <p style="font-size:16px; color:rgba(255,255,255,0.55); line-height:1.75; max-width:580px;">
+        Every verified pint adds another pub to the map. Not self-reported. Not scraped. Actually verified — by someone standing in it, pint in hand.<br><br>
+        There are Irish pubs in every corner of the world. Let's get them all for the craic. ☘️
+      </p>
+    </div>
+  </section>
+
   <!-- ── FINAL CTA ── -->
   <div class="final-cta">
     <div class="final-cta-title">Your round. ☘️</div>
@@ -618,6 +664,17 @@
   </footer>
 
   <script>
+    // ── HOW IT WORKS TOGGLE ───────────────────────────────────────────────
+    function toggleHIW() {
+      const body = document.getElementById('hiw-body');
+      const arrow = document.getElementById('hiw-arrow');
+      const btn = document.querySelector('.hiw-toggle');
+      const isOpen = body.classList.contains('open');
+      body.classList.toggle('open', !isOpen);
+      arrow.classList.toggle('open', !isOpen);
+      btn.setAttribute('aria-expanded', String(!isOpen));
+    }
+
     // ── SCROLL ANIMATIONS ──────────────────────────────────────────────────
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
