@@ -15,14 +15,14 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --green-deep: #0d3d20;
-      --green-mid:  #1a6b3a;
+      --green-deep:   #0d3d20;
+      --green-mid:    #1a6b3a;
       --green-bright: #22c55e;
-      --gold:       #FFD700;
-      --white:      #ffffff;
-      --text-dark:  #0a0f0d;
-      --font-serif: 'Playfair Display', Georgia, serif;
-      --font-sans:  'DM Sans', -apple-system, sans-serif;
+      --gold:         #FFD700;
+      --white:        #ffffff;
+      --text-dark:    #0a0f0d;
+      --font-serif:   'Playfair Display', Georgia, serif;
+      --font-sans:    'DM Sans', -apple-system, sans-serif;
     }
 
     html { scroll-behavior: smooth; }
@@ -62,27 +62,27 @@
       animation: logoFloat 4s ease-in-out infinite;
     }
     @keyframes logoFloat { 0%,100%{transform:translateY(0) rotate(-1deg)} 50%{transform:translateY(-10px) rotate(1deg)} }
+
     .hero-pill {
       display: inline-flex; align-items: center; gap: 8px;
       background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
       border-radius: 999px; padding: 7px 16px; font-size: 12px; font-weight: 600;
       letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.65);
-      margin-bottom: 20px; animation: fadeUp 0.6s ease both;
+      margin-bottom: 20px;
     }
     .hero-pill-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-bright); animation: pulse 1.8s ease-in-out infinite; }
     @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+
     .hero-headline {
       font-family: var(--font-serif); font-size: clamp(42px, 10vw, 80px); font-weight: 900;
       line-height: 1.0; color: var(--white); margin-bottom: 10px;
-      animation: fadeUp 0.7s 0.1s ease both;
     }
     .hero-headline .gold { color: var(--gold); }
     .hero-tagline {
       font-family: var(--font-serif); font-size: clamp(16px, 3.5vw, 22px);
-      font-weight: 400; font-style: italic; color: rgba(255,255,255,0.55);
-      margin-bottom: 32px; animation: fadeUp 0.7s 0.2s ease both;
+      font-weight: 400; font-style: italic; color: rgba(255,255,255,0.55); margin-bottom: 32px;
     }
-    .hero-cta { animation: fadeUp 0.7s 0.3s ease both; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    .hero-cta { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
     .btn-verify {
       display: inline-flex; align-items: center; justify-content: center; gap: 10px;
       background: var(--gold); color: var(--green-deep); font-family: var(--font-sans);
@@ -100,7 +100,6 @@
     .btn-verify:active { transform: scale(0.97); }
     .btn-verify-icon { font-size: 22px; }
     .hero-note { font-size: 12px; color: rgba(255,255,255,0.3); }
-    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
     /* ── SECTIONS ── */
     .section { max-width: 720px; margin: 0 auto; padding: 80px 24px; position: relative; z-index: 2; }
@@ -113,10 +112,7 @@
     .feature-card {
       background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
       border-radius: 16px; padding: 24px;
-      opacity: 0; transform: translateY(16px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
     }
-    .feature-card.visible { opacity: 1; transform: translateY(0); }
     .feature-card:hover { border-color: rgba(34,197,94,0.25); background: rgba(255,255,255,0.06); }
     .feature-card-db {
       grid-column: 1 / -1;
@@ -143,8 +139,7 @@
     /* ── STEPS ── */
     .steps { display: flex; flex-direction: column; gap: 0; position: relative; }
     .steps::before { content: ''; position: absolute; left: 23px; top: 28px; bottom: 28px; width: 1px; background: linear-gradient(to bottom, rgba(34,197,94,0.4), rgba(34,197,94,0.1)); }
-    .step { display: flex; align-items: flex-start; gap: 20px; padding: 20px 0; opacity: 0; transform: translateX(-16px); transition: opacity 0.5s ease, transform 0.5s ease; }
-    .step.visible { opacity: 1; transform: translateX(0); }
+    .step { display: flex; align-items: flex-start; gap: 20px; padding: 20px 0; }
     .step-num { width: 46px; height: 46px; border-radius: 50%; background: var(--green-deep); border: 1.5px solid rgba(34,197,94,0.3); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
     .step-title { font-size: 16px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
     .step-sub   { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.6; }
@@ -170,18 +165,6 @@
     footer a { color: rgba(255,215,0,0.5); text-decoration: none; }
     footer a:hover { color: var(--gold); }
     .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
-
-    /* ── ANIMATIONS ── */
-    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-    .feature-card { opacity: 0; transform: translateY(16px); }
-    .feature-card.visible { opacity: 1; transform: translateY(0); }
-    .step { opacity: 0; transform: translateX(-16px); }
-    .step.visible { opacity: 1; transform: translateX(0); }
-    /* Fallback — if JS observer doesn't fire, show everything */
-    @media (prefers-reduced-motion: reduce) {
-      .reveal, .feature-card, .step { opacity: 1 !important; transform: none !important; }
-    }
   </style>
 </head>
 <body>
@@ -204,10 +187,8 @@
 
   <!-- ── FEATURES ── -->
   <section class="section">
-    <div class="reveal">
-      <div class="section-label">Features</div>
-      <div class="divider"></div>
-    </div>
+    <div class="section-label">Features</div>
+    <div class="divider"></div>
     <div class="features-grid">
       <div class="feature-card">
         <div class="feature-icon">🍺</div>
@@ -249,18 +230,16 @@
 
   <!-- ── TOKEN ── -->
   <section class="section" style="padding-top:0;">
-    <div class="reveal">
-      <div class="section-label">$CRAIC Token</div>
-      <div class="divider"></div>
-      <h2 class="section-title">On Base. For real.</h2>
-    </div>
-    <div class="token-grid reveal">
+    <div class="section-label">$CRAIC Token</div>
+    <div class="divider"></div>
+    <h2 class="section-title">On Base. For real.</h2>
+    <div class="token-grid">
       <div class="token-stat"><div class="token-stat-num">100B</div><div class="token-stat-label">Total Supply</div></div>
       <div class="token-stat"><div class="token-stat-num">Base</div><div class="token-stat-label">Chain</div></div>
       <div class="token-stat"><div class="token-stat-num">ERC-20</div><div class="token-stat-label">Standard</div></div>
       <div class="token-stat"><div class="token-stat-num">Uni V3</div><div class="token-stat-label">Liquidity</div></div>
     </div>
-    <div class="contract-box reveal">
+    <div class="contract-box">
       <div>
         <div class="contract-label">Contract Address</div>
         <div class="contract-addr">0x13e9272c4f6b574d08df3d70D07cd365Cf424b07</div>
@@ -271,11 +250,9 @@
 
   <!-- ── HOW IT WORKS ── -->
   <section class="section" style="padding-top:0;">
-    <div class="reveal">
-      <div class="section-label">How it works</div>
-      <div class="divider"></div>
-      <h2 class="section-title">The only consensus mechanism<br>that ends with a cold one.</h2>
-    </div>
+    <div class="section-label">How it works</div>
+    <div class="divider"></div>
+    <h2 class="section-title">The only consensus mechanism<br>that ends with a cold one.</h2>
     <div class="steps">
       <div class="step">
         <div class="step-num">📍</div>
@@ -324,12 +301,10 @@
 
   <!-- ── ROADMAP ── -->
   <section class="section" style="padding-top:0;">
-    <div class="reveal">
-      <div class="section-label">Roadmap</div>
-      <div class="divider"></div>
-      <h2 class="section-title">Where we're headed.</h2>
-    </div>
-    <div class="roadmap reveal">
+    <div class="section-label">Roadmap</div>
+    <div class="divider"></div>
+    <h2 class="section-title">Where we're headed.</h2>
+    <div class="roadmap">
       <div class="roadmap-phase">
         <div class="phase-badge phase-live">Live</div>
         <div>
@@ -363,7 +338,7 @@
     </a>
   </div>
 
-  <!-- ── FOOTER ── */
+  <!-- ── FOOTER ── -->
   <footer>
     <div class="footer-links">
       <a href="https://proof-of-pint.com/app">App</a>
@@ -375,17 +350,6 @@
   </footer>
 
   <script>
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
-    }, { threshold: 0, rootMargin: '0px 0px -40px 0px' });
-
-    document.querySelectorAll('.reveal, .step, .feature-card').forEach(el => observer.observe(el));
-    document.querySelectorAll('.feature-card').forEach((c, i) => c.style.transitionDelay = (i * 0.08) + 's');
-    document.querySelectorAll('.step').forEach((s, i) => s.style.transitionDelay = (i * 0.1) + 's');
-    setTimeout(() => {
-      document.querySelectorAll('.reveal, .step, .feature-card').forEach(el => el.classList.add('visible'));
-    }, 800);
-
     function copyContract() {
       navigator.clipboard.writeText('0x13e9272c4f6b574d08df3d70D07cd365Cf424b07');
       const btn = document.querySelector('.contract-copy');
