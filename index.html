@@ -19,420 +19,160 @@
       --green-mid:  #1a6b3a;
       --green-bright: #22c55e;
       --gold:       #FFD700;
-      --gold-dark:  #d4a800;
       --white:      #ffffff;
-      --off-white:  #f7f7f2;
       --text-dark:  #0a0f0d;
-      --text-mid:   #3d5247;
-      --text-light: #7a9188;
       --font-serif: 'Playfair Display', Georgia, serif;
       --font-sans:  'DM Sans', -apple-system, sans-serif;
     }
 
     html { scroll-behavior: smooth; }
-    body {
-      font-family: var(--font-sans);
-      background: var(--text-dark);
-      color: var(--white);
-      overflow-x: hidden;
-    }
+    body { font-family: var(--font-sans); background: var(--text-dark); color: var(--white); overflow-x: hidden; }
 
-    /* ── NOISE TEXTURE OVERLAY ── */
     body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
+      content: ''; position: fixed; inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 1000;
-      opacity: 0.35;
+      pointer-events: none; z-index: 1000; opacity: 0.35;
     }
 
     /* ── HERO ── */
     .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-      padding: 20px 24px 80px;
-      text-align: center;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start;
+      position: relative; overflow: hidden;
+      padding: 48px 24px 80px; text-align: center;
     }
-
-    /* Radial green glow */
     .hero::before {
-      content: '';
-      position: absolute;
-      width: 700px; height: 700px;
+      content: ''; position: absolute; width: 700px; height: 700px;
       background: radial-gradient(circle, rgba(26,107,58,0.45) 0%, transparent 65%);
-      top: -100px; left: 50%;
-      transform: translateX(-50%);
-      pointer-events: none;
+      top: -100px; left: 50%; transform: translateX(-50%); pointer-events: none;
     }
-
-    /* Bottom fade */
     .hero::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 200px;
-      background: linear-gradient(to bottom, transparent, var(--text-dark));
-      pointer-events: none;
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 200px;
+      background: linear-gradient(to bottom, transparent, var(--text-dark)); pointer-events: none;
     }
-
     .hero-inner {
       position: relative; z-index: 2;
       display: flex; flex-direction: column; align-items: center;
-      max-width: 640px;
+      max-width: 640px; width: 100%;
     }
-
-    /* Logo */
     .hero-logo {
-      width: 96px; height: 96px;
-      border-radius: 50%;
+      width: 96px; height: 96px; border-radius: 50%;
       box-shadow: 0 0 0 4px rgba(255,215,0,0.35), 0 0 60px rgba(26,107,58,0.6), 0 12px 40px rgba(0,0,0,0.6);
-      margin-bottom: 28px;
+      margin-bottom: 20px;
       animation: logoFloat 4s ease-in-out infinite;
     }
-    @keyframes logoFloat {
-      0%,100% { transform: translateY(0) rotate(-1deg); }
-      50%      { transform: translateY(-10px) rotate(1deg); }
-    }
-
-    /* Eyebrow pill */
+    @keyframes logoFloat { 0%,100%{transform:translateY(0) rotate(-1deg)} 50%{transform:translateY(-10px) rotate(1deg)} }
     .hero-pill {
       display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 999px;
-      padding: 7px 16px;
-      font-size: 12px; font-weight: 600;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      color: rgba(255,255,255,0.65);
-      margin-bottom: 24px;
-      animation: fadeUp 0.6s ease both;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px; padding: 7px 16px; font-size: 12px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.65);
+      margin-bottom: 20px; animation: fadeUp 0.6s ease both;
     }
-    .hero-pill-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--green-bright);
-      animation: pulse 1.8s ease-in-out infinite;
-    }
+    .hero-pill-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-bright); animation: pulse 1.8s ease-in-out infinite; }
     @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
-
-    /* Headline */
     .hero-headline {
-      font-family: var(--font-serif);
-      font-size: clamp(42px, 10vw, 80px);
-      font-weight: 900;
-      line-height: 1.0;
-      color: var(--white);
-      margin-bottom: 10px;
+      font-family: var(--font-serif); font-size: clamp(42px, 10vw, 80px); font-weight: 900;
+      line-height: 1.0; color: var(--white); margin-bottom: 10px;
       animation: fadeUp 0.7s 0.1s ease both;
     }
     .hero-headline .gold { color: var(--gold); }
-
-    /* Subheadline */
     .hero-tagline {
-      font-family: var(--font-serif);
-      font-size: clamp(16px, 3.5vw, 22px);
-      font-weight: 400;
-      font-style: italic;
-      color: rgba(255,255,255,0.55);
-      margin-bottom: 32px;
-      animation: fadeUp 0.7s 0.2s ease both;
+      font-family: var(--font-serif); font-size: clamp(16px, 3.5vw, 22px);
+      font-weight: 400; font-style: italic; color: rgba(255,255,255,0.55);
+      margin-bottom: 32px; animation: fadeUp 0.7s 0.2s ease both;
     }
-
-    /* CTA */
-    .hero-cta {
-      animation: fadeUp 0.7s 0.3s ease both;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-    }
-
+    .hero-cta { animation: fadeUp 0.7s 0.3s ease both; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
     .btn-verify {
       display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-      background: var(--gold);
-      color: var(--green-deep);
-      font-family: var(--font-sans);
-      font-size: 18px; font-weight: 700;
-      padding: 20px 48px;
-      border-radius: 999px;
-      border: none; cursor: pointer;
-      text-decoration: none;
-      width: 100%; max-width: 340px;
+      background: var(--gold); color: var(--green-deep); font-family: var(--font-sans);
+      font-size: 18px; font-weight: 700; padding: 20px 48px; border-radius: 999px;
+      border: none; cursor: pointer; text-decoration: none; width: 100%; max-width: 340px;
       box-shadow: 0 0 40px rgba(255,215,0,0.3), 0 8px 24px rgba(0,0,0,0.4);
-      transition: transform 0.15s, box-shadow 0.15s;
-      -webkit-tap-highlight-color: transparent;
-      position: relative;
-      overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.15s; -webkit-tap-highlight-color: transparent;
+      position: relative; overflow: hidden;
     }
     .btn-verify::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%);
-      pointer-events: none;
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%); pointer-events: none;
     }
     .btn-verify:hover  { transform: translateY(-2px); box-shadow: 0 0 60px rgba(255,215,0,0.45), 0 12px 32px rgba(0,0,0,0.5); }
     .btn-verify:active { transform: scale(0.97); }
     .btn-verify-icon { font-size: 22px; }
+    .hero-note { font-size: 12px; color: rgba(255,255,255,0.3); }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
-    .hero-note {
-      font-size: 12px;
-      color: rgba(255,255,255,0.3);
-    }
+    /* ── SECTIONS ── */
+    .section { max-width: 720px; margin: 0 auto; padding: 80px 24px; position: relative; z-index: 2; }
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-bright); margin-bottom: 16px; }
+    .section-title { font-family: var(--font-serif); font-size: clamp(28px, 6vw, 42px); font-weight: 700; color: var(--white); line-height: 1.15; margin-bottom: 48px; }
+    .divider { width: 48px; height: 2px; background: linear-gradient(to right, var(--green-bright), transparent); margin-bottom: 20px; }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ── HOW IT WORKS ── */
-    .section {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 80px 24px;
-      position: relative; z-index: 2;
-    }
-
-    .section-label {
-      font-size: 11px; font-weight: 700;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--green-bright);
-      margin-bottom: 16px;
-    }
-    .section-title {
-      font-family: var(--font-serif);
-      font-size: clamp(28px, 6vw, 42px);
-      font-weight: 700;
-      color: var(--white);
-      line-height: 1.15;
-      margin-bottom: 48px;
-    }
-
-    /* Steps */
-    .steps {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      position: relative;
-    }
-    .steps::before {
-      content: '';
-      position: absolute;
-      left: 23px; top: 28px; bottom: 28px;
-      width: 1px;
-      background: linear-gradient(to bottom, rgba(34,197,94,0.4), rgba(34,197,94,0.1));
-    }
-    .step {
-      display: flex; align-items: flex-start; gap: 20px;
-      padding: 20px 0;
-      opacity: 0;
-      transform: translateX(-16px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-    .step.visible { opacity: 1; transform: translateX(0); }
-    .step-num {
-      width: 46px; height: 46px; border-radius: 50%;
-      background: var(--green-deep);
-      border: 1.5px solid rgba(34,197,94,0.3);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; flex-shrink: 0;
-    }
-    .step-content {}
-    .step-title { font-size: 16px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
-    .step-sub   { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.6; }
-
-    /* ── REWARD STRIP ── */
-    .reward-strip {
-      background: linear-gradient(135deg, var(--green-deep) 0%, #0a2d18 100%);
-      border-top: 1px solid rgba(255,255,255,0.06);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      padding: 60px 24px;
-      text-align: center;
-      position: relative; overflow: hidden; z-index: 2;
-    }
-    .reward-strip::before {
-      content: '';
-      position: absolute;
-      width: 500px; height: 500px;
-      background: radial-gradient(circle, rgba(255,215,0,0.08) 0%, transparent 65%);
-      top: 50%; left: 50%; transform: translate(-50%,-50%);
-      pointer-events: none;
-    }
-    .reward-amount {
-      font-family: var(--font-serif);
-      font-size: clamp(64px, 16vw, 120px);
-      font-weight: 900;
-      color: var(--gold);
-      line-height: 1;
-      margin-bottom: 4px;
-      position: relative;
-      text-shadow: 0 0 80px rgba(255,215,0,0.3);
-    }
-    .reward-token {
-      font-size: 18px; font-weight: 600;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 16px;
-      letter-spacing: 0.06em;
-    }
-    .reward-sub {
-      font-size: 14px;
-      color: rgba(255,255,255,0.35);
-      max-width: 320px; margin: 0 auto;
-      line-height: 1.6;
-    }
-
-    /* ── FEATURES GRID ── */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 16px;
-    }
+    /* ── FEATURES ── */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
     .feature-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 24px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 24px;
       opacity: 0; transform: translateY(16px);
       transition: opacity 0.5s ease, transform 0.5s ease;
     }
     .feature-card.visible { opacity: 1; transform: translateY(0); }
     .feature-card:hover { border-color: rgba(34,197,94,0.25); background: rgba(255,255,255,0.06); }
-    .feature-icon { font-size: 28px; margin-bottom: 12px; }
+    .feature-card-db {
+      grid-column: 1 / -1;
+      background: rgba(34,197,94,0.05); border-color: rgba(34,197,94,0.2);
+    }
+    .feature-card-db:hover { border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.08); }
+    .feature-icon  { font-size: 28px; margin-bottom: 12px; }
     .feature-title { font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
     .feature-sub   { font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.6; }
+    .feature-sub-db { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.75; }
 
-    /* ── TOKEN INFO ── */
-    .token-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    @media (min-width: 480px) { .token-grid { grid-template-columns: repeat(4, 1fr); } }
-    .token-stat {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
-    }
-    .token-stat-num  { font-family: var(--font-serif); font-size: 18px; font-weight: 700; color: var(--gold); margin-bottom: 4px; }
+    /* ── TOKEN ── */
+    .token-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-bottom: 24px; }
+    @media (min-width:480px) { .token-grid { grid-template-columns: repeat(4,1fr); } }
+    .token-stat { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px; text-align: center; }
+    .token-stat-num   { font-family: var(--font-serif); font-size: 18px; font-weight: 700; color: var(--gold); margin-bottom: 4px; }
     .token-stat-label { font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 500; letter-spacing: 0.04em; }
-
-    .contract-box {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      padding: 16px 20px;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 12px; flex-wrap: wrap;
-    }
+    .contract-box { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     .contract-label { font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
     .contract-addr  { font-family: monospace; font-size: 13px; color: rgba(255,255,255,0.7); word-break: break-all; }
-    .contract-copy  {
-      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 600;
-      padding: 8px 16px; border-radius: 999px; cursor: pointer; white-space: nowrap;
-      font-family: var(--font-sans); transition: background 0.15s;
-      flex-shrink: 0;
-    }
+    .contract-copy  { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 999px; cursor: pointer; white-space: nowrap; font-family: var(--font-sans); transition: background 0.15s; flex-shrink: 0; }
     .contract-copy:hover { background: rgba(255,255,255,0.14); }
+
+    /* ── STEPS ── */
+    .steps { display: flex; flex-direction: column; gap: 0; position: relative; }
+    .steps::before { content: ''; position: absolute; left: 23px; top: 28px; bottom: 28px; width: 1px; background: linear-gradient(to bottom, rgba(34,197,94,0.4), rgba(34,197,94,0.1)); }
+    .step { display: flex; align-items: flex-start; gap: 20px; padding: 20px 0; opacity: 0; transform: translateX(-16px); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .step.visible { opacity: 1; transform: translateX(0); }
+    .step-num { width: 46px; height: 46px; border-radius: 50%; background: var(--green-deep); border: 1.5px solid rgba(34,197,94,0.3); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .step-title { font-size: 16px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+    .step-sub   { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.6; }
 
     /* ── ROADMAP ── */
     .roadmap { display: flex; flex-direction: column; gap: 0; }
-    .roadmap-phase {
-      display: flex; gap: 20px; padding: 20px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
+    .roadmap-phase { display: flex; gap: 20px; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
     .roadmap-phase:last-child { border-bottom: none; }
-    .phase-badge {
-      flex-shrink: 0;
-      padding: 4px 12px; border-radius: 999px;
-      font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-      height: fit-content; margin-top: 2px;
-    }
-    .phase-live    { background: rgba(34,197,94,0.15); color: var(--green-bright); border: 1px solid rgba(34,197,94,0.3); }
-    .phase-soon    { background: rgba(255,215,0,0.1);  color: var(--gold);         border: 1px solid rgba(255,215,0,0.25); }
-    .phase-future  { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); }
+    .phase-badge { flex-shrink: 0; padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; height: fit-content; margin-top: 2px; }
+    .phase-live   { background: rgba(34,197,94,0.15); color: var(--green-bright); border: 1px solid rgba(34,197,94,0.3); }
+    .phase-soon   { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid rgba(255,215,0,0.25); }
+    .phase-future { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1); }
     .phase-title { font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
     .phase-sub   { font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.6; }
 
     /* ── FINAL CTA ── */
-    .final-cta {
-      text-align: center;
-      padding: 80px 24px 100px;
-      position: relative; z-index: 2;
-    }
-    .final-cta-title {
-      font-family: var(--font-serif);
-      font-size: clamp(32px, 8vw, 56px);
-      font-weight: 900;
-      color: var(--white);
-      margin-bottom: 12px;
-      line-height: 1.1;
-    }
-    .final-cta-sub {
-      font-size: 16px;
-      color: rgba(255,255,255,0.4);
-      margin-bottom: 36px;
-    }
+    .final-cta { text-align: center; padding: 80px 24px 100px; position: relative; z-index: 2; }
+    .final-cta-title { font-family: var(--font-serif); font-size: clamp(32px,8vw,56px); font-weight: 900; color: var(--white); margin-bottom: 12px; line-height: 1.1; }
+    .final-cta-sub { font-size: 16px; color: rgba(255,255,255,0.4); margin-bottom: 36px; }
 
     /* ── FOOTER ── */
-    footer {
-      border-top: 1px solid rgba(255,255,255,0.06);
-      padding: 32px 24px;
-      text-align: center;
-      font-size: 12px;
-      color: rgba(255,255,255,0.2);
-      position: relative; z-index: 2;
-    }
+    footer { border-top: 1px solid rgba(255,255,255,0.06); padding: 32px 24px; text-align: center; font-size: 12px; color: rgba(255,255,255,0.2); position: relative; z-index: 2; }
     footer a { color: rgba(255,215,0,0.5); text-decoration: none; }
     footer a:hover { color: var(--gold); }
     .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
 
-    /* ── HOW IT WORKS COLLAPSIBLE ── */
-    .hiw-section { padding-top: 0; padding-bottom: 0; }
-    .hiw-toggle {
-      width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px;
-      padding: 18px 22px;
-      display: flex; align-items: center; justify-content: space-between;
-      cursor: pointer; color: var(--white);
-      font-family: var(--font-sans);
-      transition: background 0.2s, border-color 0.2s;
-    }
-    .hiw-toggle:hover { background: rgba(255,255,255,0.07); border-color: rgba(34,197,94,0.25); }
-    .hiw-toggle-label { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
-    .hiw-toggle-hint { font-size: 11px; color: rgba(255,255,255,0.3); font-weight: 400; }
-    .hiw-arrow { font-size: 12px; color: var(--green-bright); transition: transform 0.3s ease; }
-    .hiw-arrow.open { transform: rotate(180deg); }
-    .hiw-body {
-      max-height: 0; overflow: hidden;
-      transition: max-height 0.5s ease, opacity 0.4s ease;
-      opacity: 0;
-    }
-    .hiw-body.open { max-height: 600px; opacity: 1; }
-
-    /* ── DIVIDER ── */
-    .divider {
-      width: 48px; height: 2px;
-      background: linear-gradient(to right, var(--green-bright), transparent);
-      margin-bottom: 20px;
-    }
-
-    /* ── SCROLL ANIMATIONS ── */
-    .reveal {
-      opacity: 0; transform: translateY(24px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
+    /* ── ANIMATIONS ── */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
   </style>
 </head>
@@ -442,43 +182,23 @@
   <section class="hero">
     <div class="hero-inner">
       <img src="https://proof-of-pint.vercel.app/craic.png" alt="Proof of Pint" class="hero-logo">
-
-      <div class="hero-pill">
-        <div class="hero-pill-dot"></div>
-        Live on Base
-      </div>
-
-      <h1 class="hero-headline">
-        Proof of<br><span class="gold">Pint.</span>
-      </h1>
-
-      <p class="hero-tagline">
-        Proof of Work. Proof of Stake.<br>And now — Proof of Pint.
-      </p>
-
+      <div class="hero-pill"><div class="hero-pill-dot"></div>Live on Base</div>
+      <h1 class="hero-headline">Proof of<br><span class="gold">Pint.</span></h1>
+      <p class="hero-tagline">Proof of Work. Proof of Stake.<br>And now — Proof of Pint.</p>
       <div class="hero-cta">
         <a href="https://proof-of-pint.com/app" class="btn-verify">
-          <span class="btn-verify-icon">🍺</span>
-          Verify a Pint →
+          <span class="btn-verify-icon">🍺</span>Verify a Pint →
         </a>
         <span class="hero-note">Works in any browser · No account needed</span>
       </div>
     </div>
   </section>
 
-  <!-- ── REWARD STRIP ── -->
-  <div class="reward-strip">
-    <div class="reward-amount">5,000</div>
-    <div class="reward-token">$CRAIC PER PINT</div>
-    <div class="reward-sub">Sent directly to your Base wallet every time a pint is verified. One per day.</div>
-  </div>
-
   <!-- ── FEATURES ── -->
   <section class="section">
     <div class="reveal">
       <div class="section-label">Features</div>
       <div class="divider"></div>
-      <h2 class="section-title">Built properly.</h2>
     </div>
     <div class="features-grid">
       <div class="feature-card">
@@ -511,6 +231,11 @@
         <div class="feature-title">On-Chain Rewards</div>
         <div class="feature-sub">$CRAIC sent directly to your Base wallet. No middleman. No waiting.</div>
       </div>
+      <div class="feature-card feature-card-db">
+        <div class="feature-icon">🗺️</div>
+        <div class="feature-title">Building the world's only craic-verified database of Irish pubs.</div>
+        <div class="feature-sub-db">Every verified pint adds another pub to the map. Not self-reported. Not scraped. Actually verified — by someone standing in it, pint in hand.<br><br>There are Irish pubs in every corner of the world. Let's get them all for the craic. ☘️</div>
+      </div>
     </div>
   </section>
 
@@ -521,32 +246,71 @@
       <div class="divider"></div>
       <h2 class="section-title">On Base. For real.</h2>
     </div>
-
     <div class="token-grid reveal">
-      <div class="token-stat">
-        <div class="token-stat-num">100B</div>
-        <div class="token-stat-label">Total Supply</div>
-      </div>
-      <div class="token-stat">
-        <div class="token-stat-num">Base</div>
-        <div class="token-stat-label">Chain</div>
-      </div>
-      <div class="token-stat">
-        <div class="token-stat-num">ERC-20</div>
-        <div class="token-stat-label">Standard</div>
-      </div>
-      <div class="token-stat">
-        <div class="token-stat-num">Uni V3</div>
-        <div class="token-stat-label">Liquidity</div>
-      </div>
+      <div class="token-stat"><div class="token-stat-num">100B</div><div class="token-stat-label">Total Supply</div></div>
+      <div class="token-stat"><div class="token-stat-num">Base</div><div class="token-stat-label">Chain</div></div>
+      <div class="token-stat"><div class="token-stat-num">ERC-20</div><div class="token-stat-label">Standard</div></div>
+      <div class="token-stat"><div class="token-stat-num">Uni V3</div><div class="token-stat-label">Liquidity</div></div>
     </div>
-
     <div class="contract-box reveal">
       <div>
         <div class="contract-label">Contract Address</div>
         <div class="contract-addr">0x13e9272c4f6b574d08df3d70D07cd365Cf424b07</div>
       </div>
       <button class="contract-copy" onclick="copyContract()">Copy</button>
+    </div>
+  </section>
+
+  <!-- ── HOW IT WORKS ── -->
+  <section class="section" style="padding-top:0;">
+    <div class="reveal">
+      <div class="section-label">How it works</div>
+      <div class="divider"></div>
+      <h2 class="section-title">The only consensus mechanism<br>that ends with a cold one.</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">📍</div>
+        <div class="step-content">
+          <div class="step-title">Find an Irish pub</div>
+          <div class="step-sub">Anywhere in the world. Dublin, New York, Tokyo — tap "Find an Irish pub near me" and we'll locate the nearest one to you.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">📸</div>
+        <div class="step-content">
+          <div class="step-title">Snap your pint</div>
+          <div class="step-sub">Open the app, hit Verify a Pint, and take a photo of your pint. Works in any browser — no download needed.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">🤖</div>
+        <div class="step-content">
+          <div class="step-title">AI verifies it's real</div>
+          <div class="step-sub">Google Vision AI checks it's a proper pint. Google Maps confirms you're actually in an Irish pub anywhere in the world.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">⛓️</div>
+        <div class="step-content">
+          <div class="step-title">Earn $CRAIC on Base</div>
+          <div class="step-sub">5,000 $CRAIC is yours. One reward per day, per person.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">👛</div>
+        <div class="step-content">
+          <div class="step-title">Claim your $CRAIC</div>
+          <div class="step-sub">Connect a Base wallet (MetaMask, Coinbase, Rainbow) to receive instantly — or save your email and claim any time within 30 days.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">📣</div>
+        <div class="step-content">
+          <div class="step-title">Post to X &amp; get on the board</div>
+          <div class="step-sub">Share your verified pint to X with one tap. Your pub goes on the live globe. Your name goes on the leaderboard. The craic spreads.</div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -582,77 +346,16 @@
     </div>
   </section>
 
-  <!-- ── HOW IT WORKS (collapsible) ── -->
-  <section class="section hiw-section" id="how-it-works">
-    <button class="hiw-toggle" onclick="toggleHIW()" aria-expanded="false">
-      <span class="hiw-toggle-label">
-        <span class="section-label" style="margin:0;">How it works</span>
-        <span class="hiw-toggle-hint">Tap to expand</span>
-      </span>
-      <span class="hiw-arrow" id="hiw-arrow">▼</span>
-    </button>
-    <div class="hiw-body" id="hiw-body">
-      <div class="divider" style="margin-top:24px;"></div>
-      <h2 class="section-title">The only consensus mechanism<br>that ends with a cold one.</h2>
-      <div class="steps">
-        <div class="step visible">
-          <div class="step-num">📍</div>
-          <div class="step-content">
-            <div class="step-title">Find an Irish pub</div>
-            <div class="step-sub">Anywhere in the world. Dublin, New York, Tokyo — we'll find the nearest one to you.</div>
-          </div>
-        </div>
-        <div class="step visible">
-          <div class="step-num">📸</div>
-          <div class="step-content">
-            <div class="step-title">Snap your pint</div>
-            <div class="step-sub">Open the app and take a photo of your pint. That's it.</div>
-          </div>
-        </div>
-        <div class="step visible">
-          <div class="step-num">🤖</div>
-          <div class="step-content">
-            <div class="step-title">AI verifies it's real</div>
-            <div class="step-sub">Google Vision AI checks it's a proper pint. Google Maps confirms you're actually in an Irish pub anywhere in the world.</div>
-          </div>
-        </div>
-        <div class="step visible">
-          <div class="step-num">⛓️</div>
-          <div class="step-content">
-            <div class="step-title">Earn $CRAIC on Base</div>
-            <div class="step-sub">5,000 $CRAIC lands in your wallet. One reward per day. On-chain, every time.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── CRAIC VERIFIED DATABASE ── -->
-  <section class="section" style="padding-top:0;">
-    <div class="reveal">
-      <div class="section-label">Craic Verified</div>
-      <div class="divider"></div>
-      <h2 class="section-title">Building the world's only<br>craic-verified database<br>of Irish pubs.</h2>
-    </div>
-    <div class="reveal" style="margin-top: -12px;">
-      <p style="font-size:16px; color:rgba(255,255,255,0.55); line-height:1.75; max-width:580px;">
-        Every verified pint adds another pub to the map. Not self-reported. Not scraped. Actually verified — by someone standing in it, pint in hand.<br><br>
-        There are Irish pubs in every corner of the world. Let's get them all for the craic. ☘️
-      </p>
-    </div>
-  </section>
-
   <!-- ── FINAL CTA ── -->
   <div class="final-cta">
     <div class="final-cta-title">Your round. ☘️</div>
     <div class="final-cta-sub">Find an Irish pub. Snap your pint. Earn $CRAIC.</div>
-    <a href="https://proof-of-pint.com/app" class="btn-verify" style="margin: 0 auto;">
-      <span class="btn-verify-icon">🍺</span>
-      Verify a Pint →
+    <a href="https://proof-of-pint.com/app" class="btn-verify" style="margin:0 auto;">
+      <span class="btn-verify-icon">🍺</span>Verify a Pint →
     </a>
   </div>
 
-  <!-- ── FOOTER ── -->
+  <!-- ── FOOTER ── */
   <footer>
     <div class="footer-links">
       <a href="https://proof-of-pint.com/app">App</a>
@@ -664,41 +367,14 @@
   </footer>
 
   <script>
-    // ── HOW IT WORKS TOGGLE ───────────────────────────────────────────────
-    function toggleHIW() {
-      const body = document.getElementById('hiw-body');
-      const arrow = document.getElementById('hiw-arrow');
-      const btn = document.querySelector('.hiw-toggle');
-      const isOpen = body.classList.contains('open');
-      body.classList.toggle('open', !isOpen);
-      arrow.classList.toggle('open', !isOpen);
-      btn.setAttribute('aria-expanded', String(!isOpen));
-    }
-
-    // ── SCROLL ANIMATIONS ──────────────────────────────────────────────────
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
     }, { threshold: 0.12 });
 
-    document.querySelectorAll('.reveal, .step, .feature-card').forEach(el => {
-      observer.observe(el);
-    });
+    document.querySelectorAll('.reveal, .step, .feature-card').forEach(el => observer.observe(el));
+    document.querySelectorAll('.feature-card').forEach((c, i) => c.style.transitionDelay = (i * 0.08) + 's');
+    document.querySelectorAll('.step').forEach((s, i) => s.style.transitionDelay = (i * 0.1) + 's');
 
-    // Stagger feature cards
-    document.querySelectorAll('.feature-card').forEach((card, i) => {
-      card.style.transitionDelay = (i * 0.08) + 's';
-    });
-
-    // Stagger steps
-    document.querySelectorAll('.step').forEach((step, i) => {
-      step.style.transitionDelay = (i * 0.1) + 's';
-    });
-
-    // ── COPY CONTRACT ──────────────────────────────────────────────────────
     function copyContract() {
       navigator.clipboard.writeText('0x13e9272c4f6b574d08df3d70D07cd365Cf424b07');
       const btn = document.querySelector('.contract-copy');
