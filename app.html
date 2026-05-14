@@ -10,31 +10,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <!-- WalletConnect AppKit v2 -->
-  <script type="module">
-    import { createAppKit } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.6.8/dist/esm/index.js';
-    import { WagmiAdapter } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-adapter-wagmi@1.6.8/dist/esm/index.js';
-    import { base } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.6.8/networks';
-
-    const projectId = 'fc6101e3b8206a2d0ec429682e56ca60';
-    const networks  = [base];
-    const wagmiAdapter = new WagmiAdapter({ networks, projectId });
-
-    const modal = createAppKit({
-      adapters:  [wagmiAdapter],
-      networks,
-      projectId,
-      metadata: {
-        name:        'Proof of Pint',
-        description: 'Verify your pint. Earn $CRAIC.',
-        url:         'https://proof-of-pint.com',
-        icons:       ['https://proof-of-pint.vercel.app/craic.png'],
-      },
-      features: { analytics: false },
-    });
-
-    window._wcModal = modal;
-  </script>
+  <!-- WalletConnect Ethereum Provider (UMD CDN, works in plain HTML) -->
+  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2.17.0/dist/index.umd.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -757,63 +734,64 @@
     const btn    = document.getElementById('connectWalletBtn');
     const errBar = document.getElementById('walletErrorBar');
     errBar.style.display = 'none';
-
-    // Wait for AppKit to be ready (loaded via module script) — retry for up to 5s
-    let modal = window._wcModal;
-    if (!modal) {
-      errBar.textContent = '⏳ Wallet connect loading…';
-      errBar.style.display = 'block';
-      for (let i = 0; i < 10; i++) {
-        await new Promise(r => setTimeout(r, 500));
-        if (window._wcModal) { modal = window._wcModal; break; }
-      }
-    }
-    if (!modal) {
-      errBar.textContent = 'Wallet connect failed to load. Please refresh and try again.';
-      errBar.style.display = 'block';
-      return;
-    }
-    errBar.style.display = 'none';
-
     btn.classList.add('connecting');
     btn.querySelector('.wallet-opt-icon').textContent = '⏳';
 
     try {
-      // Open the WalletConnect modal — works with MetaMask, Coinbase, Rainbow,
-      // Trust, and 400+ other wallets on any mobile browser
-      await modal.open();
+      let walletAddress = null;
 
-      // Poll for connection (modal is async — user picks wallet and approves)
-      const walletAddress = await new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => reject(new Error('timeout')), 120000); // 2 min
-        const unsubscribe = modal.subscribeState(state => {
-          if (state.selectedNetworkId && modal.getAddress()) {
-            clearTimeout(timeout);
-            unsubscribe();
-            resolve(modal.getAddress());
+      // Path 1: injected wallet (MetaMask, Coinbase, Trust on mobile)
+      if (window.ethereum) {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        walletAddress = accounts[0];
+        // Switch to / add Base (chainId 8453 = 0x2105)
+        try {
+          await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2105' }] });
+        } catch (sw) {
+          if (sw.code === 4902) {
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{ chainId: '0x2105', chainName: 'Base',
+                nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+                rpcUrls: ['https://mainnet.base.org'],
+                blockExplorerUrls: ['https://basescan.org'] }]
+            });
           }
-          // User closed modal without connecting
-          if (!state.open && !modal.getAddress()) {
-            clearTimeout(timeout);
-            unsubscribe();
-            reject(new Error('closed'));
+        }
+
+      // Path 2: WalletConnect QR modal (wallets without browser extension)
+      } else {
+        const WCProvider = window['@walletconnect/ethereum-provider'] &&
+                           window['@walletconnect/ethereum-provider'].EthereumProvider;
+        if (!WCProvider) throw new Error('no_provider');
+        const provider = await WCProvider.init({
+          projectId: 'fc6101e3b8206a2d0ec429682e56ca60',
+          chains: [8453],
+          showQrModal: true,
+          metadata: {
+            name:        'Proof of Pint',
+            description: 'Verify your pint. Earn $CRAIC.',
+            url:         'https://proof-of-pint.com',
+            icons:       ['https://proof-of-pint.vercel.app/craic.png']
           }
         });
-      });
+        await provider.connect();
+        walletAddress = provider.accounts[0];
+      }
 
-      if (!walletAddress) throw new Error('No address returned');
+      if (!walletAddress) throw new Error('no_address');
 
-      // Save wallet and send $CRAIC
+      // Save and send $CRAIC
       userId = walletAddress;
       sessionStorage.setItem('pop_wallet', userId);
-
       if (verificationResult) await sendCraic(walletAddress);
 
       // Show success
       btn.classList.remove('connecting');
       btn.querySelector('.wallet-opt-icon').textContent = '✅';
       const shortAddr = walletAddress.slice(0,6) + '...' + walletAddress.slice(-4);
-      document.getElementById('walletSuccessMsg').textContent = `${(verificationResult?.craic_amount || 5000).toLocaleString()} $CRAIC sent to ${shortAddr}`;
+      document.getElementById('walletSuccessMsg').textContent =
+        (verificationResult?.craic_amount || 5000).toLocaleString() + ' $CRAIC sent to ' + shortAddr;
       document.getElementById('walletSuccessBar').classList.remove('hidden');
       document.getElementById('txLinkContainer').classList.remove('hidden');
       document.querySelector('.wallet-options').style.display = 'none';
@@ -821,18 +799,17 @@
 
     } catch (e) {
       btn.classList.remove('connecting');
-      btn.querySelector('.wallet-opt-icon').textContent = '👛';
-      // Reset userId to original session ID — prevents the daily-limit check
-      // from blocking a retry when the wallet address was partially set
+      btn.querySelector('.wallet-opt-icon').textContent = '??';
+      // Reset userId so daily-limit check doesn't block a retry
       userId = sessionStorage.getItem('pop_session') || getSessionId();
-      if (e.message !== 'closed') {
-        errBar.innerHTML = (e.message === 'timeout'
-          ? 'Connection timed out. '
-          : 'Something went wrong. ')
-          + '<a href="#" id="retryWalletLink" style="color:var(--danger);font-weight:700;text-decoration:underline;">Try again →</a>';
+      if (e.code !== 4001 && e.message !== 'closed') {
+        const msg = e.message === 'no_provider'
+          ? 'No wallet found. Install MetaMask or try a different browser. '
+          : 'Connection failed. ';
+        errBar.innerHTML = msg + '<a href="#" id="retryWalletLink" style="color:var(--danger);font-weight:700;text-decoration:underline;">Try again &rarr;</a>';
         errBar.style.display = 'block';
-        const retryLink = document.getElementById('retryWalletLink');
-        if (retryLink) retryLink.addEventListener('click', function(e){ e.preventDefault(); handleConnectWallet(); });
+        const link = document.getElementById('retryWalletLink');
+        if (link) link.addEventListener('click', function(ev){ ev.preventDefault(); handleConnectWallet(); });
       }
     }
   }
