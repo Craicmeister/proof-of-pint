@@ -259,7 +259,7 @@
 
     /* ── EMAIL SUCCESS ── */
     #screen-email-success { background: var(--off-white); }
-    .email-success-body { padding: 40px 24px; flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; }
+    .email-success-body { padding: 24px 24px 32px; flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; min-height: 0; }
     .email-success-icon { font-size: 56px; }
     .email-success-title { font-family: var(--font-serif); font-size: 26px; color: var(--text-dark); }
     .email-success-sub { font-size: 14px; color: var(--gray-text); line-height: 1.65; max-width: 300px; }
@@ -376,9 +376,9 @@
     <div class="email-success-body">
       <div class="email-success-icon">📬</div>
       <div class="email-success-title">On its way!</div>
-      <p class="email-success-sub">We've saved your <strong id="emailSuccessAmount">5,000</strong> $CRAIC. Check your email for a claim link — you can connect a wallet anytime to receive it.</p>
-      <div style="margin-top:auto;width:100%;display:flex;flex-direction:column;gap:10px;">
-        <button class="btn btn-gold" onclick="showNameScreen()">Continue →</button>
+      <p class="email-success-sub">We've saved your <strong id="emailSuccessAmount">5,000</strong> $CRAIC. Check your email for the claim link — paste your wallet address to receive it.</p>
+      <div style="width:100%;margin-top:16px;">
+        <button class="btn btn-gold" id="emailSuccessContinueBtn">Continue →</button>
       </div>
     </div>
   </div>
@@ -526,6 +526,7 @@
     on('backFromErrorBtn',  function(){showScreen('landing');});
     on('connectWalletBtn',  handleConnectWallet);
     on('emailWalletBtn',    function(){showScreen('email');});
+    on('emailSuccessContinueBtn', showNameScreen);
     on('saveNameBtn',      handleSaveName);
     on('skipNameBtn',      function(){showScreen('share');});
     on('saveEmailBtn',      handleEmailSave);
@@ -877,23 +878,28 @@
     const btn = document.getElementById('saveEmailBtn');
     btn.textContent = 'Saving...';
     btn.disabled = true;
-    // Best-effort save — 8s timeout, never blocks the user
+    // Send email — 10s timeout
     try {
-      await Promise.race([
+      const resp = await Promise.race([
         fetch('/api/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            action: 'save_email',
+            action:     'save_email',
             email,
-            user_id: userId,
+            user_id:    userId,
             result_ref: verificationResult?.result_ref || sessionStorage.getItem('pop_result_ref') || null
           })
         }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
       ]);
+      const data = await resp.json();
+      console.log('save_email response:', data);
+      if (data.status !== 'success') {
+        console.error('save_email backend error:', data.message);
+      }
     } catch (e) {
-      console.error('Email save error (non-blocking):', e);
+      console.error('Email save error:', e.message);
     }
     // Always advance to success screen
     document.getElementById('emailSuccessAmount').textContent =
