@@ -279,7 +279,7 @@
       <p class="hero-sub">Snap your pint in any Irish pub. Earn $CRAIC.</p>
       <div class="hero-btns">
         <button class="btn btn-gold" id="verifyBtn" onclick="startCamera()">Verify a Pint →</button>
-        <button class="hero-btn-sec" id="findPubBtn" onclick="showScreen('findpub');loadFindPub();">📍 Find an Irish pub near me</button>
+        <button class="hero-btn-sec" id="findPubBtn" onclick="showScreen('findpub');loadFindPub();"><img class="craic-map-pin-app" src="/craic.png" alt="" style="width:22px;height:33px;vertical-align:middle;margin-right:6px;position:relative;top:-1px;"> Find an Irish pub near me</button>
       </div>
       <button class="globe-link" onclick="window.open('https://craic-globe.vercel.app','_blank')">🌍 See pints being verified worldwide →</button>
       <a href="https://proof-of-pint.com" style="margin-top:10px;font-size:12px;color:rgba(255,255,255,0.3);text-decoration:none;position:relative;z-index:1;" >← proof-of-pint.com</a>
@@ -940,5 +940,43 @@
     switchLb('global');
   });
   </script>
+
+<script>
+  (function() {
+    function makeCraicPin(logoSrc, targetClass) {
+      var W = 32, H = 48;
+      var canvas = document.createElement('canvas');
+      canvas.width = W; canvas.height = H;
+      var ctx = canvas.getContext('2d');
+      function draw(logoImg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.beginPath();
+        ctx.moveTo(14,22); ctx.lineTo(18,22); ctx.lineTo(16.5,46); ctx.lineTo(15.5,46);
+        ctx.closePath(); ctx.fillStyle = '#cc2200'; ctx.fill();
+        ctx.beginPath(); ctx.arc(16,13,11,0,Math.PI*2);
+        ctx.fillStyle = '#52C47C'; ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1.5; ctx.stroke();
+        if (logoImg) {
+          ctx.save(); ctx.beginPath(); ctx.arc(16,13,8.5,0,Math.PI*2); ctx.clip();
+          ctx.drawImage(logoImg, 7.5, 4.5, 17, 17); ctx.restore();
+        }
+        ctx.beginPath(); ctx.arc(12,9,2.5,0,Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,0.22)'; ctx.fill();
+        var dataUrl = canvas.toDataURL('image/png');
+        document.querySelectorAll('.' + targetClass).forEach(function(el) {
+          el.src = dataUrl;
+        });
+      }
+      var img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = function() { draw(img); };
+      img.onerror = function() { draw(null); };
+      img.src = logoSrc + '?v=' + Date.now();
+    }
+    window.addEventListener('DOMContentLoaded', function() {
+      makeCraicPin('/craic.png', 'craic-map-pin-app');
+    });
+  })();
+</script>
 </body>
 </html>
