@@ -216,7 +216,7 @@
         <div class="feature-sub">Google Vision AI analyses every photo. No pint, no $CRAIC. Simple as that.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">📍</div>
+        <div class="feature-icon"><img class="craic-map-pin" src="/craic.png" alt="$CRAIC" style="width:32px;height:48px;"></div>
         <div class="feature-title">Location Verification</div>
         <div class="feature-sub">Google Maps confirms that you're physically in an Irish pub. Can't claim from the sofa.</div>
       </div>
@@ -275,7 +275,7 @@
     <h2 class="section-title">The only consensus mechanism<br>that ends with a cold one.</h2>
     <div class="steps">
       <div class="step">
-        <div class="step-num">📍</div>
+        <div class="step-num" style="background:none;border:none;padding:0;"><img class="craic-map-pin" src="/craic.png" alt="$CRAIC" style="width:32px;height:48px;"></div>
         <div class="step-content">
           <div class="step-title">Find an Irish pub</div>
           <div class="step-sub">Anywhere in the world. Dublin, New York, Tokyo — tap "Find an Irish pub near me" and we'll locate the nearest one to you.</div>
@@ -377,5 +377,54 @@
       setTimeout(() => btn.textContent = 'Copy', 2000);
     }
   </script>
+
+<script>
+  (function() {
+    function makeCraicPin(headColor, spikeColor, logoSrc, targetClass) {
+      var W = 32, H = 48;
+      var canvas = document.createElement('canvas');
+      canvas.width = W; canvas.height = H;
+      var ctx = canvas.getContext('2d');
+      function draw(logoImg) {
+        ctx.clearRect(0, 0, W, H);
+        // Spike
+        ctx.beginPath();
+        ctx.moveTo(14,22); ctx.lineTo(18,22); ctx.lineTo(16.5,46); ctx.lineTo(15.5,46);
+        ctx.closePath(); ctx.fillStyle = spikeColor; ctx.fill();
+        // Circle head
+        ctx.beginPath(); ctx.arc(16,13,11,0,Math.PI*2);
+        ctx.fillStyle = headColor; ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1.5; ctx.stroke();
+        // Logo clipped into circle
+        if (logoImg) {
+          ctx.save(); ctx.beginPath(); ctx.arc(16,13,8.5,0,Math.PI*2); ctx.clip();
+          ctx.drawImage(logoImg, 7.5, 4.5, 17, 17); ctx.restore();
+        }
+        // Shine
+        ctx.beginPath(); ctx.arc(12,9,2.5,0,Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,0.22)'; ctx.fill();
+        // Apply to all targets
+        var dataUrl = canvas.toDataURL('image/png');
+        document.querySelectorAll('.' + targetClass).forEach(function(el) {
+          el.src = dataUrl;
+          el.style.width = '32px';
+          el.style.height = '48px';
+          el.style.borderRadius = '0';
+          el.style.objectFit = 'unset';
+        });
+      }
+      var img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = function() { draw(img); };
+      img.onerror = function() { draw(null); };
+      img.src = logoSrc + '?v=' + Date.now();
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+      makeCraicPin('#52C47C', '#cc2200', '/craic.png', 'craic-map-pin');
+    });
+  })();
+</script>
+
 </body>
 </html>
