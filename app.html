@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <!-- MetaMask SDK — official CDN build, handles mobile deeplink + desktop QR automatically -->
-  <script src="https://c0f4f41c-2f55-4863-921b-sdk-docs.github.io/cdn/metamask-sdk.js"></script>
+  <!-- Coinbase Wallet SDK — proper UMD CDN build -->
+  <script src="https://cdn.jsdelivr.net/npm/@coinbase/wallet-sdk@3.9.3/dist/index.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -360,8 +360,8 @@
         <div><div class="wallet-opt-title">Email it to me</div><div class="wallet-opt-sub">Quick and easy — claim your wallet later</div></div>
       </div>
       <div class="wallet-opt" id="connectWalletBtn">
-        <div class="wallet-opt-icon">👛</div>
-        <div><div class="wallet-opt-title">Connect my wallet</div><div class="wallet-opt-sub">Opens in MetaMask browser</div></div>
+        <div class="wallet-opt-icon" style="background:#1652f0;color:#fff;font-size:14px;font-weight:700;">cb</div>
+        <div><div class="wallet-opt-title">Coinbase Wallet</div><div class="wallet-opt-sub">Connect instantly on mobile or desktop</div></div>
       </div>
     </div>
     <div id="txLinkContainer" class="hidden tx-link-wrap"><a id="txLink" href="#" target="_blank" class="tx-link">View $CRAIC on BaseScan 🔗</a></div>
@@ -738,23 +738,22 @@
     btn.querySelector('.wallet-opt-icon').textContent = '⏳';
 
     try {
-      // MetaMask SDK handles everything:
-      // - Desktop: uses injected extension, or shows QR code if not installed
-      // - Mobile: auto-deeplinks to MetaMask app and redirects back to this page
-      const MMSDK = new MetaMaskSDK.MetaMaskSDK({
-        dappMetadata: {
-          name: 'Proof of Pint',
-          url:  window.location.href,
-          iconUrl: 'https://proof-of-pint.vercel.app/craic.png'
-        }
+      // Coinbase Wallet SDK — proper CDN build, handles mobile deep-link automatically
+      const CoinbaseWalletSDK = window.CoinbaseWalletSDK;
+      if (!CoinbaseWalletSDK) throw new Error('sdk_missing');
+
+      const sdk = new CoinbaseWalletSDK({
+        appName: 'Proof of Pint',
+        appLogoUrl: 'https://proof-of-pint.vercel.app/craic.png',
+        darkMode: false
       });
 
-      const accounts = await MMSDK.connect();
+      const provider = sdk.makeWeb3Provider('https://mainnet.base.org', 8453);
+      const accounts = await provider.request({ method: 'eth_requestAccounts' });
       const walletAddress = accounts[0];
       if (!walletAddress) throw new Error('no_address');
 
-      // Switch to / add Base (chainId 8453 = 0x2105)
-      const provider = MMSDK.getProvider();
+      // Switch to / add Base
       try {
         await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2105' }] });
       } catch (sw) {
@@ -769,12 +768,12 @@
         }
       }
 
-      // Save and send $CRAIC
       userId = walletAddress;
       sessionStorage.setItem('pop_wallet', userId);
       if (verificationResult) await sendCraic(walletAddress);
 
       btn.classList.remove('connecting');
+      btn.querySelector('.wallet-opt-icon').style.cssText = 'background:#1652f0;color:#fff;font-size:14px;font-weight:700;';
       btn.querySelector('.wallet-opt-icon').textContent = '✅';
       const shortAddr = walletAddress.slice(0,6) + '...' + walletAddress.slice(-4);
       document.getElementById('walletSuccessMsg').textContent =
@@ -786,9 +785,10 @@
 
     } catch (e) {
       btn.classList.remove('connecting');
-      btn.querySelector('.wallet-opt-icon').textContent = '??';
+      btn.querySelector('.wallet-opt-icon').style.cssText = 'background:#1652f0;color:#fff;font-size:14px;font-weight:700;';
+      btn.querySelector('.wallet-opt-icon').textContent = 'cb';
       userId = sessionStorage.getItem('pop_session') || getSessionId();
-      if (e.code !== 4001 && e.message !== 'closed' && e.message !== 'User rejected') {
+      if (e.code !== 4001 && e.message !== 'closed') {
         errBar.innerHTML = 'Connection failed. ' +
           '<a href="#" id="retryWalletLink" style="color:var(--danger);font-weight:700;text-decoration:underline;">Try again →</a>';
         errBar.style.display = 'block';
