@@ -822,9 +822,17 @@
     } catch (e) {
       btn.classList.remove('connecting');
       btn.querySelector('.wallet-opt-icon').textContent = '👛';
-      if (e.message !== 'closed' && e.message !== 'timeout') {
-        errBar.textContent = 'Something went wrong. Please try again.';
+      // Reset userId to original session ID — prevents the daily-limit check
+      // from blocking a retry when the wallet address was partially set
+      userId = sessionStorage.getItem('pop_session') || getSessionId();
+      if (e.message !== 'closed') {
+        errBar.innerHTML = (e.message === 'timeout'
+          ? 'Connection timed out. '
+          : 'Something went wrong. ')
+          + '<a href="#" id="retryWalletLink" style="color:var(--danger);font-weight:700;text-decoration:underline;">Try again →</a>';
         errBar.style.display = 'block';
+        const retryLink = document.getElementById('retryWalletLink');
+        if (retryLink) retryLink.addEventListener('click', function(e){ e.preventDefault(); handleConnectWallet(); });
       }
     }
   }
