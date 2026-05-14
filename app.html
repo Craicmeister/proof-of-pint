@@ -437,11 +437,13 @@
         <div class="share-toggle-row"><span>$CRAIC earned</span><input type="checkbox" id="inclCraic" checked></div>
       </div>
       <div class="share-btns">
-        <button class="btn btn-black" id="postToXBtn">
+        <a class="btn btn-black" id="postToXBtn" href="#" target="_blank" rel="noopener"
+           style="text-decoration:none;"
+           onclick="updatePostToXLink(); showScreen('confirm');">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           Post to X
-        </button>
-        <button class="btn btn-ghost" id="skipShareBtn">Skip — just claim my $CRAIC</button>
+        </a>
+        <button class="btn btn-ghost" id="skipShareBtn">Skip</button>
       </div>
     </div>
   </div>
@@ -531,7 +533,7 @@
     on('skipNameBtn',      function(){showScreen('share');});
     on('saveEmailBtn',      handleEmailSave);
     on('backFromEmailBtn',  function(){showScreen('reward');});
-    on('postToXBtn',        handlePostToX);
+    // postToXBtn is an <a> tag — handled via inline onclick + updatePostToXLink
     on('skipShareBtn',      function(){showScreen('confirm');});
     on('seeLeaderboardBtn', function(){showScreen('leaderboard');});
     on('verifyAnotherBtn',  startCamera);
@@ -540,7 +542,12 @@
     on('lt-county',         function(){switchLb('county');});
     on('lt-friends',        function(){switchLb('friends');});
     on('pubSelectorCancel', function(){document.getElementById('pubSelector').classList.remove('active');pendingVerification=null;startCamera();});
-    document.getElementById('shareText').addEventListener('input',updateCharCount);
+    document.getElementById('shareText').addEventListener('input', function() {
+      updateCharCount();
+      updatePostToXLink();
+    });
+    // Set initial href once share text is ready
+    setTimeout(updatePostToXLink, 500);
     document.getElementById('nameInput').addEventListener('keydown',function(e){
       if(e.key==='Enter'){e.preventDefault();handleSaveName();}
     });
@@ -915,7 +922,13 @@
     const pp=document.getElementById('confirmPostPreview');if(pp)pp.innerHTML=`🍺 Pint verified at ${pubName}<br>Just earned ${craic.toLocaleString()} $CRAIC — proof-of-pint.com/app<br><span class="post-preview-tag">#ProofOfPint</span>`;
   }
   function updateCharCount(){const ta=document.getElementById('shareText'),cc=document.getElementById('charCount');if(!ta||!cc)return;const l=ta.value.length;cc.textContent=l;cc.style.color=l>260?'var(--danger)':'var(--gray-text)';}
-  function handlePostToX(){window.open('https://x.com/intent/post?text='+encodeURIComponent(document.getElementById('shareText').value),'_blank');showScreen('confirm');}
+  function updatePostToXLink() {
+    var text = (document.getElementById('shareText') || {}).value || '';
+    var url = 'https://x.com/intent/post?text=' + encodeURIComponent(text);
+    document.getElementById('postToXBtn').href = url;
+  }
+  // Keep href fresh as user edits the textarea
+  function handlePostToX() { updatePostToXLink(); showScreen('confirm'); }
 
   function switchLb(tab){
     ['global','county','friends'].forEach(t=>document.getElementById('lt-'+t).classList.toggle('active',t===tab));
