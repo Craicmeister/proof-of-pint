@@ -14,7 +14,7 @@
   <script type="module">
     import { createAppKit } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.6.8/dist/esm/index.js';
     import { WagmiAdapter } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-adapter-wagmi@1.6.8/dist/esm/index.js';
-    import { base } from 'https://cdn.jsdelivr.net/npm/@reown/appkit/networks';
+    import { base } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.6.8/networks';
 
     const projectId = 'fc6101e3b8206a2d0ec429682e56ca60';
     const networks  = [base];
@@ -758,13 +758,22 @@
     const errBar = document.getElementById('walletErrorBar');
     errBar.style.display = 'none';
 
-    // Wait for AppKit to be ready (loaded via module script)
-    const modal = window._wcModal;
+    // Wait for AppKit to be ready (loaded via module script) — retry for up to 5s
+    let modal = window._wcModal;
     if (!modal) {
-      errBar.textContent = 'Wallet connect loading — please try again in a moment.';
+      errBar.textContent = '⏳ Wallet connect loading…';
+      errBar.style.display = 'block';
+      for (let i = 0; i < 10; i++) {
+        await new Promise(r => setTimeout(r, 500));
+        if (window._wcModal) { modal = window._wcModal; break; }
+      }
+    }
+    if (!modal) {
+      errBar.textContent = 'Wallet connect failed to load. Please refresh and try again.';
       errBar.style.display = 'block';
       return;
     }
+    errBar.style.display = 'none';
 
     btn.classList.add('connecting');
     btn.querySelector('.wallet-opt-icon').textContent = '⏳';
