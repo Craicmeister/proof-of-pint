@@ -465,7 +465,6 @@
     <div class="post-preview-card" id="confirmPostPreview"></div>
     <div class="confirm-body">
       <button class="btn btn-dark" id="seeLeaderboardBtn">See the leaderboard</button>
-      <button class="btn btn-ghost" id="verifyAnotherBtn">Verify another pint</button>
     </div>
   </div>
 
@@ -477,18 +476,20 @@
         <div class="lb-tabs">
           <button class="lb-tab active" id="lt-global">Global</button>
           <button class="lb-tab" id="lt-county">County</button>
-          <button class="lb-tab" id="lt-friends">Friends</button>
         </div>
       </div>
       <div class="lb-podium">
-        <div class="podium-item podium-2"><div class="podium-avatar" style="width:44px;height:44px;">🧑</div><div class="podium-name">—</div><div class="podium-bar">🥈</div></div>
-        <div class="podium-item podium-1"><div class="podium-avatar">👑</div><div class="podium-name">—</div><div class="podium-bar">🥇</div></div>
-        <div class="podium-item podium-3"><div class="podium-avatar" style="width:44px;height:44px;">👩</div><div class="podium-name">—</div><div class="podium-bar">🥉</div></div>
+        <div class="podium-item podium-2"><div class="podium-avatar" style="width:44px;height:44px;">🧑</div><div class="podium-name" id="podium-2-name">—</div><div class="podium-bar">🥈</div></div>
+        <div class="podium-item podium-1"><div class="podium-avatar">👑</div><div class="podium-name" id="podium-1-name">—</div><div class="podium-bar">🥇</div></div>
+        <div class="podium-item podium-3"><div class="podium-avatar" style="width:44px;height:44px;">👩</div><div class="podium-name" id="podium-3-name">—</div><div class="podium-bar">🥉</div></div>
       </div>
     </div>
     <div class="lb-list" id="lbList"></div>
     <div class="lb-you"><div class="lb-you-left"><span class="lb-rank">#—</span><div class="lb-you-badge">🧑</div><div><div class="lb-name" id="lbYouName">You</div></div></div><div class="lb-craic" id="lbYouCraic">0 $CRAIC</div></div>
-    <div class="lb-footer"><button class="btn btn-gold" id="verifyFromLbBtn">Verify another pint</button></div>
+    <div class="lb-footer" style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-dark" id="globeBtn">🌍 See your pub on the map</button>
+      <button class="btn btn-ghost" id="homepageBtn">← Back to Proof of Pint</button>
+    </div>
   </div>
 
   <!-- PUB SELECTOR -->
@@ -504,7 +505,7 @@
 
   <script>
   'use strict';
-  let userLocation=null,stream=null,pendingVerification=null,verificationResult=null,pintsData=[];
+  let userLocation=null,stream=null,pendingVerification=null,verificationResult=null,pintsData=[],lbData={};
   function getSessionId(){let s=sessionStorage.getItem('pop_session');if(!s){s='web_'+Math.random().toString(36).slice(2,11);sessionStorage.setItem('pop_session',s);}return s;}
   let userId=sessionStorage.getItem('pop_wallet')||getSessionId();
 
@@ -554,12 +555,13 @@
       if(craicEl) craicEl.textContent = craic.toLocaleString() + ' $CRAIC';
       showScreen('leaderboard');
     });
-    on('verifyAnotherBtn',  startCamera);
-    on('verifyFromLbBtn',   startCamera);
+    on('globeBtn',          function(){window.open('https://craic-globe.vercel.app','_blank');});
+    on('homepageBtn',       function(){window.location.href='https://proof-of-pint.com';});
+    on('pubSelectorCancel', function(){document.getElementById('pubSelector').classList.remove('active');pendingVerification=null;startCamera();});
     on('lt-global',         function(){switchLb('global');});
     on('lt-county',         function(){switchLb('county');});
-    on('lt-friends',        function(){switchLb('friends');});
-    on('pubSelectorCancel', function(){document.getElementById('pubSelector').classList.remove('active');pendingVerification=null;startCamera();});
+    on('globeBtn',          function(){window.open('https://craic-globe.vercel.app','_blank');});
+    on('homepageBtn',       function(){window.location.href='https://proof-of-pint.com';});
     document.getElementById('shareText').addEventListener('input', function() {
       updateCharCount();
       updatePostToXLink();
@@ -579,6 +581,7 @@
       const [pr,sr]=await Promise.all([fetch('/api/pints'),fetch('/api/stats')]);
       const pj=await pr.json();const sj=await sr.json();
       pintsData=pj.pints||[];
+      lbData=pj.leaderboards||{};
       const total=sj.total_pints||pintsData.length||0;
       const el=document.getElementById('liveCount');
       if(el)el.textContent=total.toLocaleString()+' pints verified worldwide';
@@ -949,8 +952,33 @@
   function handlePostToX() { updatePostToXLink(); }
 
   function switchLb(tab){
-    ['global','county','friends'].forEach(t=>document.getElementById('lt-'+t).classList.toggle('active',t===tab));
-    document.getElementById('lbList').innerHTML='<div class="lb-row"><div style="font-size:13px;color:var(--gray-text);">Coming soon</div></div>';
+    ['global','county'].forEach(t=>{
+      const el=document.getElementById('lt-'+t);
+      if(el) el.classList.toggle('active',t===tab);
+    });
+    const list=document.getElementById('lbList');
+    // Use leaderboard data if available
+    let data=[];
+    if(tab==='global' && lbData.users && lbData.users.length) data=lbData.users;
+    if(tab==='county' && lbData.counties && lbData.counties.length) data=lbData.counties;
+    if(!data.length){
+      list.innerHTML='<div class="lb-row"><div style="font-size:13px;color:var(--gray-text);padding:16px;">No data yet — be the first! ☘️</div></div>';
+      return;
+    }
+    // Update podium
+    const p1=data[0],p2=data[1],p3=data[2];
+    document.getElementById('podium-1-name').textContent=p1?p1.name:'—';
+    document.getElementById('podium-2-name').textContent=p2?p2.name:'—';
+    document.getElementById('podium-3-name').textContent=p3?p3.name:'—';
+    // Render list (4th onwards)
+    list.innerHTML=data.slice(3).map((item,i)=>`
+      <div class="lb-row">
+        <div class="lb-row-left">
+          <div class="lb-rank">${i+4}</div>
+          <div class="lb-name">${item.name}</div>
+        </div>
+        <div class="lb-craic">${(item.count||0)} 🍺</div>
+      </div>`).join('');
   }
 
   document.addEventListener('DOMContentLoaded',function(){
