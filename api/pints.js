@@ -55,7 +55,7 @@ export default async function handler(req, res) {
       db.collection('leaderboard_counties').orderBy('count', 'desc').limit(10).get(),
       db.collection('leaderboard_countries').orderBy('count', 'desc').limit(10).get(),
       db.collection('leaderboard_pubs').orderBy('count', 'desc').limit(10).get(),
-      db.collection('leaderboard_players').orderBy('count', 'desc').limit(10).get(),
+      db.collection('leaderboard_players').limit(50).get(),
     ]);
 
     const leaderboards = {
@@ -70,7 +70,9 @@ export default async function handler(req, res) {
     countriesSnap.forEach(doc => leaderboards.countries.push({ name: doc.id, ...doc.data() }));
     pubsSnap.forEach(doc      => leaderboards.pubs.push({ name: doc.id, ...doc.data() }));
     // FIX: was leaderboards.players — now leaderboards.users
-    playersSnap.forEach(doc   => leaderboards.users.push({ name: doc.id, ...doc.data() }));
+    playersSnap.forEach(doc => leaderboards.users.push({ name: doc.data().display_name || doc.id, ...doc.data() }));
+    leaderboards.users.sort((a, b) => (b.count || 0) - (a.count || 0));
+    leaderboards.users = leaderboards.users.slice(0, 10);
 
     return res.status(200).json({
       pints,
