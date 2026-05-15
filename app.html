@@ -588,6 +588,7 @@
       const el=document.getElementById('liveCount');
       if(el)el.textContent=total.toLocaleString()+' pints verified worldwide';
       renderLiveFeed(pintsData);
+      switchLb('global');
     }catch(e){
       const el=document.getElementById('liveCount');
       if(el&&el.textContent==='Loading...')el.textContent='Pints verified worldwide';
@@ -982,7 +983,6 @@
   document.addEventListener('DOMContentLoaded',function(){
     wireButtons();
     loadLiveData();
-    switchLb('global');
   });
   </script>
 
