@@ -439,7 +439,7 @@
       <div class="share-btns">
         <a class="btn btn-black" id="postToXBtn" href="#" target="_blank" rel="noopener"
            style="text-decoration:none;"
-           onclick="updatePostToXLink(); showScreen('confirm');">
+           onclick="document.getElementById('confirmTitle').textContent='Posted \u0026 claimed'; document.getElementById('confirmSub').textContent='Your pint is on the board'; updatePostToXLink(); showScreen('confirm');">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           Post to X
         </a>
@@ -452,8 +452,8 @@
   <div id="screen-confirm" class="screen">
     <div class="confirm-hero">
       <div class="confirm-tick">✓</div>
-      <div class="confirm-title">Posted &amp; claimed</div>
-      <div class="confirm-sub">Your pint is on the board</div>
+      <div class="confirm-title" id="confirmTitle">Posted &amp; claimed</div>
+      <div class="confirm-sub" id="confirmSub">Your pint is on the board</div>
     </div>
     <div class="confirm-stats">
       <div class="stat-block"><div class="stat-num" id="confirmCraic">5,000</div><div class="stat-lbl">$CRAIC earned</div></div>
@@ -534,7 +534,11 @@
     on('saveEmailBtn',      handleEmailSave);
     on('backFromEmailBtn',  function(){showScreen('reward');});
     // postToXBtn is an <a> tag — handled via inline onclick + updatePostToXLink
-    on('skipShareBtn',      function(){showScreen('confirm');});
+    on('skipShareBtn',      function(){
+      document.getElementById('confirmTitle').textContent = 'Pint claimed!';
+      document.getElementById('confirmSub').textContent = 'Your pint is on the board';
+      showScreen('confirm');
+    });
     on('seeLeaderboardBtn', function(){showScreen('leaderboard');});
     on('verifyAnotherBtn',  startCamera);
     on('verifyFromLbBtn',   startCamera);
