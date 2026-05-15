@@ -437,12 +437,10 @@
         <div class="share-toggle-row"><span>$CRAIC earned</span><input type="checkbox" id="inclCraic" checked></div>
       </div>
       <div class="share-btns">
-        <a class="btn btn-black" id="postToXBtn" href="#" target="_blank" rel="noopener"
-           style="text-decoration:none;"
-           onclick="document.getElementById('confirmTitle').textContent='Posted \u0026 claimed'; document.getElementById('confirmSub').textContent='Your pint is on the board'; updatePostToXLink(); showScreen('confirm');">
+        <button class="btn btn-black" id="postToXBtn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           Post to X
-        </a>
+        </button>
         <button class="btn btn-ghost" id="skipShareBtn">Skip</button>
       </div>
     </div>
@@ -452,7 +450,7 @@
   <div id="screen-confirm" class="screen">
     <div class="confirm-hero">
       <div class="confirm-tick">✓</div>
-      <div class="confirm-title" id="confirmTitle">Posted &amp; claimed</div>
+      <div class="confirm-title" id="confirmTitle">Pint claimed!</div>
       <div class="confirm-sub" id="confirmSub">Your pint is on the board</div>
     </div>
     <div class="confirm-stats">
@@ -489,7 +487,7 @@
       </div>
     </div>
     <div class="lb-list" id="lbList"></div>
-    <div class="lb-you"><div class="lb-you-left"><span class="lb-rank">#—</span><div class="lb-you-badge">🧑</div><div><div class="lb-name">You</div></div></div><div class="lb-craic">0 $CRAIC</div></div>
+    <div class="lb-you"><div class="lb-you-left"><span class="lb-rank">#—</span><div class="lb-you-badge">🧑</div><div><div class="lb-name" id="lbYouName">You</div></div></div><div class="lb-craic" id="lbYouCraic">0 $CRAIC</div></div>
     <div class="lb-footer"><button class="btn btn-gold" id="verifyFromLbBtn">Verify another pint</button></div>
   </div>
 
@@ -533,13 +531,29 @@
     on('skipNameBtn',      function(){showScreen('share');});
     on('saveEmailBtn',      handleEmailSave);
     on('backFromEmailBtn',  function(){showScreen('reward');});
-    // postToXBtn is an <a> tag — handled via inline onclick + updatePostToXLink
-    on('skipShareBtn',      function(){
+    // postToXBtn is now a button — opens X in new tab then advances to confirm
+    on('postToXBtn', function(){
+      updatePostToXLink();
+      var url = document.getElementById('postToXBtn').dataset.href;
+      if(url) window.open(url, '_blank', 'noopener');
+      document.getElementById('confirmTitle').textContent = 'Posted & claimed';
+      document.getElementById('confirmSub').textContent = 'Your pint is on the board';
+      showScreen('confirm');
+    });
+    on('skipShareBtn', function(){
       document.getElementById('confirmTitle').textContent = 'Pint claimed!';
       document.getElementById('confirmSub').textContent = 'Your pint is on the board';
       showScreen('confirm');
     });
-    on('seeLeaderboardBtn', function(){showScreen('leaderboard');});
+    on('seeLeaderboardBtn', function(){
+      var displayName = sessionStorage.getItem('pop_display_name') || 'You';
+      var craic = verificationResult ? (verificationResult.craic_amount || 5000) : 0;
+      var nameEl = document.getElementById('lbYouName');
+      var craicEl = document.getElementById('lbYouCraic');
+      if(nameEl) nameEl.textContent = displayName;
+      if(craicEl) craicEl.textContent = craic.toLocaleString() + ' $CRAIC';
+      showScreen('leaderboard');
+    });
     on('verifyAnotherBtn',  startCamera);
     on('verifyFromLbBtn',   startCamera);
     on('lt-global',         function(){switchLb('global');});
@@ -929,10 +943,10 @@
   function updatePostToXLink() {
     var text = (document.getElementById('shareText') || {}).value || '';
     var url = 'https://x.com/intent/post?text=' + encodeURIComponent(text);
-    document.getElementById('postToXBtn').href = url;
+    var btn = document.getElementById('postToXBtn');
+    if(btn) btn.dataset.href = url;
   }
-  // Keep href fresh as user edits the textarea
-  function handlePostToX() { updatePostToXLink(); showScreen('confirm'); }
+  function handlePostToX() { updatePostToXLink(); }
 
   function switchLb(tab){
     ['global','county','friends'].forEach(t=>document.getElementById('lt-'+t).classList.toggle('active',t===tab));
