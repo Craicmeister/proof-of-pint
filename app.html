@@ -280,6 +280,7 @@
       <div class="hero-btns">
         <button class="btn btn-gold" id="verifyBtn" onclick="startCamera()">Verify a Pint →</button>
         <button class="hero-btn-sec" id="findPubBtn" onclick="showScreen('findpub');loadFindPub();"><img class="craic-map-pin-app" src="/craic.png" alt="" style="width:22px;height:33px;vertical-align:middle;margin-right:6px;position:relative;top:-1px;"> Find an Irish pub near me</button>
+        <button class="hero-btn-sec" id="leaderboardBtn">🏆 Leaderboard</button>
       </div>
       <button class="globe-link" onclick="window.open('https://craic-globe.vercel.app','_blank')">🌍 See pints being verified worldwide →</button>
       <a href="https://proof-of-pint.com" style="margin-top:10px;font-size:12px;color:rgba(255,255,255,0.3);text-decoration:none;position:relative;z-index:1;" >← proof-of-pint.com</a>
@@ -488,7 +489,7 @@
     <div class="lb-you"><div class="lb-you-left"><span class="lb-rank">#—</span><div class="lb-you-badge">🧑</div><div><div class="lb-name" id="lbYouName">You</div></div></div><div class="lb-craic" id="lbYouCraic">0 $CRAIC</div></div>
     <div class="lb-footer" style="display:flex;flex-direction:column;gap:10px;">
       <button class="btn btn-dark" id="globeBtn">🌍 See your pub on the map</button>
-      <button class="btn btn-ghost" id="homepageBtn">← Back to Proof of Pint</button>
+      <button class="btn btn-ghost" id="lbBackBtn">← Back</button>
     </div>
   </div>
 
@@ -505,7 +506,7 @@
 
   <script>
   'use strict';
-  let userLocation=null,stream=null,pendingVerification=null,verificationResult=null,pintsData=[],lbData={};
+  let userLocation=null,stream=null,pendingVerification=null,verificationResult=null,pintsData=[],lbData={},lbFromScreen='landing';
   function getSessionId(){let s=sessionStorage.getItem('pop_session');if(!s){s='web_'+Math.random().toString(36).slice(2,11);sessionStorage.setItem('pop_session',s);}return s;}
   let userId=sessionStorage.getItem('pop_wallet')||getSessionId();
 
@@ -547,6 +548,7 @@
       showScreen('confirm');
     });
     on('seeLeaderboardBtn', function(){
+      lbFromScreen='confirm';
       var displayName = sessionStorage.getItem('pop_display_name') || 'You';
       var craic = verificationResult ? (verificationResult.craic_amount || 5000) : 0;
       var nameEl = document.getElementById('lbYouName');
@@ -559,7 +561,8 @@
     on('lt-global',         function(){switchLb('global');});
     on('lt-county',         function(){switchLb('county');});
     on('globeBtn',          function(){window.open('https://craic-globe.vercel.app','_blank');});
-    on('homepageBtn',       function(){window.location.href='https://proof-of-pint.com';});
+    on('lbBackBtn',         function(){showScreen(lbFromScreen||'landing');});
+    on('leaderboardBtn',    function(){lbFromScreen='landing';switchLb('global');showScreen('leaderboard');});
     on('pubSelectorCancel', function(){document.getElementById('pubSelector').classList.remove('active');pendingVerification=null;startCamera();});
     document.getElementById('shareText').addEventListener('input', function() {
       updateCharCount();
