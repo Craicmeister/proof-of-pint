@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <!-- Coinbase Wallet SDK — proper UMD CDN build -->
-  <script src="https://cdn.jsdelivr.net/npm/@coinbase/wallet-sdk@3.9.3/dist/index.js"></script>
+
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -770,17 +770,19 @@
     btn.querySelector('.wallet-opt-icon').textContent = '⏳';
 
     try {
-      // Coinbase Wallet SDK — proper CDN build, handles mobile deep-link automatically
-      const CoinbaseWalletSDK = window.CoinbaseWalletSDK;
-      if (!CoinbaseWalletSDK) throw new Error('sdk_missing');
+      const provider = window.ethereum;
+      if (!provider) {
+        // No wallet detected — open Coinbase Wallet deep link on mobile
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        const appUrl = encodeURIComponent('https://proof-of-pint.vercel.app/app.html');
+        if (isIOS || isAndroid) {
+          window.location.href = `https://go.cb-w.com/dapp?cb_url=${appUrl}`;
+          return;
+        }
+        throw new Error('no_provider');
+      }
 
-      const sdk = new CoinbaseWalletSDK({
-        appName: 'Proof of Pint',
-        appLogoUrl: 'https://proof-of-pint.vercel.app/craic.png',
-        darkMode: false
-      });
-
-      const provider = sdk.makeWeb3Provider('https://mainnet.base.org', 8453);
       const accounts = await provider.request({ method: 'eth_requestAccounts' });
       const walletAddress = accounts[0];
       if (!walletAddress) throw new Error('no_address');
@@ -820,7 +822,7 @@
       btn.querySelector('.wallet-opt-icon').style.cssText = 'background:#1652f0;color:#fff;font-size:14px;font-weight:700;';
       btn.querySelector('.wallet-opt-icon').textContent = 'cb';
       userId = sessionStorage.getItem('pop_session') || getSessionId();
-      if (e.code !== 4001 && e.message !== 'closed') {
+      if (e.code !== 4001 && e.message !== 'closed' && e.message !== 'no_provider') {
         errBar.innerHTML = 'Connection failed. ' +
           '<a href="#" id="retryWalletLink" style="color:var(--danger);font-weight:700;text-decoration:underline;">Try again →</a>';
         errBar.style.display = 'block';
