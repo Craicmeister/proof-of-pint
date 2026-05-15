@@ -580,11 +580,11 @@
 
   async function loadLiveData(){
     try{
-      const [pr,sr]=await Promise.all([fetch('/api/pints'),fetch('/api/stats')]);
-      const pj=await pr.json();const sj=await sr.json();
+      const pr=await fetch('/api/pints');
+      const pj=await pr.json();
       pintsData=pj.pints||[];
       lbData=pj.leaderboards||{};
-      const total=sj.total_pints||pintsData.length||0;
+      const total=pj.total||pintsData.length||0;
       const el=document.getElementById('liveCount');
       if(el)el.textContent=total.toLocaleString()+' pints verified worldwide';
       renderLiveFeed(pintsData);
