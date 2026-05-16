@@ -68,7 +68,35 @@ export default async function handler(req, res) {
 
     countiesSnap.forEach(doc  => leaderboards.counties.push({ name: doc.id, ...doc.data() }));
     countriesSnap.forEach(doc => leaderboards.countries.push({ name: doc.id, ...doc.data() }));
-    pubsSnap.forEach(doc      => leaderboards.pubs.push({ name: doc.id, ...doc.data() }));
+
+    // Build pub metadata lookup from pints for the leaderboard
+    const pubMeta = {};
+    pints.forEach(p => {
+      if (!p.pub) return;
+      if (!pubMeta[p.pub]) {
+        pubMeta[p.pub] = {
+          pub_place_photo:  p.pub_place_photo  || '',
+          pub_address:      p.pub_address      || '',
+          pub_rating:       p.pub_rating       || '',
+          pub_total_ratings: p.pub_total_ratings || 0,
+          pub_phone:        p.pub_phone        || '',
+          pub_website:      p.pub_website      || '',
+          google_maps_url:  p.google_maps_url  || '',
+          pub_lat:          p.pub_lat          || null,
+          pub_lng:          p.pub_lng          || null,
+          place_id:         p.place_id         || '',
+          county:           p.county           || '',
+          country:          p.country          || '',
+          tx_hash:          p.tx_hash          || '',
+        };
+      }
+    });
+
+    pubsSnap.forEach(doc => {
+      const meta = pubMeta[doc.id] || {};
+      leaderboards.pubs.push({ name: doc.id, ...doc.data(), ...meta });
+    });
+
     // FIX: was leaderboards.players — now leaderboards.users
     playersSnap.forEach(doc => leaderboards.users.push({ name: doc.data().display_name || doc.id, ...doc.data() }));
     leaderboards.users.sort((a, b) => (b.count || 0) - (a.count || 0));
