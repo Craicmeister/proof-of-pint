@@ -269,6 +269,7 @@
       background: var(--green-deep);
       border-radius: 22px 22px 0 0;
       max-height: 85vh;
+      height: auto;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
@@ -679,18 +680,15 @@
       <div class="lb-pub-body">
         <div class="lb-pub-name" id="lbPubName"></div>
         <div class="lb-pub-location" id="lbPubLocation"></div>
-        <div id="lbPubRatingRow" class="lb-pub-row" style="display:none"></div>
-        <div id="lbPubPhoneRow"  class="lb-pub-row" style="display:none"></div>
-        <div id="lbPubWebRow"    class="lb-pub-row" style="display:none"></div>
         <div class="lb-pub-badge">☘️ <span id="lbPubPintCount"></span></div>
         <div class="lb-pub-stats">
           <div class="lb-pub-stat"><div class="lb-pub-stat-val" id="lbPubRating">—</div><div class="lb-pub-stat-lbl">Google Rating</div></div>
           <div class="lb-pub-stat"><div class="lb-pub-stat-val" id="lbPubReviews">—</div><div class="lb-pub-stat-lbl">Reviews</div></div>
         </div>
         <div class="lb-pub-actions">
-          <a id="lbPubMapsBtn" href="#" target="_blank" class="lb-pub-btn lb-pub-btn-primary">📍 Open in Google Maps</a>
-          <a id="lbPubWebsiteBtn" href="#" target="_blank" class="lb-pub-btn lb-pub-btn-secondary" style="display:none">🌐 Visit Website</a>
-          <a id="lbPubPhoneBtn"   href="#"                class="lb-pub-btn lb-pub-btn-secondary" style="display:none">📞 Call</a>
+          <a id="lbPubMapsBtn"     href="#" target="_blank" class="lb-pub-btn lb-pub-btn-primary">📍 Open in Google Maps</a>
+          <a id="lbPubWebsiteBtn"  href="#" target="_blank" class="lb-pub-btn lb-pub-btn-secondary" style="display:none">🌐 Visit Website</a>
+          <a id="lbPubPhoneBtn"    href="#"                 class="lb-pub-btn lb-pub-btn-secondary" style="display:none">📞 Call</a>
         </div>
       </div>
     </div>
@@ -1347,38 +1345,28 @@
     document.getElementById('lbPubRating').textContent  = pub.pub_rating  || '—';
     document.getElementById('lbPubReviews').textContent = pub.pub_total_ratings ? Number(pub.pub_total_ratings).toLocaleString() : '—';
 
-    // Rating row
-    const ratingRow = document.getElementById('lbPubRatingRow');
-    if (pub.pub_rating) {
-      const stars = '★'.repeat(Math.round(pub.pub_rating))+'☆'.repeat(5-Math.round(pub.pub_rating));
-      ratingRow.innerHTML = `<span style="color:#f59e0b">${stars}</span> ${pub.pub_rating} (${(pub.pub_total_ratings||0).toLocaleString()} reviews)`;
-      ratingRow.style.display = 'flex';
-    } else ratingRow.style.display = 'none';
+    // Rating
+    document.getElementById('lbPubRating').textContent  = pub.pub_rating  || '—';
+    document.getElementById('lbPubReviews').textContent = pub.pub_total_ratings ? Number(pub.pub_total_ratings).toLocaleString() : '—';
 
-    // Phone
-    const phoneRow = document.getElementById('lbPubPhoneRow');
+    // Phone button
     const phoneBtn = document.getElementById('lbPubPhoneBtn');
     if (pub.pub_phone) {
-      phoneRow.innerHTML = `📞 <a href="tel:${pub.pub_phone}">${pub.pub_phone}</a>`;
-      phoneRow.style.display = 'flex';
       phoneBtn.href = 'tel:'+pub.pub_phone;
       phoneBtn.textContent = '📞 '+pub.pub_phone;
       phoneBtn.style.display = 'block';
-    } else { phoneRow.style.display='none'; phoneBtn.style.display='none'; }
+    } else { phoneBtn.style.display = 'none'; }
 
-    // Website
-    const webRow = document.getElementById('lbPubWebRow');
+    // Website button
     const webBtn = document.getElementById('lbPubWebsiteBtn');
     if (pub.pub_website) {
       try {
         const host = new URL(pub.pub_website).hostname.replace('www.','');
-        webRow.innerHTML = `🌐 <a href="${pub.pub_website}" target="_blank">${host}</a>`;
-        webRow.style.display = 'flex';
         webBtn.href = pub.pub_website;
         webBtn.textContent = '🌐 '+host;
         webBtn.style.display = 'block';
-      } catch { webRow.style.display='none'; webBtn.style.display='none'; }
-    } else { webRow.style.display='none'; webBtn.style.display='none'; }
+      } catch { webBtn.style.display = 'none'; }
+    } else { webBtn.style.display = 'none'; }
 
     // Maps
     const mapsBtn = document.getElementById('lbPubMapsBtn');
