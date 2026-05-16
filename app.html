@@ -1254,7 +1254,6 @@
   function renderPubs(data) {
     const list = document.getElementById('lbPubList');
     if (!list) { console.error('lbPubList not found'); return; }
-    console.log('renderPubs called, data length:', data ? data.length : 'null', 'lbData.pubs:', lbData.pubs ? lbData.pubs.length : 'null');
 
     // Update podium names + counts
     const top3 = data.slice(0, 3);
@@ -1288,6 +1287,7 @@
     }).join('');
 
     window._currentPubData = data;
+    console.log('lbPubList innerHTML length:', list.innerHTML.length, 'hidden?', document.getElementById('lb-pubs-content').classList.contains('hidden'));
   }
 
   // ── Tab + period switches ─────────────────────────────────────────
