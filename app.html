@@ -1362,6 +1362,7 @@
     const mapsBtn = document.getElementById('lbPubMapsBtn');
     mapsBtn.href = pub.google_maps_url || (pub.pub_lat ? `https://www.google.com/maps?q=${pub.pub_lat},${pub.pub_lng}` : `https://www.google.com/maps/search/${encodeURIComponent(pub.name)}`);
 
+    document.getElementById('screen-leaderboard').scrollTop = 0;
     document.getElementById('lbPubSheet').scrollTop = 0;
     document.getElementById('lbPubSheet').classList.add('active');
   }
