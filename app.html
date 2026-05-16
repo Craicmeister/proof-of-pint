@@ -281,7 +281,8 @@
     .lb-pub-btn-secondary { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85); }
     .lb-pub-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; color: rgba(255,255,255,0.65); }
     .lb-pub-row a { color: rgba(255,215,0,0.9); text-decoration: none; font-weight: 600; }
-    .lb-pub-close { position: fixed; top: 14px; right: 14px; background: rgba(0,0,0,0.4); border: none; color: var(--white); font-size: 16px; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
+    .lb-pub-nav { background: var(--green-deep); padding: 12px 16px; display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .lb-pub-nav-back { background: none; border: none; color: rgba(255,255,255,0.85); font-size: 15px; font-weight: 600; font-family: var(--font-sans); cursor: pointer; padding: 4px 0; display: flex; align-items: center; gap: 6px; }
 
     /* ── PUB SELECTOR ── */
     #pubSelector { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1000; align-items: flex-end; justify-content: center; }
@@ -663,9 +664,11 @@
 
   <!-- PUB PROFILE SHEET -->
   <div id="lbPubSheet">
-    <div class="lb-pub-sheet-bg" onclick="closeLbPubSheet()"></div>
+    <div class="lb-pub-sheet-bg"></div>
     <div class="lb-pub-sheet-card" style="position:relative;">
-      <button class="lb-pub-close" onclick="closeLbPubSheet()">✕</button>
+      <div class="lb-pub-nav">
+        <button class="lb-pub-nav-back" onclick="closeLbPubSheet()">← Back</button>
+      </div>
       <div id="lbPubPhotoWrap"></div>
       <div class="lb-pub-body">
         <div class="lb-pub-name" id="lbPubName"></div>
