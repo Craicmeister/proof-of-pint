@@ -52,11 +52,10 @@ export default async function handler(req, res) {
     });
 
     // Get leaderboard data
-    const [countiesSnap, countriesSnap, pubsSnap, playersSnap] = await Promise.all([
+    const [countiesSnap, countriesSnap, pubsSnap] = await Promise.all([
       db.collection('leaderboard_counties').orderBy('count', 'desc').limit(10).get(),
       db.collection('leaderboard_countries').orderBy('count', 'desc').limit(10).get(),
       db.collection('leaderboard_pubs').orderBy('count', 'desc').limit(10).get(),
-      db.collection('leaderboard_players').orderBy('count', 'desc').limit(50).get(),
     ]);
 
     const leaderboards = {
@@ -98,10 +97,17 @@ export default async function handler(req, res) {
       leaderboards.pubs.push({ name: doc.id, ...doc.data(), ...meta });
     });
 
-    // FIX: was leaderboards.players — now leaderboards.users
-    playersSnap.forEach(doc => leaderboards.users.push({ name: doc.data().display_name || doc.id, ...doc.data() }));
-    leaderboards.users.sort((a, b) => (b.count || 0) - (a.count || 0));
-    leaderboards.users = leaderboards.users.slice(0, 10);
+    // Build users leaderboard from pint_hashes grouped by display_name
+    // This is consistent with weekly/daily and handles multiple web_ sessions correctly
+    const userCounts = {};
+    pints.forEach(p => {
+      if (!p.display_name) return;
+      userCounts[p.display_name] = (userCounts[p.display_name] || 0) + 1;
+    });
+    leaderboards.users = Object.entries(userCounts)
+      .map(([name, count]) => ({ name, count, display_name: name }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
 
     return res.status(200).json({
       pints,
