@@ -705,7 +705,7 @@
 
   <script>
   'use strict';
-  let userLocation=null,stream=null,pendingVerification=null,verificationResult=null,pintsData=[],lbData={},lbFromScreen='landing';
+  let userLocation=null,stream=null,pendingVerification=null,verificationResult=null,pintsData=[],pintsDataRaw=[],lbData={},lbFromScreen='landing';
   function getSessionId(){let s=sessionStorage.getItem('pop_session');if(!s){s='web_'+Math.random().toString(36).slice(2,11);sessionStorage.setItem('pop_session',s);}return s;}
   let userId=sessionStorage.getItem('pop_wallet')||getSessionId();
 
@@ -1392,7 +1392,6 @@
   }
 
   // ── Init ──────────────────────────────────────────────────────────
-  let pintsDataRaw = [];
 
   document.addEventListener('DOMContentLoaded', function(){
     wireButtons();
