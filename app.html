@@ -1253,7 +1253,8 @@
 
   function renderPubs(data) {
     const list = document.getElementById('lbPubList');
-    if (!list) return;
+    if (!list) { console.error('lbPubList not found'); return; }
+    console.log('renderPubs called, data length:', data ? data.length : 'null', 'lbData.pubs:', lbData.pubs ? lbData.pubs.length : 'null');
 
     // Update podium names + counts
     const top3 = data.slice(0, 3);
