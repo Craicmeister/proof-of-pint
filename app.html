@@ -542,7 +542,7 @@
     </div>
 
     <!-- REGULARS CONTENT -->
-    <div id="lb-regulars-content" style="display:block;">
+    <div id="lb-regulars-content">
       <!-- Period tabs -->
       <div style="background:var(--green-deep);padding:0 20px 14px;">
         <div style="display:flex;gap:0;border-bottom:2px solid rgba(255,255,255,0.1);">
@@ -606,7 +606,7 @@
     </div>
 
     <!-- PUBS CONTENT -->
-    <div id="lb-pubs-content" style="display:none;">
+    <div id="lb-pubs-content" class="hidden">
       <div style="background:var(--green-deep);padding:0 20px 14px;">
         <div style="display:flex;gap:0;border-bottom:2px solid rgba(255,255,255,0.1);">
           <button class="lb-period-tab active" id="pub-tab-all"    onclick="switchPubPeriod('all')">All Time</button>
@@ -1295,17 +1295,10 @@
     ['regulars','pubs'].forEach(t => {
       document.getElementById('lt-'+t).classList.toggle('active', t===tab);
     });
-    const regEl  = document.getElementById('lb-regulars-content');
-    const pubsEl = document.getElementById('lb-pubs-content');
-    if (tab === 'regulars') {
-      regEl.style.display  = 'block';
-      pubsEl.style.display = 'none';
-      renderRegulars(getFilteredRegulars(currentRegPeriod));
-    } else {
-      regEl.style.display  = 'none';
-      pubsEl.style.display = 'block';
-      renderPubs(getFilteredPubs(currentPubPeriod));
-    }
+    document.getElementById('lb-regulars-content').classList.toggle('hidden', tab!=='regulars');
+    document.getElementById('lb-pubs-content').classList.toggle('hidden', tab!=='pubs');
+    if (tab==='regulars') renderRegulars(getFilteredRegulars(currentRegPeriod));
+    if (tab==='pubs')     renderPubs(getFilteredPubs(currentPubPeriod));
   }
 
   function switchRegPeriod(period) {
