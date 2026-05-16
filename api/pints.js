@@ -56,7 +56,7 @@ export default async function handler(req, res) {
       db.collection('leaderboard_counties').orderBy('count', 'desc').limit(10).get(),
       db.collection('leaderboard_countries').orderBy('count', 'desc').limit(10).get(),
       db.collection('leaderboard_pubs').orderBy('count', 'desc').limit(10).get(),
-      db.collection('leaderboard_players').limit(50).get(),
+      db.collection('leaderboard_players').orderBy('count', 'desc').limit(50).get(),
     ]);
 
     const leaderboards = {
