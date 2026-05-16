@@ -304,6 +304,20 @@
     .wallet-opt-spinner { width: 20px; height: 20px; border: 2px solid var(--gray-light); border-top-color: var(--green-mid); border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: auto; }
     .wallet-success-bar { background: #d1fae5; border: 1px solid #6ee7b7; border-radius: var(--radius-md); padding: 12px 16px; margin: 0 20px 12px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #065f46; font-weight: 600; }
     .wallet-error-bar { background: #fee2e2; border: 1px solid #fca5a5; border-radius: var(--radius-md); padding: 12px 16px; margin: 0 20px 12px; font-size: 13px; color: var(--danger); display: none; }
+
+    /* ── CLAIM OVERLAY (wallet redirect return) ── */
+    #claimOverlay { display: none; position: fixed; inset: 0; z-index: 2000; background: var(--green-deep); flex-direction: column; align-items: center; justify-content: center; padding: 32px 24px; text-align: center; }
+    #claimOverlay.active { display: flex; }
+    .claim-icon { font-size: 64px; margin-bottom: 20px; animation: pintFloat 3s ease-in-out infinite; }
+    .claim-title { font-family: var(--font-serif); font-size: 28px; color: var(--white); margin-bottom: 10px; }
+    .claim-sub { font-size: 15px; color: rgba(255,255,255,0.65); line-height: 1.6; margin-bottom: 28px; max-width: 300px; }
+    .claim-amount { font-family: var(--font-serif); font-size: 48px; color: var(--gold); line-height: 1; margin-bottom: 6px; }
+    .claim-token { font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 32px; }
+    .claim-spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.15); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
+    .claim-status { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 32px; min-height: 20px; }
+    .claim-success-tick { font-size: 40px; margin-bottom: 12px; }
+    #claimBasescan { display: none; color: #60a5fa; font-size: 13px; font-weight: 600; text-decoration: none; margin-bottom: 28px; }
+    #claimDoneBtn { background: var(--gold); color: var(--green-deep); font-family: var(--font-sans); font-weight: 700; font-size: 15px; padding: 16px 48px; border: none; border-radius: var(--radius-full); cursor: pointer; display: none; }
     /* ── NAME ── */
     #screen-name { background: var(--off-white); }
     .name-body { padding: 24px 20px; flex: 1; display: flex; flex-direction: column; }
@@ -687,6 +701,17 @@
     </div>
   </div>
 
+  <!-- CLAIM OVERLAY — shown when returning from Coinbase Wallet deep link -->
+  <div id="claimOverlay">
+    <div class="claim-icon">🍺</div>
+    <div class="claim-amount" id="claimOverlayAmount">5,000</div>
+    <div class="claim-token">$CRAIC</div>
+    <div id="claimSpinner" class="claim-spinner"></div>
+    <div class="claim-status" id="claimStatus">Connecting your wallet...</div>
+    <a id="claimBasescan" href="#" target="_blank">View on BaseScan 🔗</a>
+    <button id="claimDoneBtn" onclick="dismissClaimOverlay()">Done ☘️</button>
+  </div>
+
   <!-- PUB SELECTOR -->
   <div id="pubSelector">
     <div id="pubSelectorSheet">
@@ -965,15 +990,14 @@
     try {
       const provider = window.ethereum;
       if (!provider) {
-        // No wallet detected — open Coinbase Wallet deep link on mobile
-        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-        const isAndroid = /Android/i.test(navigator.userAgent);
-        const appUrl = encodeURIComponent('https://proof-of-pint.vercel.app/app.html');
-        if (isIOS || isAndroid) {
-          window.location.href = `https://go.cb-w.com/dapp?cb_url=${appUrl}`;
-          return;
+        // No injected wallet — save result to localStorage BEFORE redirecting
+        // so it survives the session when Coinbase Wallet reopens the app
+        if (verificationResult) {
+          localStorage.setItem('pop_pending_result', JSON.stringify(verificationResult));
         }
-        throw new Error('no_provider');
+        const appUrl = encodeURIComponent('https://www.proof-of-pint.com/app');
+        window.location.href = `https://go.cb-w.com/dapp?cb_url=${appUrl}`;
+        return;
       }
 
       const accounts = await provider.request({ method: 'eth_requestAccounts' });
@@ -1025,6 +1049,82 @@
     }
   }
 
+  // ── Check for pending claim on load (handles wallet deep link return) ──
+  async function checkPendingClaim() {
+    const raw = localStorage.getItem('pop_pending_result');
+    if (!raw) return;
+    if (!window.ethereum) return; // not inside a wallet browser — do nothing
+
+    let pending;
+    try { pending = JSON.parse(raw); } catch { localStorage.removeItem('pop_pending_result'); return; }
+
+    // Restore verificationResult so sendCraic has everything it needs
+    verificationResult = pending;
+
+    // Show the claim overlay
+    const overlay = document.getElementById('claimOverlay');
+    const amountEl = document.getElementById('claimOverlayAmount');
+    if (amountEl) amountEl.textContent = (pending.craic_amount || 5000).toLocaleString();
+    overlay.classList.add('active');
+    setClaimStatus('Connecting your wallet...');
+
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const walletAddress = accounts[0];
+      if (!walletAddress) throw new Error('no_address');
+
+      userId = walletAddress;
+      localStorage.setItem('pop_wallet', walletAddress);
+
+      // Switch to Base
+      try {
+        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2105' }] });
+      } catch (sw) {
+        if (sw.code === 4902) {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{ chainId: '0x2105', chainName: 'Base',
+              nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+              rpcUrls: ['https://mainnet.base.org'],
+              blockExplorerUrls: ['https://basescan.org'] }]
+          });
+        }
+      }
+
+      setClaimStatus('Sending your $CRAIC...');
+      const txHash = await sendCraic(walletAddress);
+
+      // Clear pending — claim complete
+      localStorage.removeItem('pop_pending_result');
+
+      // Show success state in overlay
+      document.getElementById('claimSpinner').style.display = 'none';
+      const shortAddr = walletAddress.slice(0,6) + '...' + walletAddress.slice(-4);
+      setClaimStatus('☘️ $CRAIC is on its way to ' + shortAddr);
+      if (txHash) {
+        const bsLink = document.getElementById('claimBasescan');
+        bsLink.href = 'https://basescan.org/tx/' + txHash;
+        bsLink.style.display = 'inline-block';
+      }
+      document.getElementById('claimDoneBtn').style.display = 'inline-block';
+
+    } catch (e) {
+      localStorage.removeItem('pop_pending_result');
+      document.getElementById('claimSpinner').style.display = 'none';
+      setClaimStatus('Something went wrong. Please try again from the app.');
+      document.getElementById('claimDoneBtn').style.display = 'inline-block';
+    }
+  }
+
+  function setClaimStatus(msg) {
+    const el = document.getElementById('claimStatus');
+    if (el) el.textContent = msg;
+  }
+
+  function dismissClaimOverlay() {
+    document.getElementById('claimOverlay').classList.remove('active');
+  }
+
   async function sendCraic(wa) {
     try {
       const r = await fetch('/api/verify', {
@@ -1039,9 +1139,12 @@
       });
       const data = await r.json();
       if (data.tx_hash) {
-        document.getElementById('txLink').href = `https://basescan.org/tx/${data.tx_hash}`;
+        const txLinkEl = document.getElementById('txLink');
+        if (txLinkEl) txLinkEl.href = `https://basescan.org/tx/${data.tx_hash}`;
+        return data.tx_hash;
       }
     } catch (e) { console.error('sendCraic error:', e); }
+    return null;
   }
 
   function showNameScreen() {
@@ -1379,6 +1482,7 @@
   document.addEventListener('DOMContentLoaded', function(){
     wireButtons();
     loadLiveData();
+    checkPendingClaim();
   });
   </script>
 
