@@ -1253,41 +1253,39 @@
 
   function renderPubs(data) {
     const list = document.getElementById('lbPubList');
-    if (!data.length) {
-      list.innerHTML = '<div class="lb-empty">No pubs verified yet. Be the first! ☘️</div>';
-      // clear podium
-      ['p-1','p-2','p-3'].forEach(id => {
-        const el = document.getElementById('pub-podium-'+id+'-name');
-        if (el) el.textContent = '—';
-        const ce = document.getElementById('pub-podium-'+id+'-count');
-        if (ce) ce.textContent = '—';
-      });
-      return;
-    }
-    // Populate pub podium
-    const top3 = data.slice(0,3);
-    ['1','2','3'].forEach((n,i) => {
+    if (!list) return;
+
+    // Update podium names + counts
+    const top3 = data.slice(0, 3);
+    ['1','2','3'].forEach((n, i) => {
       const nameEl  = document.getElementById('pub-podium-'+n+'-name');
       const countEl = document.getElementById('pub-podium-'+n+'-count');
       if (nameEl)  nameEl.textContent  = top3[i] ? top3[i].name  : '—';
       if (countEl) countEl.textContent = top3[i] ? top3[i].count : '—';
     });
 
-    const rest = data.slice(3);
-    list.innerHTML = rest.map((item, i) => {
+    if (!data.length) {
+      list.innerHTML = '<div class="lb-empty">No pubs verified yet. Be the first! ☘️</div>';
+      return;
+    }
+
+    // Render full list — all pubs, medals for top 3
+    const medals = ['🥇','🥈','🥉'];
+    list.innerHTML = data.slice(0, 20).map((item, i) => {
       const location = [item.county, item.country].filter(Boolean).join(', ');
-      return `<div class="lb-row lb-row-pub" onclick="openLbPubSheet(${i+3}, '${item.name.replace(/'/g,"\\'")}')">
+      const rank = i < 3 ? medals[i] : i + 1;
+      return `<div class="lb-row lb-row-pub" onclick="openLbPubSheet(${i}, '${item.name.replace(/'/g,"\\'")}')">
         <div class="lb-row-left" style="flex:1;min-width:0;">
-          <div class="lb-rank">${i+4}</div>
+          <div class="lb-rank">${rank}</div>
           <div style="min-width:0;">
             <div class="lb-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.name}</div>
-            ${location?`<div class="lb-sub">${location}</div>`:''}
+            ${location ? `<div class="lb-sub">${location}</div>` : ''}
           </div>
         </div>
         <div class="lb-craic" style="margin-left:8px;">${item.count||0} 🍺</div>
       </div>`;
-    }).join('') || '<div class="lb-empty" style="padding:16px 20px;font-size:13px;color:var(--gray-text);">Only 3 pubs so far — more to come! ☘️</div>';
-    // Store full data for sheet lookups
+    }).join('');
+
     window._currentPubData = data;
   }
 
@@ -1329,7 +1327,7 @@
   // ── Pub profile sheet ─────────────────────────────────────────────
   function openLbPubSheet(idx, name) {
     const data = window._currentPubData || [];
-    const pub  = data.find(p=>p.name===name) || data[idx] || {name};
+    const pub  = data[idx] || data.find(p => p.name === name) || { name };
     const count = pub.count || 0;
 
     // Photo
