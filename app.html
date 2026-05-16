@@ -218,15 +218,11 @@
     .lb-period-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
 
     /* Podium */
-    .lb-podium { display: flex; align-items: flex-end; justify-content: center; gap: 10px; padding: 16px 20px 0; }
+    .lb-podium { display: flex; align-items: flex-end; justify-content: center; gap: 16px; padding: 16px 20px 0; }
     .podium-item { text-align: center; display: flex; flex-direction: column; align-items: center; }
-    .podium-name { font-size: 10px; color: rgba(255,255,255,0.85); margin-bottom: 6px; font-weight: 600; max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .podium-name { font-size: 11px; color: rgba(255,255,255,0.85); margin-bottom: 8px; font-weight: 600; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .podium-glass-wrap { display: flex; flex-direction: column; align-items: center; }
-    .podium-bar { border-radius: 4px 4px 0 0; width: 100%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.5); }
-    .podium-1 .podium-name { color: var(--gold); }
-    .podium-1 .podium-bar { width: 72px; height: 52px; background: rgba(255,215,0,0.18); }
-    .podium-2 .podium-bar { width: 62px; height: 38px; background: rgba(255,255,255,0.09); }
-    .podium-3 .podium-bar { width: 62px; height: 26px; background: rgba(255,255,255,0.09); }
+    .podium-1 .podium-name { color: var(--gold); font-size: 12px; }
 
     /* List rows */
     .lb-list { overflow-y: visible; }
@@ -542,48 +538,67 @@
           <div class="podium-item podium-2">
             <div class="podium-name" id="podium-2-name">—</div>
             <div class="podium-glass-wrap">
-              <svg width="38" height="46" viewBox="0 0 38 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="10" y="2" width="18" height="30" rx="3" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
-                <rect x="10" y="17" width="18" height="15" rx="0" fill="rgba(180,180,200,0.35)"/>
-                <rect x="10" y="2" width="18" height="7" rx="3" fill="rgba(255,255,255,0.18)"/>
-                <rect x="12" y="32" width="14" height="3" rx="1" fill="rgba(255,255,255,0.15)"/>
-                <rect x="14" y="35" width="10" height="2" rx="1" fill="rgba(255,255,255,0.1)"/>
-                <text x="19" y="25" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="8" font-weight="700">🥈</text>
+              <!-- 2nd: 3/4 full stout, silver glow -->
+              <svg width="52" height="70" viewBox="0 0 52 70" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 8px rgba(192,192,192,0.5))">
+                <!-- Glass body outline -->
+                <path d="M10 8 L8 60 Q8 64 12 64 L40 64 Q44 64 44 60 L42 8 Z" fill="rgba(255,255,255,0.04)" stroke="rgba(192,192,192,0.7)" stroke-width="1.5"/>
+                <!-- Stout body (3/4 full, dark from bottom) -->
+                <clipPath id="glass2"><path d="M10.4 8 L8.4 60 Q8.4 63.5 12 63.5 L40 63.5 Q43.6 63.5 43.6 60 L41.6 8 Z"/></clipPath>
+                <g clip-path="url(#glass2)">
+                  <rect x="8" y="22" width="36" height="42" fill="#1a0a04"/>
+                  <!-- Cream head -->
+                  <rect x="8" y="14" width="36" height="10" fill="#e8d5a3" rx="1"/>
+                  <rect x="9" y="14" width="34" height="5" fill="#f5e6c0" rx="1"/>
+                </g>
+                <!-- Glass shine -->
+                <path d="M13 10 L12 50" stroke="rgba(255,255,255,0.18)" stroke-width="2" stroke-linecap="round"/>
+                <!-- Pint count -->
+                <text id="podium-2-count" x="26" y="46" text-anchor="middle" fill="rgba(255,255,255,0.75)" font-size="11" font-weight="700" font-family="sans-serif">—</text>
+                <text x="26" y="57" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="7" font-family="sans-serif">pints</text>
               </svg>
             </div>
           </div>
           <div class="podium-item podium-1">
             <div class="podium-name" id="podium-1-name">—</div>
             <div class="podium-glass-wrap">
-              <svg width="44" height="54" viewBox="0 0 44 54" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="11" y="2" width="22" height="36" rx="3" fill="rgba(255,215,0,0.1)" stroke="rgba(255,215,0,0.5)" stroke-width="1.5"/>
-                <rect x="11" y="16" width="22" height="22" rx="0" fill="rgba(255,215,0,0.55)"/>
-                <rect x="11" y="2" width="22" height="9" rx="3" fill="rgba(255,255,255,0.25)"/>
-                <rect x="13" y="38" width="18" height="4" rx="1" fill="rgba(255,215,0,0.2)"/>
-                <rect x="16" y="42" width="12" height="3" rx="1" fill="rgba(255,215,0,0.12)"/>
-                <text x="22" y="31" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="9" font-weight="700">🥇</text>
+              <!-- 1st: full stout, gold glow -->
+              <svg width="62" height="82" viewBox="0 0 62 82" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 12px rgba(255,215,0,0.7))">
+                <path d="M12 8 L9 70 Q9 75 14 75 L48 75 Q53 75 53 70 L50 8 Z" fill="rgba(255,215,0,0.06)" stroke="rgba(255,215,0,0.9)" stroke-width="2"/>
+                <clipPath id="glass1"><path d="M12.5 8 L9.5 70 Q9.5 74 14 74 L48 74 Q52.5 74 52.5 70 L49.5 8 Z"/></clipPath>
+                <g clip-path="url(#glass1)">
+                  <!-- Full stout dark body -->
+                  <rect x="9" y="22" width="44" height="53" fill="#1a0a04"/>
+                  <!-- Creamy head — full pint has thick head -->
+                  <rect x="9" y="8"  width="44" height="16" fill="#d4b483"/>
+                  <rect x="10" y="8" width="42" height="8"  fill="#f0d9a8" rx="1"/>
+                  <rect x="11" y="8" width="40" height="4"  fill="#faf0d0" rx="1"/>
+                </g>
+                <path d="M16 10 L14 62" stroke="rgba(255,255,255,0.2)" stroke-width="2.5" stroke-linecap="round"/>
+                <text id="podium-1-count" x="31" y="54" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="13" font-weight="700" font-family="sans-serif">—</text>
+                <text x="31" y="66" text-anchor="middle" fill="rgba(255,215,0,0.5)" font-size="8" font-family="sans-serif">pints</text>
               </svg>
             </div>
           </div>
           <div class="podium-item podium-3">
             <div class="podium-name" id="podium-3-name">—</div>
             <div class="podium-glass-wrap">
-              <svg width="38" height="46" viewBox="0 0 38 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="10" y="2" width="18" height="30" rx="3" fill="rgba(255,255,255,0.08)" stroke="rgba(205,127,50,0.4)" stroke-width="1.5"/>
-                <rect x="10" y="24" width="18" height="8" rx="0" fill="rgba(205,127,50,0.35)"/>
-                <rect x="10" y="2" width="18" height="7" rx="3" fill="rgba(255,255,255,0.12)"/>
-                <rect x="12" y="32" width="14" height="3" rx="1" fill="rgba(205,127,50,0.15)"/>
-                <rect x="14" y="35" width="10" height="2" rx="1" fill="rgba(205,127,50,0.1)"/>
-                <text x="19" y="22" text-anchor="middle" fill="rgba(205,127,50,0.8)" font-size="8" font-weight="700">🥉</text>
+              <!-- 3rd: 1/3 full stout, bronze glow -->
+              <svg width="52" height="70" viewBox="0 0 52 70" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 8px rgba(205,127,50,0.5))">
+                <path d="M10 8 L8 60 Q8 64 12 64 L40 64 Q44 64 44 60 L42 8 Z" fill="rgba(255,255,255,0.04)" stroke="rgba(205,127,50,0.7)" stroke-width="1.5"/>
+                <clipPath id="glass3"><path d="M10.4 8 L8.4 60 Q8.4 63.5 12 63.5 L40 63.5 Q43.6 63.5 43.6 60 L41.6 8 Z"/></clipPath>
+                <g clip-path="url(#glass3)">
+                  <!-- 1/3 full — dark stout in lower third -->
+                  <rect x="8" y="42" width="36" height="22" fill="#1a0a04"/>
+                  <!-- thin cream head at the fill line -->
+                  <rect x="8" y="36" width="36" height="8" fill="#c9a96e"/>
+                  <rect x="9" y="36" width="34" height="4" fill="#e8c98a" rx="1"/>
+                </g>
+                <path d="M13 10 L12 50" stroke="rgba(255,255,255,0.18)" stroke-width="2" stroke-linecap="round"/>
+                <text id="podium-3-count" x="26" y="56" text-anchor="middle" fill="rgba(255,255,255,0.75)" font-size="11" font-weight="700" font-family="sans-serif">—</text>
+                <text x="26" y="64" text-anchor="middle" fill="rgba(205,127,50,0.45)" font-size="7" font-family="sans-serif">pints</text>
               </svg>
             </div>
           </div>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:0 0 0;margin-bottom:0;">
-          <div class="podium-bar" style="width:62px;height:38px;background:rgba(255,255,255,0.07);border-radius:4px 4px 0 0;"></div>
-          <div class="podium-bar" style="width:72px;height:52px;background:rgba(255,215,0,0.1);border-radius:4px 4px 0 0;"></div>
-          <div class="podium-bar" style="width:62px;height:26px;background:rgba(255,255,255,0.07);border-radius:4px 4px 0 0;"></div>
-        </div>
       </div>
       <div class="lb-list" id="lbRegList"></div>
       <div class="lb-you-sticky hidden" id="lbYouRow">
@@ -1114,14 +1129,13 @@
 
   function getFilteredRegulars(period) {
     if (period === 'all') return lbData.users || [];
-    // Re-aggregate from pintsData for daily/weekly
+    // Re-aggregate from pintsDataRaw — only named players, grouped by display_name
     const counts = {};
     (pintsDataRaw || []).forEach(p => {
+      if (!p.display_name) return; // skip anonymous/unclaimed pints
       if (period === 'daily'  && !isToday(p.timestamp))    return;
       if (period === 'weekly' && !isThisWeek(p.timestamp)) return;
-      const uid = p.display_name || p.user_id || p.pub;
-      if (!uid) return;
-      counts[uid] = (counts[uid]||0) + 1;
+      counts[p.display_name] = (counts[p.display_name]||0) + 1;
     });
     return Object.entries(counts).map(([name,count])=>({name,count})).sort((a,b)=>b.count-a.count);
   }
@@ -1153,6 +1167,13 @@
     document.getElementById('podium-1-name').textContent = top3[0]?top3[0].name:'—';
     document.getElementById('podium-2-name').textContent = top3[1]?top3[1].name:'—';
     document.getElementById('podium-3-name').textContent = top3[2]?top3[2].name:'—';
+    // Pint counts inside glasses
+    const c1 = document.getElementById('podium-1-count');
+    const c2 = document.getElementById('podium-2-count');
+    const c3 = document.getElementById('podium-3-count');
+    if(c1) c1.textContent = top3[0]?top3[0].count:'—';
+    if(c2) c2.textContent = top3[1]?top3[1].count:'—';
+    if(c3) c3.textContent = top3[2]?top3[2].count:'—';
 
     if (!data.length) {
       list.innerHTML = '<div class="lb-empty">No pints yet. Could be you. ☘️</div>';
