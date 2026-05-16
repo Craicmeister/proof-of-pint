@@ -707,8 +707,12 @@
   <script>
   'use strict';
   let userLocation=null,stream=null,pendingVerification=null,verificationResult=null,pintsData=[],pintsDataRaw=[],lbData={},lbFromScreen='landing';
-  function getSessionId(){let s=sessionStorage.getItem('pop_session');if(!s){s='web_'+Math.random().toString(36).slice(2,11);sessionStorage.setItem('pop_session',s);}return s;}
-  let userId=sessionStorage.getItem('pop_wallet')||getSessionId();
+  function getSessionId(){
+    let s=localStorage.getItem('pop_session');
+    if(!s){s='web_'+Math.random().toString(36).slice(2,11);localStorage.setItem('pop_session',s);}
+    return s;
+  }
+  let userId=localStorage.getItem('pop_wallet')||getSessionId();
 
   function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');window.scrollTo(0,0);}
 
@@ -946,7 +950,7 @@
 
   function handleSuccess(result){
     verificationResult=result;pendingVerification=null;
-    if(result.result_ref) sessionStorage.setItem('pop_result_ref', result.result_ref);
+    if(result.result_ref) localStorage.setItem('pop_result_ref', result.result_ref);
     const craic=result.craic_amount||5000,pubName=result.pub_name||'Irish pub',country=result.country_name||'';
     document.getElementById('rewardAmount').textContent=craic.toLocaleString();
     document.getElementById('rewardPubName').textContent=pubName+(country?' · '+country:'');
@@ -998,7 +1002,7 @@
       }
 
       userId = walletAddress;
-      sessionStorage.setItem('pop_wallet', userId);
+      localStorage.setItem('pop_wallet', userId);
       if (verificationResult) await sendCraic(walletAddress);
 
       btn.classList.remove('connecting');
@@ -1016,7 +1020,7 @@
       btn.classList.remove('connecting');
       btn.querySelector('.wallet-opt-icon').style.cssText = 'background:#1652f0;color:#fff;font-size:14px;font-weight:700;';
       btn.querySelector('.wallet-opt-icon').textContent = 'cb';
-      userId = sessionStorage.getItem('pop_session') || getSessionId();
+      userId = localStorage.getItem('pop_session') || getSessionId();
       if (e.code !== 4001 && e.message !== 'closed' && e.message !== 'no_provider') {
         errBar.innerHTML = 'Connection failed. ' +
           '<a href="#" id="retryWalletLink" style="color:var(--danger);font-weight:700;text-decoration:underline;">Try again →</a>';
@@ -1048,7 +1052,7 @@
 
   function showNameScreen() {
     // Pre-fill with saved name if we have one
-    const saved = sessionStorage.getItem('pop_display_name') || '';
+    const saved = localStorage.getItem('pop_display_name') || '';
     const input = document.getElementById('nameInput');
     if (saved) {
       input.value = saved;
@@ -1071,7 +1075,7 @@
     btn.disabled = true;
     btn.textContent = 'Saving...';
     if (name) {
-      sessionStorage.setItem('pop_display_name', name);
+      localStorage.setItem('pop_display_name', name);
       try {
         await Promise.race([
           fetch('/api/verify', {
@@ -1081,7 +1085,7 @@
               action:        'save_name',
               display_name:  name,
               user_id:       userId,
-              result_ref:    verificationResult?.result_ref || sessionStorage.getItem('pop_result_ref') || null
+              result_ref:    verificationResult?.result_ref || localStorage.getItem('pop_result_ref') || null
             })
           }),
           new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 6000))
@@ -1116,7 +1120,7 @@
             action:     'save_email',
             email,
             user_id:    userId,
-            result_ref: verificationResult?.result_ref || sessionStorage.getItem('pop_result_ref') || null
+            result_ref: verificationResult?.result_ref || localStorage.getItem('pop_result_ref') || null
           })
         }),
         new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
@@ -1226,7 +1230,7 @@
     let youVisible = false;
     const rows = rest.map((item, i) => {
       const rank = i + 4;
-      const isYou = item.name === userId || item.name === (sessionStorage.getItem('pop_display_name') || '');
+      const isYou = item.name === userId || item.name === (localStorage.getItem('pop_display_name') || '');
       if (isYou) youVisible = true;
       return `<div class="lb-row${isYou?' lb-row-you':''}">
         <div class="lb-row-left">
@@ -1239,7 +1243,7 @@
     list.innerHTML = rows || '<div class="lb-empty">No one else yet. ☘️</div>';
 
     // You sticky row — only if not visible in list
-    const youData = data.find(u => u.name===userId || u.name===(sessionStorage.getItem('pop_display_name')||''));
+    const youData = data.find(u => u.name===userId || u.name===(localStorage.getItem('pop_display_name')||''));
     const youRow = document.getElementById('lbYouRow');
     if (youData && !youVisible) {
       const youRank = data.indexOf(youData)+1;
