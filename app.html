@@ -261,22 +261,12 @@
     .lb-footer { padding: 12px 20px 32px; }
 
     /* Pub profile bottom sheet */
-    #lbPubSheet { display: none; position: fixed; inset: 0; z-index: 500; }
+    #lbPubSheet { display: none; position: fixed; inset: 0; z-index: 500; background: var(--green-deep); overflow-y: auto; -webkit-overflow-scrolling: touch; }
     #lbPubSheet.active { display: block; }
-    .lb-pub-sheet-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.55); }
-    .lb-pub-sheet-card {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      background: var(--green-deep);
-      border-radius: 22px 22px 0 0;
-      max-height: 85vh;
-      height: auto;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior: contain;
-      animation: slideUp 0.28s ease;
-    }
-    .lb-pub-photo { width: 100%; height: 180px; object-fit: cover; border-radius: 22px 22px 0 0; display: block; background: rgba(255,255,255,0.05); }
-    .lb-pub-photo-placeholder { width: 100%; height: 120px; background: rgba(255,255,255,0.06); border-radius: 22px 22px 0 0; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+    .lb-pub-sheet-bg { display: none; }
+    .lb-pub-sheet-card { position: relative; min-height: 100%; background: var(--green-deep); }
+    .lb-pub-photo { width: 100%; height: 220px; object-fit: cover; display: block; background: rgba(255,255,255,0.05); }
+    .lb-pub-photo-placeholder { width: 100%; height: 140px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 40px; }
     .lb-pub-body { padding: 18px 20px calc(36px + env(safe-area-inset-bottom, 0px)); }
     .lb-pub-name { font-family: var(--font-serif); font-size: 22px; color: var(--white); margin-bottom: 4px; line-height: 1.2; }
     .lb-pub-location { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 14px; line-height: 1.5; }
@@ -291,7 +281,7 @@
     .lb-pub-btn-secondary { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85); }
     .lb-pub-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; color: rgba(255,255,255,0.65); }
     .lb-pub-row a { color: rgba(255,215,0,0.9); text-decoration: none; font-weight: 600; }
-    .lb-pub-close { position: absolute; top: 14px; right: 14px; background: rgba(0,0,0,0.4); border: none; color: var(--white); font-size: 16px; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
+    .lb-pub-close { position: fixed; top: 14px; right: 14px; background: rgba(0,0,0,0.4); border: none; color: var(--white); font-size: 16px; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
 
     /* ── PUB SELECTOR ── */
     #pubSelector { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1000; align-items: flex-end; justify-content: center; }
@@ -1372,16 +1362,12 @@
     const mapsBtn = document.getElementById('lbPubMapsBtn');
     mapsBtn.href = pub.google_maps_url || (pub.pub_lat ? `https://www.google.com/maps?q=${pub.pub_lat},${pub.pub_lng}` : `https://www.google.com/maps/search/${encodeURIComponent(pub.name)}`);
 
+    document.getElementById('lbPubSheet').scrollTop = 0;
     document.getElementById('lbPubSheet').classList.add('active');
-    document.querySelector('.lb-pub-sheet-card').scrollTop = 0;
-    document.body.style.overflow = 'hidden';
-    document.getElementById('screen-leaderboard').style.overflow = 'hidden';
   }
 
   function closeLbPubSheet() {
     document.getElementById('lbPubSheet').classList.remove('active');
-    document.body.style.overflow = '';
-    document.getElementById('screen-leaderboard').style.overflow = '';
   }
 
   // ── Init ──────────────────────────────────────────────────────────
