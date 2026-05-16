@@ -226,22 +226,22 @@
 
     /* Pint image wrapper */
     .podium-pint { position: relative; display: flex; flex-direction: column; align-items: center; }
-    .podium-pint-img { display: block; object-fit: contain; }
+    .podium-pint-img { display: block; object-fit: contain; mix-blend-mode: multiply; }
     .podium-pint-label { position: absolute; bottom: 18%; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
     .podium-pint-count { font-weight: 800; font-family: var(--font-serif); line-height: 1; color: rgba(255,255,255,0.95); text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
     .podium-pint-sub { font-size: 9px; color: rgba(255,255,255,0.55); font-weight: 500; margin-top: 1px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 
-    /* 1st — largest, full brightness, gold glow */
-    .podium-pint-1 .podium-pint-img { width: 80px; height: 100px; filter: drop-shadow(0 0 14px rgba(255,215,0,0.75)) drop-shadow(0 0 4px rgba(255,215,0,0.5)); }
+    /* 1st — largest, gold glow */
+    .podium-pint-1 .podium-pint-img { width: 80px; height: 100px; filter: drop-shadow(0 0 18px rgba(255,215,0,0.95)) drop-shadow(0 0 8px rgba(255,215,0,0.7)) drop-shadow(0 0 2px rgba(255,215,0,1)); }
     .podium-pint-1 .podium-pint-count { font-size: 18px; color: var(--gold); }
 
-    /* 2nd — medium, slight fade, silver glow */
-    .podium-pint-2 .podium-pint-img { width: 64px; height: 80px; opacity: 0.82; filter: drop-shadow(0 0 10px rgba(192,192,192,0.6)) saturate(0.7); }
-    .podium-pint-2 .podium-pint-count { font-size: 14px; }
+    /* 2nd — medium, silver glow */
+    .podium-pint-2 .podium-pint-img { width: 64px; height: 80px; filter: drop-shadow(0 0 14px rgba(210,210,210,0.9)) drop-shadow(0 0 6px rgba(192,192,192,0.7)) drop-shadow(0 0 2px rgba(220,220,220,0.9)); }
+    .podium-pint-2 .podium-pint-count { font-size: 14px; color: #d8d8d8; }
 
-    /* 3rd — smallest, most faded, bronze glow */
-    .podium-pint-3 .podium-pint-img { width: 52px; height: 65px; opacity: 0.6; filter: drop-shadow(0 0 8px rgba(205,127,50,0.55)) saturate(0.5) brightness(0.75); }
-    .podium-pint-3 .podium-pint-count { font-size: 13px; }
+    /* 3rd — smallest, bronze glow */
+    .podium-pint-3 .podium-pint-img { width: 52px; height: 65px; filter: drop-shadow(0 0 12px rgba(205,127,50,0.85)) drop-shadow(0 0 5px rgba(205,127,50,0.65)) drop-shadow(0 0 2px rgba(205,127,50,0.9)); }
+    .podium-pint-3 .podium-pint-count { font-size: 13px; color: #cd7f32; }
 
     /* List rows */
     .lb-list { overflow-y: visible; }
@@ -552,8 +552,8 @@
         </div>
       </div>
       <!-- Podium -->
-      <div style="background:var(--green-deep);padding:0 20px 0;">
-        <div class="lb-podium" id="lbPodium">
+      <div style="background:#0d3d20;padding:0 20px 0;">
+        <div class="lb-podium" id="lbPodium" style="background:#0d3d20;">
           <!-- 2nd place — silver glow, smaller, slight fade -->
           <div class="podium-item podium-2">
             <div class="podium-name" id="podium-2-name">—</div>
