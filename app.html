@@ -200,38 +200,79 @@
 
     /* ── LEADERBOARD ── */
     #screen-leaderboard { background: var(--off-white); overflow-y: auto; }
-    .lb-header { background: var(--green-deep); padding: 20px 20px 0; }
-    .lb-header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .lb-header { background: var(--green-deep); padding: 16px 20px 0; }
+    .lb-header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .lb-back-btn { background: none; border: none; color: rgba(255,255,255,0.7); font-size: 18px; cursor: pointer; padding: 0; flex-shrink: 0; line-height: 1; }
+    .lb-back-btn:active { color: var(--white); }
     .lb-header-title { font-family: var(--font-serif); font-size: 22px; color: var(--white); }
-    .lb-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
-    .lb-tab { padding: 5px 10px; border-radius: var(--radius-full); font-size: 11px; font-weight: 500; cursor: pointer; border: none; font-family: var(--font-sans); background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.75); }
+    .lb-tabs { display: flex; gap: 6px; }
+    .lb-tab { flex: 1; padding: 8px 12px; border-radius: var(--radius-full); font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: var(--font-sans); background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.75); text-align: center; }
     .lb-tab.active { background: var(--white); color: var(--green-deep); }
-    .lb-search-wrap { padding: 10px 0 14px; }
-    .lb-search-wrap input { width: 100%; padding: 8px 12px; border-radius: var(--radius-full); border: none; font-size: 13px; font-family: var(--font-sans); background: rgba(255,255,255,0.15); color: var(--white); outline: none; box-sizing: border-box; }
-    .lb-search-wrap input::placeholder { color: rgba(255,255,255,0.4); }
-    .lb-podium { display: flex; align-items: flex-end; justify-content: center; gap: 12px; padding: 16px 0 0; }
-    .podium-item { text-align: center; }
-    .podium-avatar { border-radius: 50%; margin: 0 auto 5px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 16px; }
-    .podium-name { font-size: 10px; color: rgba(255,255,255,0.8); margin-bottom: 5px; }
-    .podium-bar  { border-radius: 6px 6px 0 0; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-    .podium-1 .podium-avatar { width: 52px; height: 52px; background: var(--gold); }
-    .podium-1 .podium-name   { color: var(--gold); font-weight: 600; }
-    .podium-1 .podium-bar    { width: 64px; height: 56px; background: rgba(255,215,0,0.2); }
-    .podium-2 .podium-avatar { width: 44px; height: 44px; }
-    .podium-2 .podium-bar    { width: 56px; height: 40px; background: rgba(255,255,255,0.1); }
-    .podium-3 .podium-avatar { width: 44px; height: 44px; }
-    .podium-3 .podium-bar    { width: 56px; height: 28px; background: rgba(255,255,255,0.1); }
+
+    /* Period switcher (Daily / Weekly / Monthly) */
+    .lb-period-bar { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; gap: 0; }
+    .lb-period-bar::-webkit-scrollbar { display: none; }
+    .lb-period-panel { min-width: 100%; scroll-snap-align: start; flex-shrink: 0; }
+    .lb-period-tabs { display: flex; border-bottom: 2px solid rgba(255,255,255,0.1); padding: 10px 20px 0; gap: 4px; }
+    .lb-period-tab { padding: 6px 14px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.55); border: none; background: none; font-family: var(--font-sans); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+    .lb-period-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+    /* Podium */
+    .lb-podium { display: flex; align-items: flex-end; justify-content: center; gap: 10px; padding: 16px 20px 0; }
+    .podium-item { text-align: center; display: flex; flex-direction: column; align-items: center; }
+    .podium-name { font-size: 10px; color: rgba(255,255,255,0.85); margin-bottom: 6px; font-weight: 600; max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .podium-glass-wrap { display: flex; flex-direction: column; align-items: center; }
+    .podium-bar { border-radius: 4px 4px 0 0; width: 100%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.5); }
+    .podium-1 .podium-name { color: var(--gold); }
+    .podium-1 .podium-bar { width: 72px; height: 52px; background: rgba(255,215,0,0.18); }
+    .podium-2 .podium-bar { width: 62px; height: 38px; background: rgba(255,255,255,0.09); }
+    .podium-3 .podium-bar { width: 62px; height: 26px; background: rgba(255,255,255,0.09); }
+
+    /* List rows */
     .lb-list { overflow-y: visible; }
-    .lb-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 20px; border-bottom: 1px solid var(--gray-light); }
+    .lb-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid var(--gray-light); cursor: default; }
+    .lb-row.lb-row-you { background: rgba(26,107,58,0.07); border-left: 3px solid var(--green-mid); }
+    .lb-row.lb-row-pub { cursor: pointer; }
+    .lb-row.lb-row-pub:active { background: var(--gray-light); }
     .lb-row-left { display: flex; align-items: center; gap: 10px; }
-    .lb-rank { font-size: 12px; color: var(--gray-text); width: 22px; }
+    .lb-rank { font-size: 12px; color: var(--gray-text); width: 22px; font-weight: 600; }
     .lb-name { font-size: 13px; font-weight: 600; color: var(--text-dark); }
-    .lb-pints { font-size: 11px; color: var(--gray-text); }
-    .lb-craic { font-size: 13px; font-weight: 600; color: var(--green-mid); }
-    .lb-you   { padding: 12px 20px; background: var(--gray-light); border-top: 1px solid var(--gray-mid); display: flex; align-items: center; justify-content: space-between; }
+    .lb-sub  { font-size: 11px; color: var(--gray-text); margin-top: 1px; }
+    .lb-craic { font-size: 13px; font-weight: 600; color: var(--green-mid); white-space: nowrap; }
+    .lb-you-sticky { padding: 12px 20px; background: rgba(26,107,58,0.08); border-top: 1.5px solid rgba(26,107,58,0.2); display: flex; align-items: center; justify-content: space-between; }
     .lb-you-left { display: flex; align-items: center; gap: 10px; }
-    .lb-you-badge { width: 30px; height: 30px; border-radius: 50%; background: var(--green-deep); display: flex; align-items: center; justify-content: center; font-size: 13px; }
-    .lb-footer { padding: 16px 20px 32px; }
+    .lb-you-badge { width: 28px; height: 28px; border-radius: 50%; background: var(--green-deep); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--white); font-weight: 700; }
+    .lb-empty { padding: 32px 20px; text-align: center; font-size: 13px; color: var(--gray-text); line-height: 1.6; }
+    .lb-footer { padding: 12px 20px 32px; }
+
+    /* Pub profile bottom sheet */
+    #lbPubSheet { display: none; position: fixed; inset: 0; z-index: 500; }
+    #lbPubSheet.active { display: block; }
+    .lb-pub-sheet-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.55); }
+    .lb-pub-sheet-card {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: var(--green-deep);
+      border-radius: 22px 22px 0 0;
+      max-height: 88vh; overflow-y: auto;
+      animation: slideUp 0.28s ease;
+    }
+    .lb-pub-photo { width: 100%; height: 180px; object-fit: cover; border-radius: 22px 22px 0 0; display: block; background: rgba(255,255,255,0.05); }
+    .lb-pub-photo-placeholder { width: 100%; height: 120px; background: rgba(255,255,255,0.06); border-radius: 22px 22px 0 0; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+    .lb-pub-body { padding: 18px 20px 36px; }
+    .lb-pub-name { font-family: var(--font-serif); font-size: 22px; color: var(--white); margin-bottom: 4px; line-height: 1.2; }
+    .lb-pub-location { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 14px; line-height: 1.5; }
+    .lb-pub-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,215,0,0.15); border: 1px solid rgba(255,215,0,0.35); color: var(--gold); font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 20px; margin-bottom: 16px; }
+    .lb-pub-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .lb-pub-stat { background: rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 12px; }
+    .lb-pub-stat-val { font-size: 18px; font-weight: 700; color: var(--white); font-family: var(--font-serif); }
+    .lb-pub-stat-lbl { font-size: 10px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+    .lb-pub-actions { display: flex; flex-direction: column; gap: 8px; }
+    .lb-pub-btn { display: block; width: 100%; padding: 13px; font-family: var(--font-sans); font-weight: 700; font-size: 13px; border-radius: 10px; text-align: center; text-decoration: none; border: none; cursor: pointer; }
+    .lb-pub-btn-primary { background: var(--gold); color: var(--green-deep); }
+    .lb-pub-btn-secondary { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85); }
+    .lb-pub-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; color: rgba(255,255,255,0.65); }
+    .lb-pub-row a { color: rgba(255,215,0,0.9); text-decoration: none; font-weight: 600; }
+    .lb-pub-close { position: absolute; top: 14px; right: 14px; background: rgba(0,0,0,0.4); border: none; color: var(--white); font-size: 16px; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
 
     /* ── PUB SELECTOR ── */
     #pubSelector { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1000; align-items: flex-end; justify-content: center; }
@@ -476,28 +517,125 @@
   <div id="screen-leaderboard" class="screen">
     <div class="lb-header">
       <div class="lb-header-top">
+        <button class="lb-back-btn" id="lbBackBtn">←</button>
         <div class="lb-header-title">Leaderboard</div>
-        <div class="lb-tabs">
-          <button class="lb-tab active" id="lt-regulars">Regulars</button>
-          <button class="lb-tab" id="lt-pubs">Pubs</button>
-          <button class="lb-tab" id="lt-countries">Countries</button>
-          <button class="lb-tab" id="lt-counties">Counties</button>
-        </div>
       </div>
-      <div class="lb-podium" id="lbPodium">
-        <div class="podium-item podium-2"><div class="podium-avatar" style="width:44px;height:44px;">🧑</div><div class="podium-name" id="podium-2-name">—</div><div class="podium-bar">🥈</div></div>
-        <div class="podium-item podium-1"><div class="podium-avatar">👑</div><div class="podium-name" id="podium-1-name">—</div><div class="podium-bar">🥇</div></div>
-        <div class="podium-item podium-3"><div class="podium-avatar" style="width:44px;height:44px;">👩</div><div class="podium-name" id="podium-3-name">—</div><div class="podium-bar">🥉</div></div>
-      </div>
-      <div class="lb-search-wrap">
-        <input type="text" id="lbSearch" placeholder="Search…" autocomplete="off">
+      <div class="lb-tabs" style="margin-bottom:14px;">
+        <button class="lb-tab active" id="lt-regulars" onclick="switchLb('regulars')">🍺 Regulars</button>
+        <button class="lb-tab" id="lt-pubs" onclick="switchLb('pubs')">🏠 Pubs</button>
       </div>
     </div>
-    <div class="lb-list" id="lbList"></div>
-    <div class="lb-you" id="lbYouRow"><div class="lb-you-left"><span class="lb-rank" id="lbYouRank">#—</span><div class="lb-you-badge">🧑</div><div><div class="lb-name" id="lbYouName">You</div></div></div><div class="lb-craic" id="lbYouCraic">0 $CRAIC</div></div>
-    <div class="lb-footer" style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn btn-dark" id="globeBtn">🌍 See your pub on the map</button>
-      <button class="btn btn-ghost" id="lbBackBtn">← Back</button>
+
+    <!-- REGULARS CONTENT -->
+    <div id="lb-regulars-content">
+      <!-- Period tabs -->
+      <div style="background:var(--green-deep);padding:0 20px 14px;">
+        <div style="display:flex;gap:0;border-bottom:2px solid rgba(255,255,255,0.1);">
+          <button class="lb-period-tab active" id="reg-tab-all"    onclick="switchRegPeriod('all')">All Time</button>
+          <button class="lb-period-tab"        id="reg-tab-weekly" onclick="switchRegPeriod('weekly')">This Week</button>
+          <button class="lb-period-tab"        id="reg-tab-daily"  onclick="switchRegPeriod('daily')">Today</button>
+        </div>
+      </div>
+      <!-- Podium -->
+      <div style="background:var(--green-deep);padding:0 20px 0;">
+        <div class="lb-podium" id="lbPodium">
+          <div class="podium-item podium-2">
+            <div class="podium-name" id="podium-2-name">—</div>
+            <div class="podium-glass-wrap">
+              <svg width="38" height="46" viewBox="0 0 38 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="10" y="2" width="18" height="30" rx="3" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+                <rect x="10" y="17" width="18" height="15" rx="0" fill="rgba(180,180,200,0.35)"/>
+                <rect x="10" y="2" width="18" height="7" rx="3" fill="rgba(255,255,255,0.18)"/>
+                <rect x="12" y="32" width="14" height="3" rx="1" fill="rgba(255,255,255,0.15)"/>
+                <rect x="14" y="35" width="10" height="2" rx="1" fill="rgba(255,255,255,0.1)"/>
+                <text x="19" y="25" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="8" font-weight="700">🥈</text>
+              </svg>
+            </div>
+          </div>
+          <div class="podium-item podium-1">
+            <div class="podium-name" id="podium-1-name">—</div>
+            <div class="podium-glass-wrap">
+              <svg width="44" height="54" viewBox="0 0 44 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="11" y="2" width="22" height="36" rx="3" fill="rgba(255,215,0,0.1)" stroke="rgba(255,215,0,0.5)" stroke-width="1.5"/>
+                <rect x="11" y="16" width="22" height="22" rx="0" fill="rgba(255,215,0,0.55)"/>
+                <rect x="11" y="2" width="22" height="9" rx="3" fill="rgba(255,255,255,0.25)"/>
+                <rect x="13" y="38" width="18" height="4" rx="1" fill="rgba(255,215,0,0.2)"/>
+                <rect x="16" y="42" width="12" height="3" rx="1" fill="rgba(255,215,0,0.12)"/>
+                <text x="22" y="31" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="9" font-weight="700">🥇</text>
+              </svg>
+            </div>
+          </div>
+          <div class="podium-item podium-3">
+            <div class="podium-name" id="podium-3-name">—</div>
+            <div class="podium-glass-wrap">
+              <svg width="38" height="46" viewBox="0 0 38 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="10" y="2" width="18" height="30" rx="3" fill="rgba(255,255,255,0.08)" stroke="rgba(205,127,50,0.4)" stroke-width="1.5"/>
+                <rect x="10" y="24" width="18" height="8" rx="0" fill="rgba(205,127,50,0.35)"/>
+                <rect x="10" y="2" width="18" height="7" rx="3" fill="rgba(255,255,255,0.12)"/>
+                <rect x="12" y="32" width="14" height="3" rx="1" fill="rgba(205,127,50,0.15)"/>
+                <rect x="14" y="35" width="10" height="2" rx="1" fill="rgba(205,127,50,0.1)"/>
+                <text x="19" y="22" text-anchor="middle" fill="rgba(205,127,50,0.8)" font-size="8" font-weight="700">🥉</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0 0 0;margin-bottom:0;">
+          <div class="podium-bar" style="width:62px;height:38px;background:rgba(255,255,255,0.07);border-radius:4px 4px 0 0;"></div>
+          <div class="podium-bar" style="width:72px;height:52px;background:rgba(255,215,0,0.1);border-radius:4px 4px 0 0;"></div>
+          <div class="podium-bar" style="width:62px;height:26px;background:rgba(255,255,255,0.07);border-radius:4px 4px 0 0;"></div>
+        </div>
+      </div>
+      <div class="lb-list" id="lbRegList"></div>
+      <div class="lb-you-sticky hidden" id="lbYouRow">
+        <div class="lb-you-left">
+          <span class="lb-rank" id="lbYouRank">#—</span>
+          <div class="lb-you-badge">You</div>
+          <div class="lb-name" id="lbYouName">You</div>
+        </div>
+        <div class="lb-craic" id="lbYouCraic">0 🍺</div>
+      </div>
+    </div>
+
+    <!-- PUBS CONTENT -->
+    <div id="lb-pubs-content" class="hidden">
+      <div style="background:var(--green-deep);padding:0 20px 14px;">
+        <div style="display:flex;gap:0;border-bottom:2px solid rgba(255,255,255,0.1);">
+          <button class="lb-period-tab active" id="pub-tab-all"    onclick="switchPubPeriod('all')">All Time</button>
+          <button class="lb-period-tab"        id="pub-tab-weekly" onclick="switchPubPeriod('weekly')">This Week</button>
+          <button class="lb-period-tab"        id="pub-tab-daily"  onclick="switchPubPeriod('daily')">Today</button>
+        </div>
+      </div>
+      <div class="lb-list" id="lbPubList"></div>
+    </div>
+
+    <div class="lb-footer">
+      <button class="btn btn-ghost" id="lbBackBtn2" style="padding:10px 20px;font-size:13px;">← Back to home</button>
+    </div>
+  </div>
+
+  <!-- PUB PROFILE SHEET -->
+  <div id="lbPubSheet">
+    <div class="lb-pub-sheet-bg" onclick="closeLbPubSheet()"></div>
+    <div class="lb-pub-sheet-card" style="position:relative;">
+      <button class="lb-pub-close" onclick="closeLbPubSheet()">✕</button>
+      <div id="lbPubPhotoWrap"></div>
+      <div class="lb-pub-body">
+        <div class="lb-pub-name" id="lbPubName"></div>
+        <div class="lb-pub-location" id="lbPubLocation"></div>
+        <div id="lbPubRatingRow" class="lb-pub-row" style="display:none"></div>
+        <div id="lbPubPhoneRow"  class="lb-pub-row" style="display:none"></div>
+        <div id="lbPubWebRow"    class="lb-pub-row" style="display:none"></div>
+        <div class="lb-pub-badge">☘️ <span id="lbPubPintCount"></span></div>
+        <div class="lb-pub-stats">
+          <div class="lb-pub-stat"><div class="lb-pub-stat-val" id="lbPubRating">—</div><div class="lb-pub-stat-lbl">Google Rating</div></div>
+          <div class="lb-pub-stat"><div class="lb-pub-stat-val" id="lbPubReviews">—</div><div class="lb-pub-stat-lbl">Reviews</div></div>
+        </div>
+        <div class="lb-pub-actions">
+          <a id="lbPubMapsBtn" href="#" target="_blank" class="lb-pub-btn lb-pub-btn-primary">📍 Open in Google Maps</a>
+          <a id="lbPubWebsiteBtn" href="#" target="_blank" class="lb-pub-btn lb-pub-btn-secondary" style="display:none">🌐 Visit Website</a>
+          <a id="lbPubPhoneBtn"   href="#"                class="lb-pub-btn lb-pub-btn-secondary" style="display:none">📞 Call</a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -557,21 +695,11 @@
     });
     on('seeLeaderboardBtn', function(){
       lbFromScreen='confirm';
-      var displayName = sessionStorage.getItem('pop_display_name') || 'You';
-      var craic = verificationResult ? (verificationResult.craic_amount || 5000) : 0;
-      var nameEl = document.getElementById('lbYouName');
-      var craicEl = document.getElementById('lbYouCraic');
-      if(nameEl) nameEl.textContent = displayName;
-      if(craicEl) craicEl.textContent = craic.toLocaleString() + ' $CRAIC';
       switchLb('regulars');
       showScreen('leaderboard');
     });
-    on('lt-regulars',       function(){switchLb('regulars');});
-    on('lt-pubs',           function(){switchLb('pubs');});
-    on('lt-countries',      function(){switchLb('countries');});
-    on('lt-counties',       function(){switchLb('counties');});
-    on('globeBtn',          function(){window.open('https://craic-globe.vercel.app','_blank');});
     on('lbBackBtn',         function(){showScreen(lbFromScreen||'landing');});
+    on('lbBackBtn2',        function(){showScreen(lbFromScreen||'landing');});
     on('leaderboardBtn',    function(){lbFromScreen='landing';switchLb('regulars');showScreen('leaderboard');});
     on('pubSelectorCancel', function(){document.getElementById('pubSelector').classList.remove('active');pendingVerification=null;startCamera();});
     document.getElementById('shareText').addEventListener('input', function() {
@@ -593,6 +721,7 @@
       const pr=await fetch('/api/pints');
       const pj=await pr.json();
       pintsData=pj.pints||[];
+      pintsDataRaw=pintsData; // store for period filtering
       lbData=pj.leaderboards||{};
       const total=pj.total||pintsData.length||0;
       const el=document.getElementById('liveCount');
@@ -967,78 +1096,225 @@
   function handlePostToX() { updatePostToXLink(); }
 
   let currentLbTab = 'regulars';
-  let currentLbData = [];
+  let currentRegPeriod = 'all';
+  let currentPubPeriod = 'all';
 
-  function renderLbList(data, query) {
-    const list = document.getElementById('lbList');
-    const q = (query||'').toLowerCase().trim();
-    const filtered = q ? data.filter(i => i.name.toLowerCase().includes(q)) : data;
-    if (!filtered.length) {
-      list.innerHTML = '<div class="lb-row"><div style="font-size:13px;color:var(--gray-text);padding:16px;">No results ☘️</div></div>';
+  // ── Period filtering helpers ──────────────────────────────────────
+  function isToday(ts) {
+    if (!ts) return false;
+    const d = new Date(ts), now = new Date();
+    return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth() && d.getDate()===now.getDate();
+  }
+  function isThisWeek(ts) {
+    if (!ts) return false;
+    const d = new Date(ts), now = new Date();
+    const monday = new Date(now); monday.setDate(now.getDate() - ((now.getDay()+6)%7)); monday.setHours(0,0,0,0);
+    return d >= monday;
+  }
+
+  function getFilteredRegulars(period) {
+    if (period === 'all') return lbData.users || [];
+    // Re-aggregate from pintsData for daily/weekly
+    const counts = {};
+    (pintsDataRaw || []).forEach(p => {
+      if (period === 'daily'  && !isToday(p.timestamp))    return;
+      if (period === 'weekly' && !isThisWeek(p.timestamp)) return;
+      const uid = p.display_name || p.user_id || p.pub;
+      if (!uid) return;
+      counts[uid] = (counts[uid]||0) + 1;
+    });
+    return Object.entries(counts).map(([name,count])=>({name,count})).sort((a,b)=>b.count-a.count);
+  }
+
+  function getFilteredPubs(period) {
+    if (period === 'all') return lbData.pubs || [];
+    const counts = {};
+    const meta   = {};
+    (pintsDataRaw || []).forEach(p => {
+      if (!p.pub) return;
+      if (period === 'daily'  && !isToday(p.timestamp))    return;
+      if (period === 'weekly' && !isThisWeek(p.timestamp)) return;
+      counts[p.pub] = (counts[p.pub]||0) + 1;
+      if (!meta[p.pub]) meta[p.pub] = p;
+    });
+    // Merge metadata from lbData.pubs
+    const pubMetaMap = {};
+    (lbData.pubs||[]).forEach(p => { pubMetaMap[p.name] = p; });
+    return Object.entries(counts).map(([name,count])=>({
+      name, count,
+      ...(pubMetaMap[name] || meta[name] || {}),
+    })).sort((a,b)=>b.count-a.count);
+  }
+
+  // ── Renderers ─────────────────────────────────────────────────────
+  function renderRegulars(data) {
+    const list = document.getElementById('lbRegList');
+    const top3 = data.slice(0,3);
+    document.getElementById('podium-1-name').textContent = top3[0]?top3[0].name:'—';
+    document.getElementById('podium-2-name').textContent = top3[1]?top3[1].name:'—';
+    document.getElementById('podium-3-name').textContent = top3[2]?top3[2].name:'—';
+
+    if (!data.length) {
+      list.innerHTML = '<div class="lb-empty">No pints yet. Could be you. ☘️</div>';
+      document.getElementById('lbYouRow').classList.add('hidden');
       return;
     }
-    const start = q ? 0 : 3;
-    list.innerHTML = filtered.slice(start).map((item, i) => `
-      <div class="lb-row">
+
+    const rest = data.slice(3);
+    let youVisible = false;
+    const rows = rest.map((item, i) => {
+      const rank = i + 4;
+      const isYou = item.name === userId || item.name === (sessionStorage.getItem('pop_display_name') || '');
+      if (isYou) youVisible = true;
+      return `<div class="lb-row${isYou?' lb-row-you':''}">
         <div class="lb-row-left">
-          <div class="lb-rank">${q ? i+1 : i+4}</div>
-          <div class="lb-name">${item.name}</div>
+          <div class="lb-rank">${rank}</div>
+          <div><div class="lb-name">${item.name}</div></div>
         </div>
         <div class="lb-craic">${item.count||0} 🍺</div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
+    list.innerHTML = rows || '<div class="lb-empty">No one else yet. ☘️</div>';
+
+    // You sticky row — only if not visible in list
+    const youData = data.find(u => u.name===userId || u.name===(sessionStorage.getItem('pop_display_name')||''));
+    const youRow = document.getElementById('lbYouRow');
+    if (youData && !youVisible) {
+      const youRank = data.indexOf(youData)+1;
+      document.getElementById('lbYouRank').textContent = '#'+youRank;
+      document.getElementById('lbYouName').textContent = youData.name;
+      document.getElementById('lbYouCraic').textContent = (youData.count||0)+' 🍺';
+      youRow.classList.remove('hidden');
+    } else {
+      youRow.classList.add('hidden');
+    }
   }
 
-  function switchLb(tab) {
-    currentLbTab = tab;
-    ['regulars','pubs','countries','counties'].forEach(t => {
-      const el = document.getElementById('lt-'+t);
-      if (el) el.classList.toggle('active', t === tab);
-    });
-
-    // Podium only on Regulars tab
-    const podium = document.getElementById('lbPodium');
-    const youRow = document.getElementById('lbYouRow');
-    podium.style.display = tab === 'regulars' ? 'flex' : 'none';
-    youRow.style.display  = tab === 'regulars' ? 'flex' : 'none';
-
-    // Pick data
-    if (tab === 'regulars')  currentLbData = lbData.users      || [];
-    if (tab === 'pubs')      currentLbData = lbData.pubs        || [];
-    if (tab === 'countries') currentLbData = lbData.countries   || [];
-    if (tab === 'counties')  currentLbData = lbData.counties    || [];
-
-    // Clear search
-    const searchEl = document.getElementById('lbSearch');
-    if (searchEl) searchEl.value = '';
-
-    if (!currentLbData.length) {
-      document.getElementById('lbList').innerHTML =
-        '<div class="lb-row"><div style="font-size:13px;color:var(--gray-text);padding:16px;">No data yet — be the first! ☘️</div></div>';
-      if (tab === 'regulars') {
-        document.getElementById('podium-1-name').textContent = '—';
-        document.getElementById('podium-2-name').textContent = '—';
-        document.getElementById('podium-3-name').textContent = '—';
-      }
+  function renderPubs(data) {
+    const list = document.getElementById('lbPubList');
+    if (!data.length) {
+      list.innerHTML = '<div class="lb-empty">No pubs verified yet. Be the first! ☘️</div>';
       return;
     }
-
-    // Update podium for Regulars
-    if (tab === 'regulars') {
-      document.getElementById('podium-1-name').textContent = currentLbData[0] ? currentLbData[0].name : '—';
-      document.getElementById('podium-2-name').textContent = currentLbData[1] ? currentLbData[1].name : '—';
-      document.getElementById('podium-3-name').textContent = currentLbData[2] ? currentLbData[2].name : '—';
-    }
-
-    renderLbList(currentLbData, '');
+    const medals = ['🥇','🥈','🥉'];
+    list.innerHTML = data.slice(0,20).map((item, i) => {
+      const location = [item.county, item.country].filter(Boolean).join(', ');
+      return `<div class="lb-row lb-row-pub" onclick="openLbPubSheet(${i}, '${item.name.replace(/'/g,"\\'")}')">
+        <div class="lb-row-left" style="flex:1;min-width:0;">
+          <div class="lb-rank">${i<3?medals[i]:i+1}</div>
+          <div style="min-width:0;">
+            <div class="lb-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.name}</div>
+            ${location?`<div class="lb-sub">${location}</div>`:''}
+          </div>
+        </div>
+        <div class="lb-craic" style="margin-left:8px;">${item.count||0} 🍺</div>
+      </div>`;
+    }).join('');
+    // Store filtered data for sheet lookups
+    window._currentPubData = data;
   }
 
-  document.addEventListener('DOMContentLoaded',function(){
+  // ── Tab + period switches ─────────────────────────────────────────
+  function switchLb(tab) {
+    currentLbTab = tab;
+    ['regulars','pubs'].forEach(t => {
+      document.getElementById('lt-'+t).classList.toggle('active', t===tab);
+    });
+    document.getElementById('lb-regulars-content').classList.toggle('hidden', tab!=='regulars');
+    document.getElementById('lb-pubs-content').classList.toggle('hidden', tab!=='pubs');
+    if (tab==='regulars') renderRegulars(getFilteredRegulars(currentRegPeriod));
+    if (tab==='pubs')     renderPubs(getFilteredPubs(currentPubPeriod));
+  }
+
+  function switchRegPeriod(period) {
+    currentRegPeriod = period;
+    ['all','weekly','daily'].forEach(p => {
+      document.getElementById('reg-tab-'+p).classList.toggle('active', p===period);
+    });
+    renderRegulars(getFilteredRegulars(period));
+  }
+
+  function switchPubPeriod(period) {
+    currentPubPeriod = period;
+    ['all','weekly','daily'].forEach(p => {
+      document.getElementById('pub-tab-'+p).classList.toggle('active', p===period);
+    });
+    renderPubs(getFilteredPubs(period));
+  }
+
+  // ── Pub profile sheet ─────────────────────────────────────────────
+  function openLbPubSheet(idx, name) {
+    const data = window._currentPubData || [];
+    const pub  = data[idx] || data.find(p=>p.name===name) || {name};
+    const count = pub.count || 0;
+
+    // Photo
+    const photoWrap = document.getElementById('lbPubPhotoWrap');
+    if (pub.pub_place_photo) {
+      photoWrap.innerHTML = `<img src="${pub.pub_place_photo}" class="lb-pub-photo" onerror="this.parentNode.innerHTML='<div class=\\'lb-pub-photo-placeholder\\'>🍺</div>'">`;
+    } else {
+      photoWrap.innerHTML = '<div class="lb-pub-photo-placeholder">🍺</div>';
+    }
+
+    document.getElementById('lbPubName').textContent = pub.name;
+    const cleanAddr = (pub.pub_address||'').replace(new RegExp('^'+pub.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[,\\s]*','i'),'').trim();
+    document.getElementById('lbPubLocation').textContent = cleanAddr || [pub.county, pub.country].filter(Boolean).join(', ') || '';
+    document.getElementById('lbPubPintCount').textContent = `${count} pint${count!==1?'s':''} verified here`;
+    document.getElementById('lbPubRating').textContent  = pub.pub_rating  || '—';
+    document.getElementById('lbPubReviews').textContent = pub.pub_total_ratings ? Number(pub.pub_total_ratings).toLocaleString() : '—';
+
+    // Rating row
+    const ratingRow = document.getElementById('lbPubRatingRow');
+    if (pub.pub_rating) {
+      const stars = '★'.repeat(Math.round(pub.pub_rating))+'☆'.repeat(5-Math.round(pub.pub_rating));
+      ratingRow.innerHTML = `<span style="color:#f59e0b">${stars}</span> ${pub.pub_rating} (${(pub.pub_total_ratings||0).toLocaleString()} reviews)`;
+      ratingRow.style.display = 'flex';
+    } else ratingRow.style.display = 'none';
+
+    // Phone
+    const phoneRow = document.getElementById('lbPubPhoneRow');
+    const phoneBtn = document.getElementById('lbPubPhoneBtn');
+    if (pub.pub_phone) {
+      phoneRow.innerHTML = `📞 <a href="tel:${pub.pub_phone}">${pub.pub_phone}</a>`;
+      phoneRow.style.display = 'flex';
+      phoneBtn.href = 'tel:'+pub.pub_phone;
+      phoneBtn.textContent = '📞 '+pub.pub_phone;
+      phoneBtn.style.display = 'block';
+    } else { phoneRow.style.display='none'; phoneBtn.style.display='none'; }
+
+    // Website
+    const webRow = document.getElementById('lbPubWebRow');
+    const webBtn = document.getElementById('lbPubWebsiteBtn');
+    if (pub.pub_website) {
+      try {
+        const host = new URL(pub.pub_website).hostname.replace('www.','');
+        webRow.innerHTML = `🌐 <a href="${pub.pub_website}" target="_blank">${host}</a>`;
+        webRow.style.display = 'flex';
+        webBtn.href = pub.pub_website;
+        webBtn.textContent = '🌐 '+host;
+        webBtn.style.display = 'block';
+      } catch { webRow.style.display='none'; webBtn.style.display='none'; }
+    } else { webRow.style.display='none'; webBtn.style.display='none'; }
+
+    // Maps
+    const mapsBtn = document.getElementById('lbPubMapsBtn');
+    mapsBtn.href = pub.google_maps_url || (pub.pub_lat ? `https://www.google.com/maps?q=${pub.pub_lat},${pub.pub_lng}` : `https://www.google.com/maps/search/${encodeURIComponent(pub.name)}`);
+
+    document.getElementById('lbPubSheet').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLbPubSheet() {
+    document.getElementById('lbPubSheet').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────
+  let pintsDataRaw = [];
+
+  document.addEventListener('DOMContentLoaded', function(){
     wireButtons();
     loadLiveData();
-    const searchEl = document.getElementById('lbSearch');
-    if (searchEl) searchEl.addEventListener('input', function(){
-      renderLbList(currentLbData, this.value);
-    });
   });
   </script>
 
