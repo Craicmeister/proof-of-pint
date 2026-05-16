@@ -203,9 +203,12 @@
     .lb-header { background: var(--green-deep); padding: 20px 20px 0; }
     .lb-header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
     .lb-header-title { font-family: var(--font-serif); font-size: 22px; color: var(--white); }
-    .lb-tabs { display: flex; gap: 6px; }
-    .lb-tab { padding: 5px 13px; border-radius: var(--radius-full); font-size: 12px; font-weight: 500; cursor: pointer; border: none; font-family: var(--font-sans); background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.75); }
+    .lb-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+    .lb-tab { padding: 5px 10px; border-radius: var(--radius-full); font-size: 11px; font-weight: 500; cursor: pointer; border: none; font-family: var(--font-sans); background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.75); }
     .lb-tab.active { background: var(--white); color: var(--green-deep); }
+    .lb-search-wrap { padding: 10px 0 14px; }
+    .lb-search-wrap input { width: 100%; padding: 8px 12px; border-radius: var(--radius-full); border: none; font-size: 13px; font-family: var(--font-sans); background: rgba(255,255,255,0.15); color: var(--white); outline: none; box-sizing: border-box; }
+    .lb-search-wrap input::placeholder { color: rgba(255,255,255,0.4); }
     .lb-podium { display: flex; align-items: flex-end; justify-content: center; gap: 12px; padding: 16px 0 0; }
     .podium-item { text-align: center; }
     .podium-avatar { border-radius: 50%; margin: 0 auto 5px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 16px; }
@@ -475,18 +478,23 @@
       <div class="lb-header-top">
         <div class="lb-header-title">Leaderboard</div>
         <div class="lb-tabs">
-          <button class="lb-tab active" id="lt-global">Global</button>
-          <button class="lb-tab" id="lt-county">County</button>
+          <button class="lb-tab active" id="lt-regulars">Regulars</button>
+          <button class="lb-tab" id="lt-pubs">Pubs</button>
+          <button class="lb-tab" id="lt-countries">Countries</button>
+          <button class="lb-tab" id="lt-counties">Counties</button>
         </div>
       </div>
-      <div class="lb-podium">
+      <div class="lb-podium" id="lbPodium">
         <div class="podium-item podium-2"><div class="podium-avatar" style="width:44px;height:44px;">🧑</div><div class="podium-name" id="podium-2-name">—</div><div class="podium-bar">🥈</div></div>
         <div class="podium-item podium-1"><div class="podium-avatar">👑</div><div class="podium-name" id="podium-1-name">—</div><div class="podium-bar">🥇</div></div>
         <div class="podium-item podium-3"><div class="podium-avatar" style="width:44px;height:44px;">👩</div><div class="podium-name" id="podium-3-name">—</div><div class="podium-bar">🥉</div></div>
       </div>
+      <div class="lb-search-wrap">
+        <input type="text" id="lbSearch" placeholder="Search…" autocomplete="off">
+      </div>
     </div>
     <div class="lb-list" id="lbList"></div>
-    <div class="lb-you"><div class="lb-you-left"><span class="lb-rank">#—</span><div class="lb-you-badge">🧑</div><div><div class="lb-name" id="lbYouName">You</div></div></div><div class="lb-craic" id="lbYouCraic">0 $CRAIC</div></div>
+    <div class="lb-you" id="lbYouRow"><div class="lb-you-left"><span class="lb-rank" id="lbYouRank">#—</span><div class="lb-you-badge">🧑</div><div><div class="lb-name" id="lbYouName">You</div></div></div><div class="lb-craic" id="lbYouCraic">0 $CRAIC</div></div>
     <div class="lb-footer" style="display:flex;flex-direction:column;gap:10px;">
       <button class="btn btn-dark" id="globeBtn">🌍 See your pub on the map</button>
       <button class="btn btn-ghost" id="lbBackBtn">← Back</button>
@@ -555,14 +563,16 @@
       var craicEl = document.getElementById('lbYouCraic');
       if(nameEl) nameEl.textContent = displayName;
       if(craicEl) craicEl.textContent = craic.toLocaleString() + ' $CRAIC';
-      switchLb('global');
+      switchLb('regulars');
       showScreen('leaderboard');
     });
-    on('lt-global',         function(){switchLb('global');});
-    on('lt-county',         function(){switchLb('county');});
+    on('lt-regulars',       function(){switchLb('regulars');});
+    on('lt-pubs',           function(){switchLb('pubs');});
+    on('lt-countries',      function(){switchLb('countries');});
+    on('lt-counties',       function(){switchLb('counties');});
     on('globeBtn',          function(){window.open('https://craic-globe.vercel.app','_blank');});
     on('lbBackBtn',         function(){showScreen(lbFromScreen||'landing');});
-    on('leaderboardBtn',    function(){lbFromScreen='landing';switchLb('global');showScreen('leaderboard');});
+    on('leaderboardBtn',    function(){lbFromScreen='landing';switchLb('regulars');showScreen('leaderboard');});
     on('pubSelectorCancel', function(){document.getElementById('pubSelector').classList.remove('active');pendingVerification=null;startCamera();});
     document.getElementById('shareText').addEventListener('input', function() {
       updateCharCount();
@@ -588,7 +598,7 @@
       const el=document.getElementById('liveCount');
       if(el)el.textContent=total.toLocaleString()+' pints verified worldwide';
       renderLiveFeed(pintsData);
-      switchLb('global');
+      switchLb('regulars');
     }catch(e){
       const el=document.getElementById('liveCount');
       if(el&&el.textContent==='Loading...')el.textContent='Pints verified worldwide';
@@ -956,35 +966,79 @@
   }
   function handlePostToX() { updatePostToXLink(); }
 
-  function switchLb(tab){
-    ['global','county'].forEach(t=>{
-      const el=document.getElementById('lt-'+t);
-      if(el) el.classList.toggle('active',t===tab);
-    });
-    const list=document.getElementById('lbList');
-    let data=[];
-    if(tab==='global') data=lbData.users||[];
-    if(tab==='county') data=lbData.counties||[];
-    if(!data.length){
-      list.innerHTML='<div class="lb-row"><div style="font-size:13px;color:var(--gray-text);padding:16px;">No data yet — be the first! ☘️</div></div>';
-      document.getElementById('podium-1-name').textContent='—';
-      document.getElementById('podium-2-name').textContent='—';
-      document.getElementById('podium-3-name').textContent='—';
+  let currentLbTab = 'regulars';
+  let currentLbData = [];
+
+  function renderLbList(data, query) {
+    const list = document.getElementById('lbList');
+    const q = (query||'').toLowerCase().trim();
+    const filtered = q ? data.filter(i => i.name.toLowerCase().includes(q)) : data;
+    if (!filtered.length) {
+      list.innerHTML = '<div class="lb-row"><div style="font-size:13px;color:var(--gray-text);padding:16px;">No results ☘️</div></div>';
       return;
     }
-    document.getElementById('podium-1-name').textContent=data[0]?data[0].name:'—';
-    document.getElementById('podium-2-name').textContent=data[1]?data[1].name:'—';
-    document.getElementById('podium-3-name').textContent=data[2]?data[2].name:'—';
-    list.innerHTML=data.slice(3).map((item,i)=>`
+    const start = q ? 0 : 3;
+    list.innerHTML = filtered.slice(start).map((item, i) => `
       <div class="lb-row">
-        <div class="lb-row-left"><div class="lb-rank">${i+4}</div><div class="lb-name">${item.name}</div></div>
+        <div class="lb-row-left">
+          <div class="lb-rank">${q ? i+1 : i+4}</div>
+          <div class="lb-name">${item.name}</div>
+        </div>
         <div class="lb-craic">${item.count||0} 🍺</div>
       </div>`).join('');
+  }
+
+  function switchLb(tab) {
+    currentLbTab = tab;
+    ['regulars','pubs','countries','counties'].forEach(t => {
+      const el = document.getElementById('lt-'+t);
+      if (el) el.classList.toggle('active', t === tab);
+    });
+
+    // Podium only on Regulars tab
+    const podium = document.getElementById('lbPodium');
+    const youRow = document.getElementById('lbYouRow');
+    podium.style.display = tab === 'regulars' ? 'flex' : 'none';
+    youRow.style.display  = tab === 'regulars' ? 'flex' : 'none';
+
+    // Pick data
+    if (tab === 'regulars')  currentLbData = lbData.users      || [];
+    if (tab === 'pubs')      currentLbData = lbData.pubs        || [];
+    if (tab === 'countries') currentLbData = lbData.countries   || [];
+    if (tab === 'counties')  currentLbData = lbData.counties    || [];
+
+    // Clear search
+    const searchEl = document.getElementById('lbSearch');
+    if (searchEl) searchEl.value = '';
+
+    if (!currentLbData.length) {
+      document.getElementById('lbList').innerHTML =
+        '<div class="lb-row"><div style="font-size:13px;color:var(--gray-text);padding:16px;">No data yet — be the first! ☘️</div></div>';
+      if (tab === 'regulars') {
+        document.getElementById('podium-1-name').textContent = '—';
+        document.getElementById('podium-2-name').textContent = '—';
+        document.getElementById('podium-3-name').textContent = '—';
+      }
+      return;
+    }
+
+    // Update podium for Regulars
+    if (tab === 'regulars') {
+      document.getElementById('podium-1-name').textContent = currentLbData[0] ? currentLbData[0].name : '—';
+      document.getElementById('podium-2-name').textContent = currentLbData[1] ? currentLbData[1].name : '—';
+      document.getElementById('podium-3-name').textContent = currentLbData[2] ? currentLbData[2].name : '—';
+    }
+
+    renderLbList(currentLbData, '');
   }
 
   document.addEventListener('DOMContentLoaded',function(){
     wireButtons();
     loadLiveData();
+    const searchEl = document.getElementById('lbSearch');
+    if (searchEl) searchEl.addEventListener('input', function(){
+      renderLbList(currentLbData, this.value);
+    });
   });
   </script>
 
