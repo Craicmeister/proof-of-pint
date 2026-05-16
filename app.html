@@ -1375,11 +1375,13 @@
     document.getElementById('lbPubSheet').classList.add('active');
     document.querySelector('.lb-pub-sheet-card').scrollTop = 0;
     document.body.style.overflow = 'hidden';
+    document.getElementById('screen-leaderboard').style.overflow = 'hidden';
   }
 
   function closeLbPubSheet() {
     document.getElementById('lbPubSheet').classList.remove('active');
     document.body.style.overflow = '';
+    document.getElementById('screen-leaderboard').style.overflow = '';
   }
 
   // ── Init ──────────────────────────────────────────────────────────
