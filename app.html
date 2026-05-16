@@ -309,13 +309,10 @@
     #claimOverlay { display: none; position: fixed; inset: 0; z-index: 2000; background: var(--green-deep); flex-direction: column; align-items: center; justify-content: center; padding: 32px 24px; text-align: center; }
     #claimOverlay.active { display: flex; }
     .claim-icon { font-size: 64px; margin-bottom: 20px; animation: pintFloat 3s ease-in-out infinite; }
-    .claim-title { font-family: var(--font-serif); font-size: 28px; color: var(--white); margin-bottom: 10px; }
-    .claim-sub { font-size: 15px; color: rgba(255,255,255,0.65); line-height: 1.6; margin-bottom: 28px; max-width: 300px; }
     .claim-amount { font-family: var(--font-serif); font-size: 48px; color: var(--gold); line-height: 1; margin-bottom: 6px; }
     .claim-token { font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 32px; }
     .claim-spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.15); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
     .claim-status { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 32px; min-height: 20px; }
-    .claim-success-tick { font-size: 40px; margin-bottom: 12px; }
     #claimBasescan { display: none; color: #60a5fa; font-size: 13px; font-weight: 600; text-decoration: none; margin-bottom: 28px; }
     #claimDoneBtn { background: var(--gold); color: var(--green-deep); font-family: var(--font-sans); font-weight: 700; font-size: 15px; padding: 16px 48px; border: none; border-radius: var(--radius-full); cursor: pointer; display: none; }
     /* ── NAME ── */
@@ -933,12 +930,43 @@
   function animateVerifySteps(cb){setTimeout(()=>{setVStep(2,'done','✓',true);setVStep(3,'running','⟳',true);},1200);setTimeout(()=>{setVStep(3,'done','✓',true);setVStep(4,'running','⟳',true);},2400);setTimeout(()=>{setVStep(4,'done','✓',true);setTimeout(cb,400);},3400);}
   function showVerifyError(msg){resetVerifySteps();document.getElementById('verifyErrorMsg').textContent=msg;document.getElementById('verifyError').classList.remove('hidden');document.getElementById('verifyErrorBtns').classList.remove('hidden');}
 
-  function showPubSelector(pubs){
-    const pubList=document.getElementById('pubList');
-    pubList.innerHTML=pubs&&pubs.length?pubs.map(pub=>{const dist=pub.dist_m?`${pub.dist_m}m away`:'';return `<div class="pub-option" onclick='pubSelected(${JSON.stringify(pub)})'><div class="pub-option-info"><div class="pub-option-name">${pub.name}</div><div class="pub-option-address">${pub.address||''}</div></div>${dist?`<div class="pub-option-dist">${dist}</div>`:''}<div class="pub-option-arrow">→</div></div>`;}).join(''):'<p style="color:var(--gray-text);padding:16px;text-align:center;">No nearby pubs found.</p>';
+  function showPubSelector(pubs) {
+    const pubList = document.getElementById('pubList');
+    if (pubs && pubs.length) {
+      pubList.innerHTML = pubs.map((pub, i) => {
+        const dist = pub.dist_m ? `${pub.dist_m}m away` : '';
+        return `<div class="pub-option" data-pub-idx="${i}">
+          <div class="pub-option-info">
+            <div class="pub-option-name">${pub.name}</div>
+            <div class="pub-option-address">${pub.address || ''}</div>
+          </div>
+          ${dist ? `<div class="pub-option-dist">${dist}</div>` : ''}
+          <div class="pub-option-arrow">→</div>
+        </div>`;
+      }).join('');
+      pubList._pubsData = pubs;
+    } else {
+      pubList.innerHTML = '<p style="color:var(--gray-text);padding:16px;text-align:center;">No nearby pubs found.</p>';
+      pubList._pubsData = [];
+    }
     document.getElementById('pubSelector').classList.add('active');
   }
-  function pubSelected(pub){document.getElementById('pubSelector').classList.remove('active');confirmPub(pub);}
+
+  // Delegated listener — handles apostrophes and special chars in pub names safely
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('pubList').addEventListener('click', function(e) {
+      const option = e.target.closest('.pub-option');
+      if (!option) return;
+      const idx = parseInt(option.getAttribute('data-pub-idx'), 10);
+      const pubs = document.getElementById('pubList')._pubsData || [];
+      if (pubs[idx]) pubSelected(pubs[idx]);
+    });
+  });
+
+  function pubSelected(pub) {
+    document.getElementById('pubSelector').classList.remove('active');
+    confirmPub(pub);
+  }
 
   async function confirmPub(pub){
     showScreen('verifying');resetVerifySteps();setVStep(2,'running','⟳',true);
@@ -991,7 +1019,6 @@
       const provider = window.ethereum;
       if (!provider) {
         // No injected wallet — save result to localStorage BEFORE redirecting
-        // so it survives the session when Coinbase Wallet reopens the app
         if (verificationResult) {
           localStorage.setItem('pop_pending_result', JSON.stringify(verificationResult));
         }
@@ -1004,7 +1031,6 @@
       const walletAddress = accounts[0];
       if (!walletAddress) throw new Error('no_address');
 
-      // Switch to / add Base
       try {
         await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2105' }] });
       } catch (sw) {
@@ -1053,15 +1079,13 @@
   async function checkPendingClaim() {
     const raw = localStorage.getItem('pop_pending_result');
     if (!raw) return;
-    if (!window.ethereum) return; // not inside a wallet browser — do nothing
+    if (!window.ethereum) return;
 
     let pending;
     try { pending = JSON.parse(raw); } catch { localStorage.removeItem('pop_pending_result'); return; }
 
-    // Restore verificationResult so sendCraic has everything it needs
     verificationResult = pending;
 
-    // Show the claim overlay
     const overlay = document.getElementById('claimOverlay');
     const amountEl = document.getElementById('claimOverlayAmount');
     if (amountEl) amountEl.textContent = (pending.craic_amount || 5000).toLocaleString();
@@ -1076,7 +1100,6 @@
       userId = walletAddress;
       localStorage.setItem('pop_wallet', walletAddress);
 
-      // Switch to Base
       try {
         await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2105' }] });
       } catch (sw) {
@@ -1094,10 +1117,8 @@
       setClaimStatus('Sending your $CRAIC...');
       const txHash = await sendCraic(walletAddress);
 
-      // Clear pending — claim complete
       localStorage.removeItem('pop_pending_result');
 
-      // Show success state in overlay
       document.getElementById('claimSpinner').style.display = 'none';
       const shortAddr = walletAddress.slice(0,6) + '...' + walletAddress.slice(-4);
       setClaimStatus('☘️ $CRAIC is on its way to ' + shortAddr);
