@@ -32,6 +32,7 @@ export default async function handler(req, res) {
       pints.push({
         id:               doc.id,
         pub:              data.pub,
+        display_name:     data.display_name || '',
         pub_lat:          data.pub_lat || null,
         pub_lng:          data.pub_lng || null,
         place_id:         data.place_id,
