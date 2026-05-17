@@ -1169,19 +1169,18 @@
   }
 
   function showNameScreen() {
-    // Pre-fill with saved name if we have one
     const saved = localStorage.getItem('pop_display_name') || '';
     const input = document.getElementById('nameInput');
+
+    // Already named — skip straight to share
     if (saved) {
-      input.value = saved;
-      // Update button text to signal they're updating, not setting fresh
-      document.getElementById('saveNameBtn').textContent = 'Update my name →';
-    } else {
-      input.value = '';
-      document.getElementById('saveNameBtn').textContent = 'Set my name →';
+      showScreen('share');
+      return;
     }
+
+    input.value = '';
+    document.getElementById('saveNameBtn').textContent = 'Set my name →';
     showScreen('name');
-    // Focus input after transition
     setTimeout(() => input.focus(), 300);
   }
 
