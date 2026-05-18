@@ -10,27 +10,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Coinbase Wallet SDK — proper UMD CDN build -->
 
-  <!-- WalletConnect AppKit -->
-  <script type="module">
-    import { createAppKit } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.6.8/dist/cdn/index.js';
-    import { EthersAdapter } from 'https://cdn.jsdelivr.net/npm/@reown/appkit-adapter-ethers@1.6.8/dist/cdn/index.js';
-    import { base } from 'https://cdn.jsdelivr.net/npm/@reown/appkit@1.6.8/networks';
-    const ethersAdapter = new EthersAdapter();
-    window._appKit = createAppKit({
-      adapters: [ethersAdapter],
-      networks: [base],
-      metadata: { name: 'Proof of Pint', description: 'Verify your pint. Earn $CRAIC.', url: 'https://www.proof-of-pint.com', icons: ['https://www.proof-of-pint.com/craic.png'] },
-      projectId: 'fc6101e3b8206a2d0ec429682e56ca60',
-      features: { analytics: false }
-    });
-    window._appKit.subscribeAccount((account) => {
-      if (account?.address && window._wcPendingConnect) {
-        window._wcPendingConnect = false;
-        window.dispatchEvent(new CustomEvent('wc:connected', { detail: { address: account.address } }));
-      }
-    });
-  </script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -443,9 +425,12 @@
         <div class="wallet-opt-icon">📧</div>
         <div><div class="wallet-opt-title">Email it to me</div><div class="wallet-opt-sub">Quick and easy — claim your wallet later</div></div>
       </div>
-      <div class="wallet-opt" id="connectWalletBtn">
-        <div class="wallet-opt-icon" style="background:#3b99fc;color:#fff;font-size:18px;">👛</div>
-        <div><div class="wallet-opt-title">Connect Wallet</div><div class="wallet-opt-sub">Coinbase, MetaMask, Rainbow &amp; more</div></div>
+      <div class="wallet-opt" style="opacity:0.5;cursor:not-allowed;pointer-events:none;">
+        <div class="wallet-opt-icon" style="background:#888;color:#fff;font-size:18px;">👛</div>
+        <div>
+          <div class="wallet-opt-title">Connect Wallet <span style="font-size:11px;background:#888;color:#fff;border-radius:4px;padding:2px 6px;margin-left:6px;font-weight:600;">Coming Soon</span></div>
+          <div class="wallet-opt-sub">MetaMask, Coinbase & more — launching shortly</div>
+        </div>
       </div>
     </div>
     <div id="txLinkContainer" class="hidden tx-link-wrap"><a id="txLink" href="#" target="_blank" class="tx-link">View $CRAIC on BaseScan 🔗</a></div>
@@ -764,7 +749,6 @@
     on('shutterBtn',        function(e){if(e&&e.stopPropagation)e.stopPropagation();takePhoto();});
     on('tryAgainBtn',       startCamera);
     on('backFromErrorBtn',  function(){showScreen('landing');});
-    on('connectWalletBtn',  handleConnectWallet);
     on('emailWalletBtn',    function(){showScreen('email');});
     on('emailSuccessContinueBtn', showNameScreen);
     on('saveNameBtn',      handleSaveName);
@@ -1034,32 +1018,41 @@
     btn.querySelector('.wallet-opt-icon').textContent = '⏳';
 
     try {
-      // Open WalletConnect modal — works with any wallet, no redirect needed
-      if (!window._appKit) throw new Error('WalletConnect not ready');
-      window._wcPendingConnect = true;
-      await window._appKit.open();
+      const provider = window.ethereum;
+      if (!provider) {
+        // No injected wallet — save result to localStorage BEFORE redirecting
+        if (verificationResult) {
+          localStorage.setItem('pop_pending_result', JSON.stringify(verificationResult));
+        }
+        const appUrl = encodeURIComponent('https://www.proof-of-pint.com/app');
+        window.location.href = `https://go.cb-w.com/dapp?cb_url=${appUrl}`;
+        return;
+      }
 
-      // Wait for wc:connected event (fired by subscribeAccount in module script)
-      const walletAddress = await new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          window._wcPendingConnect = false;
-          reject(new Error('closed'));
-        }, 120000);
-        window.addEventListener('wc:connected', function handler(e) {
-          clearTimeout(timeout);
-          window.removeEventListener('wc:connected', handler);
-          resolve(e.detail.address);
-        });
-      });
-
+      const accounts = await provider.request({ method: 'eth_requestAccounts' });
+      const walletAddress = accounts[0];
       if (!walletAddress) throw new Error('no_address');
 
+      try {
+        await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2105' }] });
+      } catch (sw) {
+        if (sw.code === 4902) {
+          await provider.request({
+            method: 'wallet_addEthereumChain',
+            params: [{ chainId: '0x2105', chainName: 'Base',
+              nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+              rpcUrls: ['https://mainnet.base.org'],
+              blockExplorerUrls: ['https://basescan.org'] }]
+          });
+        }
+      }
+
       userId = walletAddress;
-      localStorage.setItem('pop_wallet', walletAddress);
+      localStorage.setItem('pop_wallet', userId);
       if (verificationResult) await sendCraic(walletAddress);
 
       btn.classList.remove('connecting');
-      btn.querySelector('.wallet-opt-icon').style.cssText = 'background:#3b99fc;color:#fff;font-size:18px;';
+      btn.querySelector('.wallet-opt-icon').style.cssText = 'background:#1652f0;color:#fff;font-size:14px;font-weight:700;';
       btn.querySelector('.wallet-opt-icon').textContent = '✅';
       const shortAddr = walletAddress.slice(0,6) + '...' + walletAddress.slice(-4);
       document.getElementById('walletSuccessMsg').textContent =
@@ -1070,12 +1063,11 @@
       setTimeout(() => showNameScreen(), 2000);
 
     } catch (e) {
-      window._wcPendingConnect = false;
       btn.classList.remove('connecting');
-      btn.querySelector('.wallet-opt-icon').style.cssText = 'background:#3b99fc;color:#fff;font-size:18px;';
-      btn.querySelector('.wallet-opt-icon').textContent = '👛';
+      btn.querySelector('.wallet-opt-icon').style.cssText = 'background:#1652f0;color:#fff;font-size:14px;font-weight:700;';
+      btn.querySelector('.wallet-opt-icon').textContent = 'cb';
       userId = localStorage.getItem('pop_session') || getSessionId();
-      if (e.message !== 'closed') {
+      if (e.code !== 4001 && e.message !== 'closed' && e.message !== 'no_provider') {
         errBar.innerHTML = 'Connection failed. ' +
           '<a href="#" id="retryWalletLink" style="color:var(--danger);font-weight:700;text-decoration:underline;">Try again →</a>';
         errBar.style.display = 'block';
@@ -1085,7 +1077,67 @@
     }
   }
 
-  // checkPendingClaim removed — no longer needed with WalletConnect modal approach
+  // ── Check for pending claim on load (handles wallet deep link return) ──
+  async function checkPendingClaim() {
+    const raw = localStorage.getItem('pop_pending_result');
+    if (!raw) return;
+    if (!window.ethereum) return;
+
+    let pending;
+    try { pending = JSON.parse(raw); } catch { localStorage.removeItem('pop_pending_result'); return; }
+
+    verificationResult = pending;
+
+    const overlay = document.getElementById('claimOverlay');
+    const amountEl = document.getElementById('claimOverlayAmount');
+    if (amountEl) amountEl.textContent = (pending.craic_amount || 5000).toLocaleString();
+    overlay.classList.add('active');
+    setClaimStatus('Connecting your wallet...');
+
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const walletAddress = accounts[0];
+      if (!walletAddress) throw new Error('no_address');
+
+      userId = walletAddress;
+      localStorage.setItem('pop_wallet', walletAddress);
+
+      try {
+        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x2105' }] });
+      } catch (sw) {
+        if (sw.code === 4902) {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{ chainId: '0x2105', chainName: 'Base',
+              nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+              rpcUrls: ['https://mainnet.base.org'],
+              blockExplorerUrls: ['https://basescan.org'] }]
+          });
+        }
+      }
+
+      setClaimStatus('Sending your $CRAIC...');
+      const txHash = await sendCraic(walletAddress);
+
+      localStorage.removeItem('pop_pending_result');
+
+      document.getElementById('claimSpinner').style.display = 'none';
+      const shortAddr = walletAddress.slice(0,6) + '...' + walletAddress.slice(-4);
+      setClaimStatus('☘️ $CRAIC is on its way to ' + shortAddr);
+      if (txHash) {
+        const bsLink = document.getElementById('claimBasescan');
+        bsLink.href = 'https://basescan.org/tx/' + txHash;
+        bsLink.style.display = 'inline-block';
+      }
+      document.getElementById('claimDoneBtn').style.display = 'inline-block';
+
+    } catch (e) {
+      localStorage.removeItem('pop_pending_result');
+      document.getElementById('claimSpinner').style.display = 'none';
+      setClaimStatus('Something went wrong. Please try again from the app.');
+      document.getElementById('claimDoneBtn').style.display = 'inline-block';
+    }
+  }
 
   function setClaimStatus(msg) {
     const el = document.getElementById('claimStatus');
