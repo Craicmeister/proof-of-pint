@@ -1319,8 +1319,9 @@
     const pubMetaMap = {};
     (lbData.pubs||[]).forEach(p => { pubMetaMap[p.name] = p; });
     return Object.entries(counts).map(([name,count])=>({
-      name, count,
+      name,
       ...(pubMetaMap[name] || meta[name] || {}),
+      count, // always use filtered count, not Firestore count
     })).sort((a,b)=>b.count-a.count);
   }
 
