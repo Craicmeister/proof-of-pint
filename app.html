@@ -1261,9 +1261,9 @@
   }
 
   function updateShareText(pubName,craic){
-    const text=`🍺 Pint verified at ${pubName}\nJust earned ${craic.toLocaleString()} $CRAIC — proof-of-pint.com/app\n#ProofOfPint`;
+    const text=`🍺 Pint verified at ${pubName}\nJust earned ${craic.toLocaleString()} $CRAIC — www.proof-of-pint.com\n#ProofOfPint`;
     const ta=document.getElementById('shareText');if(ta){ta.value=text;updateCharCount();}
-    const pp=document.getElementById('confirmPostPreview');if(pp)pp.innerHTML=`🍺 Pint verified at ${pubName}<br>Just earned ${craic.toLocaleString()} $CRAIC — proof-of-pint.com/app<br><span class="post-preview-tag">#ProofOfPint</span>`;
+    const pp=document.getElementById('confirmPostPreview');if(pp)pp.innerHTML=`🍺 Pint verified at ${pubName}<br>Just earned ${craic.toLocaleString()} $CRAIC — www.proof-of-pint.com<br><span class="post-preview-tag">#ProofOfPint</span>`;
   }
   function updateCharCount(){const ta=document.getElementById('shareText'),cc=document.getElementById('charCount');if(!ta||!cc)return;const l=ta.value.length;cc.textContent=l;cc.style.color=l>260?'var(--danger)':'var(--gray-text)';}
   function updatePostToXLink() {
