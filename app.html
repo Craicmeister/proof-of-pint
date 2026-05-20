@@ -911,6 +911,7 @@
 
   async function submitVerification(imageBase64){
     try{
+      if(!userLocation){setVStep(2,'running','⟳',true);try{userLocation=await Promise.race([getLocation(),new Promise(r=>setTimeout(()=>r(null),5000))]);}catch(e){}}
       const r=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'find_pubs',image_base64:imageBase64,lat:userLocation?.lat||null,lng:userLocation?.lng||null,user_id:userId})});
       const result=await r.json();
       if(result.status==='select_pub'){pendingVerification={p_hash:result.p_hash,photo_url:result.photo_url,country_code:result.country_code,country_name:result.country_name,county:result.county,is_on_island:result.is_on_island,lat:result.lat,lng:result.lng};animateVerifySteps(()=>showPubSelector(result.pubs));}
