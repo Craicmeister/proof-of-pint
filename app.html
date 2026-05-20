@@ -766,12 +766,12 @@
     on('skipShareBtn', function(){ showScreen('landing'); });
     on('seeLeaderboardBtn', function(){
       lbFromScreen='confirm';
-      switchLb('regulars');
       showScreen('leaderboard');
+      loadLiveData().then(()=>switchLb('regulars'));
     });
-    on('lbBackBtn',         function(){if(lbFromScreen==='confirm'){showScreen('share');}else{showScreen(lbFromScreen||'landing');}});
+    on('lbBackBtn',         function(){if(lbFromScreen==='confirm'){showScreen('share');}else{showScreen('landing');}});
     on('lbBackBtn2',        function(){showScreen(lbFromScreen||'landing');});
-    on('leaderboardBtn',    function(){lbFromScreen='landing';switchLb('regulars');showScreen('leaderboard');});
+    on('leaderboardBtn',    function(){lbFromScreen='landing';showScreen('leaderboard');loadLiveData().then(()=>switchLb('regulars'));});
     on('pubSelectorCancel', function(){document.getElementById('pubSelector').classList.remove('active');pendingVerification=null;startCamera();});
     document.getElementById('shareText').addEventListener('input', function() {
       updateCharCount();
