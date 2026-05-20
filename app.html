@@ -747,8 +747,7 @@
     on('postToXBtn', function(){
       var text = document.getElementById('shareText').value || '';
       var url = 'https://x.com/intent/post?text=' + encodeURIComponent(text);
-      window.open(url, '_blank', 'noopener');
-      showScreen('landing');
+      window.location.href = url;
     });
     on('iPostedBtn', function(){ showScreen('landing'); });
     on('skipShareBtn', function(){ showScreen('landing'); });
