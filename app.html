@@ -488,13 +488,9 @@
 
   <!-- SHARE -->
   <div id="screen-share" class="screen">
-    <div class="share-reward-bar">
-      <div>
-        <div class="share-reward-label">Pint verified</div>
-        <div class="share-reward-amount">+<span id="shareAmount">5,000</span> $CRAIC</div>
-        <div class="share-reward-pub" id="sharePubName"></div>
-      </div>
-      <div class="share-pint-icon">🍺</div>
+    <div class="screen-header" style="background:var(--green-deep);padding:20px 20px 16px;">
+      <div class="screen-header-title" style="color:#fff;">Share on X 🍺</div>
+      <div class="screen-header-sub" style="color:rgba(255,255,255,0.7);">Optional — spread the craic!</div>
     </div>
     <div class="share-body">
       <div class="share-post-label">Your post</div>
@@ -517,6 +513,7 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           Post to X
         </a>
+        <button class="btn btn-gold" id="iPostedBtn">I've posted &#x2713;</button>
         <button class="btn btn-ghost" id="skipShareBtn">Skip</button>
       </div>
     </div>
@@ -759,7 +756,7 @@
     on('emailWalletBtn',    function(){showScreen('email');});
     on('emailSuccessContinueBtn', showNameScreen);
     on('saveNameBtn',      handleSaveName);
-    on('skipNameBtn',      function(){showScreen('share');});
+    on('skipNameBtn',      function(){showScreen('confirm');});
     on('saveEmailBtn',      handleEmailSave);
     on('backFromEmailBtn',  function(){showScreen('reward');});
     // postToXBtn is now a button — opens X in new tab then advances to confirm
@@ -768,6 +765,11 @@
       var url = document.getElementById('postToXBtn').dataset.href;
       if(url) window.open(url, '_blank', 'noopener');
       document.getElementById('confirmTitle').textContent = 'Posted & claimed';
+      document.getElementById('confirmSub').textContent = 'Your pint is on the board';
+      showScreen('confirm');
+    });
+    on('iPostedBtn', function(){
+      document.getElementById('confirmTitle').textContent = 'Pint claimed!';
       document.getElementById('confirmSub').textContent = 'Your pint is on the board';
       showScreen('confirm');
     });
@@ -781,7 +783,7 @@
       switchLb('regulars');
       showScreen('leaderboard');
     });
-    on('lbBackBtn',         function(){showScreen(lbFromScreen||'landing');});
+    on('lbBackBtn',         function(){if(lbFromScreen==='confirm'){showScreen('share');}else{showScreen(lbFromScreen||'landing');}});
     on('lbBackBtn2',        function(){showScreen(lbFromScreen||'landing');});
     on('leaderboardBtn',    function(){lbFromScreen='landing';switchLb('regulars');showScreen('leaderboard');});
     on('pubSelectorCancel', function(){document.getElementById('pubSelector').classList.remove('active');pendingVerification=null;startCamera();});
@@ -1009,12 +1011,13 @@
     verificationResult=result;pendingVerification=null;
     if(result.result_ref) localStorage.setItem('pop_result_ref', result.result_ref);
     const craic=result.craic_amount||5000,pubName=result.pub_name||'Irish pub',country=result.country_name||'';
-    document.getElementById('rewardAmount').textContent=craic.toLocaleString();
-    document.getElementById('rewardPubName').textContent=pubName+(country?' · '+country:'');
-    if(result.tx_hash){document.getElementById('txLink').href=`https://basescan.org/tx/${result.tx_hash}`;document.getElementById('txLinkContainer').classList.remove('hidden');}
-    document.getElementById('shareAmount').textContent=craic.toLocaleString();
-    document.getElementById('sharePubName').textContent=pubName;
-    document.getElementById('confirmCraic').textContent=craic.toLocaleString();
+    const setEl=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+    setEl('rewardAmount',craic.toLocaleString());
+    setEl('rewardPubName',pubName+(country?' · '+country:''));
+    setEl('shareAmount',craic.toLocaleString());
+    setEl('sharePubName',pubName);
+    setEl('confirmCraic',craic.toLocaleString());
+    if(result.tx_hash){const tl=document.getElementById('txLink');if(tl)tl.href=`https://basescan.org/tx/${result.tx_hash}`;const tc=document.getElementById('txLinkContainer');if(tc)tc.classList.remove('hidden');}
     // Show pint photo on share screen if available
     const photoUrl = result.photo_url || '';
     const photoWrap = document.getElementById('sharePintPhotoWrap');
@@ -1024,12 +1027,9 @@
     if (photoUrl) {
       photoImg.src = photoUrl;
       photoWrap.style.display = 'block';
-      saveBtn.href = photoUrl;
-      saveBtn.style.display = 'block';
       saveTip.style.display = 'block';
     } else {
       photoWrap.style.display = 'none';
-      saveBtn.style.display = 'none';
       saveTip.style.display = 'none';
     }
     updateShareText(pubName,craic);showScreen('reward');
@@ -1199,9 +1199,9 @@
     const saved = localStorage.getItem('pop_display_name') || '';
     const input = document.getElementById('nameInput');
 
-    // Already named — skip straight to share
+    // Already named — skip straight to confirm
     if (saved) {
-      showScreen('share');
+      showScreen('confirm');
       return;
     }
 
@@ -1239,7 +1239,7 @@
       }
     }
     btn.disabled = false;
-    showScreen('share');
+    showScreen('confirm');
   }
 
   async function handleEmailSave() {
