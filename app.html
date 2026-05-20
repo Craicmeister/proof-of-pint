@@ -916,7 +916,10 @@
 
   async function submitVerification(imageBase64){
     try{
-      const r=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'find_pubs',image_base64:imageBase64,lat:userLocation?.lat||null,lng:userLocation?.lng||null,user_id:userId})});
+      const controller=new AbortController();
+      const timeout=setTimeout(()=>controller.abort(),20000);
+      const r=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'find_pubs',image_base64:imageBase64,lat:userLocation?.lat||null,lng:userLocation?.lng||null,user_id:userId}),signal:controller.signal});
+      clearTimeout(timeout);
       const result=await r.json();
       if(result.status==='select_pub'){pendingVerification={p_hash:result.p_hash,photo_url:result.photo_url,country_code:result.country_code,country_name:result.country_name,county:result.county,is_on_island:result.is_on_island,lat:result.lat,lng:result.lng};animateVerifySteps(()=>showPubSelector(result.pubs));}
       else if(result.status==='auto_confirm'){
@@ -1002,11 +1005,17 @@
       lng:pv.lng||pub._lng||null
     };
     try{
-      const r=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const controller=new AbortController();
+      const timeout=setTimeout(()=>controller.abort(),15000);
+      const r=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:controller.signal});
+      clearTimeout(timeout);
       const result=await r.json();
       if(result.status==='success')animateVerifySteps(()=>handleSuccess(result));
       else showVerifyError(result.message||'Something went wrong. Try again!');
-    }catch{showVerifyError('Connection error. Please try again.');}
+    }catch(e){
+      if(e.name==='AbortError')showVerifyError('Taking too long — check your connection and try again.');
+      else showVerifyError('Connection error. Please try again.');
+    }
   }
 
   function handleSuccess(result){
