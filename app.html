@@ -487,33 +487,21 @@
   </div>
 
   <!-- SHARE -->
-  <div id="screen-share" class="screen">
-    <div style="padding:16px 20px 0;"><div style="font-size:16px;font-weight:700;color:var(--text-dark);">Share on X 🍺</div><div style="font-size:13px;color:var(--gray-text);margin-top:2px;">Optional — spread the craic!</div></div>
-    <div class="share-body">
-      <div class="share-post-label">Your post</div>
-      <textarea id="shareText" rows="4"></textarea>
-      <div class="char-count"><span id="charCount">0</span> / 280</div>
-      <div class="share-toggles">
-        <div class="share-toggle-row"><span>Photo of your pint</span><input type="checkbox" id="inclPhoto" checked></div>
-        <div class="share-toggle-row"><span>Pub location</span><input type="checkbox" id="inclLocation" checked></div>
-        <div class="share-toggle-row"><span>$CRAIC earned</span><input type="checkbox" id="inclCraic" checked></div>
-      </div>
-      <div id="sharePintPhotoWrap" style="display:none;margin-bottom:12px;border-radius:12px;overflow:hidden;">
-        <img id="sharePintPhoto" src="" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;" />
-      </div>
-      <a id="savePintPhotoBtn" href="#" download="pint.jpg" style="display:none;width:100%;text-align:center;background:rgba(13,61,32,0.08);border:1.5px solid rgba(13,61,32,0.2);color:var(--green-deep);font-weight:600;font-size:14px;padding:12px;border-radius:10px;margin-bottom:10px;text-decoration:none;">
-        📸 Save pint photo to camera roll
-      </a>
-      <p id="savePintPhotoTip" style="display:none;font-size:12px;color:var(--gray-text);text-align:center;margin-bottom:12px;">Then attach it to your post on X for more $CRAIC! 🍺</p>
-      <div class="share-btns">
-        <button class="btn btn-black" id="postToXBtn" style="display:flex;align-items:center;justify-content:center;gap:8px;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          Post to X
-        </button>
-        <button class="btn btn-gold" id="iPostedBtn">I've posted &#x2713;</button>
-        <button class="btn btn-ghost" id="skipShareBtn">Skip</button>
-      </div>
+  <div id="screen-share" class="screen" style="display:flex;flex-direction:column;justify-content:center;padding:32px 20px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:40px;margin-bottom:12px;">🍺</div>
+      <div style="font-size:20px;font-weight:700;color:var(--text-dark);margin-bottom:6px;">Share on X</div>
+      <div style="font-size:14px;color:var(--gray-text);">Optional — but the craic spreads faster!</div>
     </div>
+    <textarea id="shareText" rows="4" style="width:100%;padding:14px;border:1.5px solid var(--gray-mid);border-radius:12px;font-size:13px;line-height:1.7;color:var(--text-dark);background:var(--white);font-family:var(--font-sans);resize:none;margin-bottom:16px;box-sizing:border-box;"></textarea>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-black" id="postToXBtn" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Post to X
+      </button>
+      <button class="btn btn-ghost" id="skipShareBtn" style="width:100%;">Skip →</button>
+    </div>
+    <div style="display:none;"><span id="charCount">0</span><input type="checkbox" id="inclPhoto" checked><input type="checkbox" id="inclLocation" checked><input type="checkbox" id="inclCraic" checked><div id="sharePintPhotoWrap"><img id="sharePintPhoto" src=""/></div><p id="savePintPhotoTip"></p><a id="savePintPhotoBtn" href="#"></a><button id="iPostedBtn"></button></div>
   </div>
 
   <!-- CONFIRM -->
