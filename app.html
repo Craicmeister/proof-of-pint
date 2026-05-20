@@ -1032,14 +1032,11 @@
     const photoUrl = result.photo_url || '';
     const photoWrap = document.getElementById('sharePintPhotoWrap');
     const photoImg = document.getElementById('sharePintPhoto');
-    const saveTip = document.getElementById('savePintPhotoTip');
     if (photoUrl) {
       photoImg.src = photoUrl;
       photoWrap.style.display = 'block';
-      saveTip.style.display = 'block';
     } else {
       photoWrap.style.display = 'none';
-      saveTip.style.display = 'none';
     }
     updateShareText(pubName,craic);showScreen('reward');
   }
