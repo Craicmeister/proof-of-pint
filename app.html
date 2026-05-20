@@ -488,10 +488,7 @@
 
   <!-- SHARE -->
   <div id="screen-share" class="screen">
-    <div class="screen-header" style="background:var(--green-deep);padding:20px 20px 16px;">
-      <div class="screen-header-title" style="color:#fff;">Share on X 🍺</div>
-      <div class="screen-header-sub" style="color:rgba(255,255,255,0.7);">Optional — spread the craic!</div>
-    </div>
+    <div style="padding:16px 20px 0;"><div style="font-size:16px;font-weight:700;color:var(--text-dark);">Share on X 🍺</div><div style="font-size:13px;color:var(--gray-text);margin-top:2px;">Optional — spread the craic!</div></div>
     <div class="share-body">
       <div class="share-post-label">Your post</div>
       <textarea id="shareText" rows="4"></textarea>
@@ -509,10 +506,10 @@
       </a>
       <p id="savePintPhotoTip" style="display:none;font-size:12px;color:var(--gray-text);text-align:center;margin-bottom:12px;">Then attach it to your post on X for more $CRAIC! 🍺</p>
       <div class="share-btns">
-        <a class="btn btn-black" id="postToXBtn" href="#" target="_blank" rel="noopener" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <button class="btn btn-black" id="postToXBtn" style="display:flex;align-items:center;justify-content:center;gap:8px;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           Post to X
-        </a>
+        </button>
         <button class="btn btn-gold" id="iPostedBtn">I've posted &#x2713;</button>
         <button class="btn btn-ghost" id="skipShareBtn">Skip</button>
       </div>
@@ -759,25 +756,14 @@
     on('skipNameBtn',      function(){showScreen('confirm');});
     on('saveEmailBtn',      handleEmailSave);
     on('backFromEmailBtn',  function(){showScreen('reward');});
-    // postToXBtn is now a button — opens X in new tab then advances to confirm
     on('postToXBtn', function(){
-      updatePostToXLink();
-      var url = document.getElementById('postToXBtn').dataset.href;
-      if(url) window.open(url, '_blank', 'noopener');
-      document.getElementById('confirmTitle').textContent = 'Posted & claimed';
-      document.getElementById('confirmSub').textContent = 'Your pint is on the board';
-      showScreen('confirm');
+      var text = document.getElementById('shareText').value || '';
+      var url = 'https://x.com/intent/post?text=' + encodeURIComponent(text);
+      window.open(url, '_blank', 'noopener');
+      showScreen('landing');
     });
-    on('iPostedBtn', function(){
-      document.getElementById('confirmTitle').textContent = 'Pint claimed!';
-      document.getElementById('confirmSub').textContent = 'Your pint is on the board';
-      showScreen('confirm');
-    });
-    on('skipShareBtn', function(){
-      document.getElementById('confirmTitle').textContent = 'Pint claimed!';
-      document.getElementById('confirmSub').textContent = 'Your pint is on the board';
-      showScreen('confirm');
-    });
+    on('iPostedBtn', function(){ showScreen('landing'); });
+    on('skipShareBtn', function(){ showScreen('landing'); });
     on('seeLeaderboardBtn', function(){
       lbFromScreen='confirm';
       switchLb('regulars');
