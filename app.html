@@ -1010,22 +1010,18 @@
     verificationResult=result;pendingVerification=null;
     if(result.result_ref) localStorage.setItem('pop_result_ref', result.result_ref);
     const craic=result.craic_amount||5000,pubName=result.pub_name||'Irish pub',country=result.country_name||'';
-    document.getElementById('rewardAmount').textContent=craic.toLocaleString();
-    document.getElementById('rewardPubName').textContent=pubName+(country?' · '+country:'');
-    if(result.tx_hash){document.getElementById('txLink').href=`https://basescan.org/tx/${result.tx_hash}`;document.getElementById('txLinkContainer').classList.remove('hidden');}
-    document.getElementById('shareAmount').textContent=craic.toLocaleString();
-    document.getElementById('sharePubName').textContent=pubName;
-    document.getElementById('confirmCraic').textContent=craic.toLocaleString();
-    // Show pint photo on share screen if available
+    const setEl=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+    setEl('rewardAmount',craic.toLocaleString());
+    setEl('rewardPubName',pubName+(country?' · '+country:''));
+    setEl('shareAmount',craic.toLocaleString());
+    setEl('sharePubName',pubName);
+    setEl('confirmCraic',craic.toLocaleString());
+    if(result.tx_hash){const tl=document.getElementById('txLink');if(tl)tl.href=`https://basescan.org/tx/${result.tx_hash}`;const tc=document.getElementById('txLinkContainer');if(tc)tc.classList.remove('hidden');}
     const photoUrl = result.photo_url || '';
     const photoWrap = document.getElementById('sharePintPhotoWrap');
     const photoImg = document.getElementById('sharePintPhoto');
-    if (photoUrl) {
-      photoImg.src = photoUrl;
-      photoWrap.style.display = 'block';
-    } else {
-      photoWrap.style.display = 'none';
-    }
+    if(photoWrap&&photoImg&&photoUrl){photoImg.src=photoUrl;photoWrap.style.display='block';}
+    else if(photoWrap){photoWrap.style.display='none';}
     updateShareText(pubName,craic);showScreen('reward');
   }
 
