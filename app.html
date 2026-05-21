@@ -755,7 +755,8 @@
     on('postToXBtn', function(){
       var text = document.getElementById('shareText').value || '';
       var url = 'https://x.com/intent/post?text=' + encodeURIComponent(text);
-      window.location.href = url;
+      showScreen('landing');
+      setTimeout(function(){ window.location.href = url; }, 80);
     });
     on('iPostedBtn', function(){ showScreen('landing'); });
     on('skipShareBtn', function(){ showScreen('landing'); });
@@ -1019,6 +1020,15 @@
       if (myName) { const idx = users.findIndex(u => u.name === myName); if (idx !== -1) myRank = idx + 1; }
       setEl('confirmPintCount', myCount);
       setEl('confirmRank', '#' + myRank);
+      const remaining = Math.max(0, 5 - myCount);
+      const milestoneEl = document.querySelector('.milestone-text');
+      if (milestoneEl) {
+        if (remaining <= 0) {
+          milestoneEl.innerHTML = '🎉 You\'ve unlocked the <strong>Regular</strong> badge!';
+        } else {
+          milestoneEl.innerHTML = 'Verify <strong>' + remaining + ' more pint' + (remaining !== 1 ? 's' : '') + '</strong> to unlock the <strong>Regular</strong> badge';
+        }
+      }
     }).catch(()=>{ setEl('confirmPintCount', 1); setEl('confirmRank', '#—'); });
   }
 
