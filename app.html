@@ -1025,6 +1025,13 @@
       if (myName) { const idx = users.findIndex(u => u.name === myName); if (idx !== -1) myRank = idx + 1; }
       setEl('confirmPintCount', myCount);
       setEl('confirmRank', '#' + myRank);
+      const remaining = Math.max(0, 5 - myCount);
+      const milestoneEl = document.querySelector('.milestone-text');
+      if (milestoneEl) {
+        milestoneEl.innerHTML = remaining <= 0
+          ? '🎉 You\'ve unlocked the <strong>Regular</strong> badge!'
+          : 'Verify <strong>' + remaining + ' more pint' + (remaining !== 1 ? 's' : '') + '</strong> to unlock the <strong>Regular</strong> badge';
+      }
     }).catch(()=>{ setEl('confirmPintCount', 1); setEl('confirmRank', '#—'); });
   }
 
