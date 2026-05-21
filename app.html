@@ -513,8 +513,8 @@
     </div>
     <div class="confirm-stats">
       <div class="stat-block"><div class="stat-num" id="confirmCraic">5,000</div><div class="stat-lbl">$CRAIC earned</div></div>
-      <div class="stat-block"><div class="stat-num">1</div><div class="stat-lbl">pints verified</div></div>
-      <div class="stat-block"><div class="stat-num">#—</div><div class="stat-lbl">leaderboard</div></div>
+      <div class="stat-block"><div class="stat-num" id="confirmPintCount">—</div><div class="stat-lbl">pints verified</div></div>
+      <div class="stat-block"><div class="stat-num" id="confirmRank">#—</div><div class="stat-lbl">leaderboard</div></div>
     </div>
     <div class="milestone-card">
       <div style="font-size:18px;flex-shrink:0;margin-top:1px;">🏆</div>
@@ -1006,6 +1006,29 @@
       saveTip.style.display = 'none';
     }
     updateShareText(pubName,craic);showScreen('reward');
+    // Fetch real pint count + rank for confirm screen
+    loadLiveData().then(()=>{
+      const myName = localStorage.getItem('pop_display_name') || '';
+      const myPints = (pintsDataRaw || []).filter(p => p.user_id === userId || (myName && p.display_name === myName));
+      const myCount = myPints.length || 1;
+      const users = lbData.users || [];
+      let myRank = users.length + 1;
+      if (myName) { const idx = users.findIndex(u => u.name === myName); if (idx !== -1) myRank = idx + 1; }
+      setEl('confirmPintCount', myCount);
+      setEl('confirmRank', '#' + myRank);
+      const remaining = Math.max(0, 5 - myCount);
+      const milestoneEl = document.querySelector('.milestone-text');
+      if (milestoneEl) {
+        if (remaining > 0) {
+          milestoneEl.innerHTML = 'Verify <strong>' + remaining + ' more pint' + (remaining!==1?'s':'') + '</strong> to unlock the <strong>Regular</strong> badge';
+        } else {
+          milestoneEl.innerHTML = '🎉 You\'ve unlocked the <strong>Regular</strong> badge!';
+        }
+      }
+    }).catch(()=>{
+      setEl('confirmPintCount', 1);
+      setEl('confirmRank', '#—');
+    });
   }
 
   async function handleConnectWallet() {
