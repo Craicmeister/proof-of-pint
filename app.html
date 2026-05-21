@@ -487,58 +487,29 @@
   </div>
 
   <!-- SHARE -->
-  <div id="screen-share" class="screen" style="background:#000;height:100vh;max-height:100vh;display:flex;flex-direction:column;overflow:hidden;position:fixed;inset:0;z-index:1;">
-
-    <!-- Header -->
-    <div style="padding:18px 20px 14px;flex-shrink:0;">
+  <div id="screen-share" class="screen" style="background:#000;">
+    <div style="padding:18px 20px 14px;">
       <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:2px;">Share on X 🍺</div>
       <div style="font-size:12px;color:rgba(255,255,255,0.45);">The craic spreads faster with a post</div>
     </div>
-
-    <!-- Photo — fixed height, hold to save hint overlaid -->
-    <div id="sharePintPhotoWrap" style="display:none;position:relative;flex-shrink:0;margin:0 16px;border-radius:14px;overflow:hidden;height:36vh;">
-      <img id="sharePintPhoto" src=""
-        style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" />
-      <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);white-space:nowrap;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);border-radius:999px;padding:6px 14px;display:flex;align-items:center;gap:6px;">
+    <div id="sharePintPhotoWrap" style="display:none;position:relative;margin:0 16px 14px;border-radius:14px;overflow:hidden;height:38vh;flex-shrink:0;">
+      <img id="sharePintPhoto" src="" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" />
+      <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);white-space:nowrap;background:rgba(0,0,0,0.7);border-radius:999px;padding:6px 14px;display:flex;align-items:center;gap:6px;">
         <span style="font-size:14px;">👇</span>
         <span style="font-size:11px;font-weight:600;color:#fff;">Hold photo to save to camera roll</span>
       </div>
     </div>
-
-    <!-- No photo fallback -->
-    <div id="shareNoPhotoPlaceholder" style="display:none;flex-shrink:0;height:120px;margin:0 16px;border-radius:14px;background:#111;align-items:center;justify-content:center;">
-      <span style="font-size:48px;">🍺</span>
+    <div style="padding:0 16px 12px;">
+      <textarea id="shareText" rows="3" style="width:100%;padding:12px 14px;border:1.5px solid rgba(255,255,255,0.15);border-radius:12px;font-size:13px;line-height:1.6;color:#fff;background:rgba(255,255,255,0.07);font-family:var(--font-sans);resize:none;box-sizing:border-box;"></textarea>
     </div>
-
-    <!-- Tweet text -->
-    <div style="flex:1;padding:14px 16px 0;min-height:0;">
-      <textarea id="shareText" rows="3"
-        style="width:100%;height:100%;max-height:110px;padding:12px 14px;border:1.5px solid rgba(255,255,255,0.15);border-radius:12px;font-size:13px;line-height:1.6;color:#fff;background:rgba(255,255,255,0.07);font-family:var(--font-sans);resize:none;box-sizing:border-box;"></textarea>
-    </div>
-
-    <!-- Buttons — always visible at bottom -->
-    <div style="flex-shrink:0;padding:12px 16px 40px;display:flex;flex-direction:column;gap:10px;">
-      <button class="btn" id="postToXBtn"
-        style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#fff;color:#000;font-weight:700;border-radius:999px;padding:16px;">
+    <div style="padding:0 16px 40px;display:flex;flex-direction:column;gap:10px;">
+      <button class="btn" id="postToXBtn" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#fff;color:#000;font-weight:700;border-radius:999px;padding:16px;">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="black"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         Post to X
       </button>
-      <button class="btn" id="skipShareBtn"
-        style="width:100%;background:transparent;color:rgba(255,255,255,0.45);border:1.5px solid rgba(255,255,255,0.15);border-radius:999px;padding:14px;font-size:14px;font-weight:600;">
-        Skip →
-      </button>
+      <button class="btn btn-ghost" id="skipShareBtn" style="width:100%;color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.2);">Skip →</button>
     </div>
-
-    <!-- Hidden elements required by JS — do not remove -->
-    <div style="display:none;">
-      <span id="charCount">0</span>
-      <input type="checkbox" id="inclPhoto" checked>
-      <input type="checkbox" id="inclLocation" checked>
-      <input type="checkbox" id="inclCraic" checked>
-      <p id="savePintPhotoTip"></p>
-      <a id="savePintPhotoBtn" href="#"></a>
-      <button id="iPostedBtn"></button>
-    </div>
+    <div style="display:none;"><span id="charCount">0</span><input type="checkbox" id="inclPhoto" checked><input type="checkbox" id="inclLocation" checked><input type="checkbox" id="inclCraic" checked><p id="savePintPhotoTip"></p><a id="savePintPhotoBtn" href="#"></a><button id="iPostedBtn"></button></div>
   </div>
 
   <!-- CONFIRM -->
@@ -1032,14 +1003,11 @@
     const photoUrl = result.photo_url || '';
     const photoWrap = document.getElementById('sharePintPhotoWrap');
     const photoImg = document.getElementById('sharePintPhoto');
-    const noPhoto  = document.getElementById('shareNoPhotoPlaceholder');
     if (photoUrl) {
       photoImg.src = photoUrl;
       photoWrap.style.display = 'block';
-      if (noPhoto) noPhoto.style.display = 'none';
     } else {
       photoWrap.style.display = 'none';
-      if (noPhoto) noPhoto.style.display = 'flex';
     }
     updateShareText(pubName,craic);showScreen('reward');
     loadLiveData().then(()=>{
@@ -1051,19 +1019,7 @@
       if (myName) { const idx = users.findIndex(u => u.name === myName); if (idx !== -1) myRank = idx + 1; }
       setEl('confirmPintCount', myCount);
       setEl('confirmRank', '#' + myRank);
-      const remaining = Math.max(0, 5 - myCount);
-      const milestoneEl = document.querySelector('.milestone-text');
-      if (milestoneEl) {
-        if (remaining > 0) {
-          milestoneEl.innerHTML = 'Verify <strong>' + remaining + ' more pint' + (remaining!==1?'s':'') + '</strong> to unlock the <strong>Regular</strong> badge';
-        } else {
-          milestoneEl.innerHTML = '🎉 You\'ve unlocked the <strong>Regular</strong> badge!';
-        }
-      }
-    }).catch(()=>{
-      setEl('confirmPintCount', 1);
-      setEl('confirmRank', '#—');
-    });
+    }).catch(()=>{ setEl('confirmPintCount', 1); setEl('confirmRank', '#—'); });
   }
 
   async function handleConnectWallet() {
