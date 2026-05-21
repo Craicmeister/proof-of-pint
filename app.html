@@ -761,7 +761,13 @@
     on('skipShareBtn', function(){ showScreen('landing'); });
     on('seeLeaderboardBtn', function(){
       lbFromScreen='confirm';
-      loadLiveData().then(()=>{ showScreen('leaderboard'); switchLb('regulars'); });
+      // Bust cache so fresh data loads immediately after verify
+      loadLiveData(true).then(()=>{
+        showScreen('leaderboard');
+        switchLb('regulars');
+        // Retry once after 1.5s in case Firestore propagation was slightly delayed
+        setTimeout(()=>loadLiveData(true).then(()=>switchLb(currentLbTab)), 1500);
+      });
     });
     on('lbBackBtn',         function(){if(lbFromScreen==='confirm'){showScreen('share');}else{showScreen('landing');}});
     on('lbBackBtn2',        function(){showScreen(lbFromScreen||'landing');});
@@ -781,9 +787,10 @@
     });
   }
 
-  async function loadLiveData(){
+  async function loadLiveData(bustCache){
     try{
-      const pr=await fetch('/api/pints');
+      const url = '/api/pints' + (bustCache ? '?t=' + Date.now() : '');
+      const pr=await fetch(url, {cache: 'no-store'});
       const pj=await pr.json();
       pintsData=pj.pints||[];
       pintsDataRaw=pintsData;
