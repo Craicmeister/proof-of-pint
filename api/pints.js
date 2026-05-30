@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     const [countiesSnap, countriesSnap, pubsSnap] = await Promise.all([
       db.collection('leaderboard_counties').orderBy('count', 'desc').limit(10).get(),
       db.collection('leaderboard_countries').orderBy('count', 'desc').limit(10).get(),
-      db.collection('leaderboard_pubs').orderBy('count', 'desc').limit(10).get(),
+      db.collection('leaderboard_pubs').orderBy('count', 'desc').limit(100).get(),
     ]);
 
     const leaderboards = {
@@ -107,7 +107,7 @@ export default async function handler(req, res) {
     leaderboards.users = Object.entries(userCounts)
       .map(([name, count]) => ({ name, count, display_name: name }))
       .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+      .slice(0, 100);
 
     return res.status(200).json({
       pints,
