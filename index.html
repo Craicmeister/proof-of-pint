@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
   <title>Proof of Pint ☘️ — Verify your pint. Earn $CRAIC.</title>
   <meta name="description" content="Snap your pint in any Irish pub anywhere in the world. Google Vision AI verifies it's real. Earn 5,000 $CRAIC on Base blockchain.">
   <meta property="og:title" content="Proof of Pint ☘️">
@@ -25,7 +25,7 @@
       --font-sans:    'DM Sans', -apple-system, sans-serif;
     }
 
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; font-size: clamp(13px, 3.8vw, 16px); }
     body { font-family: var(--font-sans); background: var(--text-dark); color: var(--white); overflow-x: hidden; }
 
     body::before {
@@ -86,7 +86,7 @@
     .btn-verify {
       display: inline-flex; align-items: center; justify-content: center; gap: 10px;
       background: var(--gold); color: var(--green-deep); font-family: var(--font-sans);
-      font-size: 18px; font-weight: 700; padding: 20px 48px; border-radius: 999px;
+      font-size: clamp(15px, 4vw, 18px); font-weight: 700; padding: clamp(14px, 4vw, 20px) 48px; border-radius: 999px;
       border: none; cursor: pointer; text-decoration: none; width: 100%; max-width: 340px;
       box-shadow: 0 0 40px rgba(255,215,0,0.3), 0 8px 24px rgba(0,0,0,0.4);
       transition: transform 0.15s, box-shadow 0.15s; -webkit-tap-highlight-color: transparent;
