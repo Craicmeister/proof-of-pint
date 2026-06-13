@@ -1277,6 +1277,8 @@
     } catch (e) {
       console.error('Email save error:', e.message);
     }
+    // Persist email locally so restoreName() can use it as fallback
+    localStorage.setItem('pop_email', email);
     // Always advance to success screen
     document.getElementById('emailSuccessAmount').textContent =
       (verificationResult?.craic_amount || 5000).toLocaleString();
@@ -1530,20 +1532,38 @@
   // ── Restore name from Firestore if localStorage was cleared ──
   async function restoreName() {
     if (localStorage.getItem('pop_display_name')) return; // already have it
+
+    // Step 1 — try session ID lookup
     const sessionId = localStorage.getItem('pop_session');
-    if (!sessionId) return; // brand new user, nothing to restore
-    try {
-      const res = await fetch('/api/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'get_name', user_id: sessionId })
-      });
-      const data = await res.json();
-      if (data.status === 'success' && data.display_name) {
-        localStorage.setItem('pop_display_name', data.display_name);
-      }
-    } catch (e) {
-      // silent fail — name screen will show as normal if this fails
+    if (sessionId) {
+      try {
+        const res = await fetch('/api/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_name', user_id: sessionId })
+        });
+        const data = await res.json();
+        if (data.status === 'success' && data.display_name) {
+          localStorage.setItem('pop_display_name', data.display_name);
+          return;
+        }
+      } catch (e) { /* silent fail — try email next */ }
+    }
+
+    // Step 2 — fall back to email lookup (survives localStorage clearing)
+    const savedEmail = localStorage.getItem('pop_email');
+    if (savedEmail) {
+      try {
+        const res = await fetch('/api/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_name_by_email', email: savedEmail })
+        });
+        const data = await res.json();
+        if (data.status === 'success' && data.display_name) {
+          localStorage.setItem('pop_display_name', data.display_name);
+        }
+      } catch (e) { /* silent fail — name screen will show as normal */ }
     }
   }
 
