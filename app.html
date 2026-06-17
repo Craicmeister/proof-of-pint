@@ -139,16 +139,35 @@
     .vstep-label { font-size: 13px; color: var(--text-dark); font-weight: 500; }
     .vstep-sub   { font-size: 11px; color: var(--gray-text); margin-top: 2px; }
 
-    /* ── REWARD ── */
-    #screen-reward { background: var(--off-white); }
-    .reward-hero { background: var(--green-deep); padding: 28px 24px 24px; text-align: center; }
-    .reward-title { font-family: var(--font-serif); font-size: 22px; color: var(--white); margin-bottom: 6px; }
-    .reward-pub-name { font-size: 13px; color: rgba(255,255,255,0.6); }
-    .reward-amount-card { margin: 20px 20px 0; background: var(--green-deep); border-radius: var(--radius-lg); padding: 20px; text-align: center; }
-    .reward-num   { font-family: var(--font-serif); font-size: 52px; color: var(--gold); line-height: 1; }
-    .reward-token { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 4px; }
-    .wallet-options { padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-    .wallet-section-label { font-size: 13px; color: var(--gray-text); text-align: center; margin-bottom: 4px; }
+    /* ── DETAILS (first-time: email + username) ── */
+    #screen-details { background: var(--off-white); }
+    .details-hero { background: var(--green-deep); padding: 28px 24px 24px; text-align: center; }
+    .details-craic { font-family: var(--font-serif); font-size: 52px; color: var(--gold); line-height: 1; }
+    .details-craic-label { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+    .details-pub { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 6px; }
+    .details-body { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+    .details-label { font-size: 12px; font-weight: 600; color: var(--gray-text); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+    .details-input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--gray-mid); border-radius: var(--radius-md); font-size: 15px; color: var(--text-dark); background: var(--white); font-family: var(--font-sans); }
+    .details-input:focus { outline: none; border-color: var(--green-mid); }
+
+    /* ── SUCCESS (well done / returning user) ── */
+    #screen-success { background: var(--off-white); overflow-y: auto; }
+    .success-hero { background: var(--green-deep); padding: 28px 24px 24px; text-align: center; }
+    .success-greeting { font-family: var(--font-serif); font-size: 26px; color: var(--white); margin-bottom: 4px; }
+    .success-pub { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 16px; }
+    .success-craic { font-family: var(--font-serif); font-size: 52px; color: var(--gold); line-height: 1; }
+    .success-craic-label { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+    .success-stats { display: flex; margin: 16px 20px 0; background: var(--white); border-radius: var(--radius-md); border: 1px solid var(--gray-light); overflow: hidden; }
+    .success-stat { flex: 1; padding: 14px 10px; text-align: center; }
+    .success-stat + .success-stat { border-left: 1px solid var(--gray-light); }
+    .success-stat-num { font-family: var(--font-serif); font-size: 22px; color: var(--text-dark); }
+    .success-stat-lbl { font-size: 11px; color: var(--gray-text); margin-top: 2px; }
+    .success-photo-wrap { margin: 14px 20px 0; border-radius: var(--radius-md); overflow: hidden; background: #111; position: relative; display: none; }
+    .success-photo-wrap img { width: 100%; height: auto; display: block; }
+    .success-actions { padding: 16px 20px 32px; display: flex; flex-direction: column; gap: 10px; }
+    .success-share-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px 20px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: var(--white); font-family: var(--font-sans); font-size: 14px; font-weight: 600; border-radius: var(--radius-full); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
+    /* kept for wallet connect flow */
     .wallet-opt { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--white); border-radius: var(--radius-md); border: 1.5px solid var(--gray-light); cursor: pointer; -webkit-tap-highlight-color: transparent; }
     .wallet-opt:active { border-color: var(--green-mid); }
     .wallet-opt-icon  { width: 38px; height: 38px; border-radius: 8px; background: var(--gray-light); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
@@ -156,47 +175,9 @@
     .wallet-opt-sub   { font-size: 12px; color: var(--gray-text); margin-top: 2px; }
     .tx-link-wrap { text-align: center; padding: 0 20px 16px; }
     .tx-link { color: #0052FF; text-decoration: none; font-size: 13px; font-weight: 600; }
-
-    /* ── EMAIL ── */
-    #screen-email { background: var(--off-white); }
-    .email-body { padding: 24px 20px; flex: 1; display: flex; flex-direction: column; }
-    .email-desc { font-size: 14px; color: var(--gray-text); line-height: 1.65; margin-bottom: 20px; }
-    .email-input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--gray-mid); border-radius: var(--radius-md); font-size: 15px; color: var(--text-dark); background: var(--white); font-family: var(--font-sans); margin-bottom: 12px; }
-    .email-input:focus { outline: none; border-color: var(--green-mid); }
-
-    /* ── SHARE ── */
-    #screen-share { background: var(--off-white); }
-    .share-reward-bar { background: var(--green-deep); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
-    .share-reward-label  { font-size: 11px; color: rgba(255,255,255,0.55); margin-bottom: 3px; }
-    .share-reward-amount { font-size: 22px; font-weight: 700; color: var(--gold); font-family: var(--font-serif); }
-    .share-reward-pub    { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
-    .share-pint-icon     { font-size: 36px; }
-    .share-body { padding: 20px; display: flex; flex-direction: column; }
-    .share-post-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-text); margin-bottom: 8px; }
-    #shareText { width: 100%; padding: 14px; border: 1.5px solid var(--gray-mid); border-radius: var(--radius-md); font-size: 13px; line-height: 1.7; color: var(--text-dark); background: var(--white); font-family: var(--font-sans); resize: none; margin-bottom: 6px; }
-    .char-count { font-size: 11px; color: var(--gray-text); text-align: right; margin-bottom: 14px; }
-    .share-toggles { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-    .share-toggle-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--text-dark); }
-    .share-toggle-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--green-mid); }
-    .share-btns { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; padding-bottom: 32px; }
-
-    /* ── CONFIRM ── */
-    #screen-confirm { background: var(--off-white); }
-    .confirm-hero { background: var(--green-deep); padding: 24px 20px; text-align: center; }
-    .confirm-tick { width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 12px; }
-    .confirm-title { font-family: var(--font-serif); font-size: 22px; color: var(--white); margin-bottom: 4px; }
-    .confirm-sub   { font-size: 13px; color: rgba(255,255,255,0.6); }
-    .confirm-stats { display: flex; margin: 20px 20px 0; background: var(--white); border-radius: var(--radius-md); border: 1px solid var(--gray-light); overflow: hidden; }
-    .stat-block { flex: 1; padding: 14px 10px; text-align: center; }
-    .stat-block + .stat-block { border-left: 1px solid var(--gray-light); }
-    .stat-num { font-family: var(--font-serif); font-size: 22px; color: var(--text-dark); }
-    .stat-lbl { font-size: 11px; color: var(--gray-text); margin-top: 2px; }
-    .milestone-card { margin: 12px 20px 0; background: var(--white); border-radius: var(--radius-md); border: 1px solid var(--gray-light); padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; }
-    .milestone-text { font-size: 13px; color: var(--text-dark); line-height: 1.5; }
-    .milestone-text strong { color: var(--green-mid); }
-    .post-preview-card { margin: 12px 20px 0; background: var(--white); border-radius: var(--radius-md); border: 1px solid var(--gray-light); padding: 12px 14px; font-size: 13px; color: var(--text-dark); line-height: 1.7; }
-    .post-preview-tag { color: var(--green-mid); }
-    .confirm-body { padding: 16px 20px 32px; display: flex; flex-direction: column; gap: 10px; }
+    /* hidden textarea kept for share text generation */
+    #shareText { display: none; }
+    #charCount { display: none; }
 
     /* ── LEADERBOARD ── */
     #screen-leaderboard { background: var(--off-white); overflow-y: auto; }
@@ -305,6 +286,12 @@
     .wallet-success-bar { background: #d1fae5; border: 1px solid #6ee7b7; border-radius: var(--radius-md); padding: 12px 16px; margin: 0 20px 12px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #065f46; font-weight: 600; }
     .wallet-error-bar { background: #fee2e2; border: 1px solid #fca5a5; border-radius: var(--radius-md); padding: 12px 16px; margin: 0 20px 12px; font-size: 13px; color: var(--danger); display: none; }
 
+    /* ── FLOATING SHARE PILL ── */
+    #floatingSharePill { display: none; position: fixed; bottom: 20px; left: 16px; right: 16px; z-index: 1500; background: #FFD700; border-radius: 999px; padding: 13px 18px; box-shadow: 0 4px 16px rgba(0,0,0,0.25); flex-direction: row; align-items: center; justify-content: space-between; }
+    #floatingSharePill.active { display: flex; }
+    #floatingSharePill .pill-label { font-size: 14px; font-weight: 700; color: #0d3d20; }
+    #floatingSharePill .pill-dismiss { font-size: 16px; color: rgba(13,61,32,0.45); font-weight: 700; padding: 0 4px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
     /* ── CLAIM OVERLAY (wallet redirect return) ── */
     #claimOverlay { display: none; position: fixed; inset: 0; z-index: 2000; background: var(--green-deep); flex-direction: column; align-items: center; justify-content: center; padding: 32px 24px; text-align: center; }
     #claimOverlay.active { display: flex; }
@@ -315,19 +302,6 @@
     .claim-status { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 32px; min-height: 20px; }
     #claimBasescan { display: none; color: #60a5fa; font-size: 13px; font-weight: 600; text-decoration: none; margin-bottom: 28px; }
     #claimDoneBtn { background: var(--gold); color: var(--green-deep); font-family: var(--font-sans); font-weight: 700; font-size: 15px; padding: 16px 48px; border: none; border-radius: var(--radius-full); cursor: pointer; display: none; }
-    /* ── NAME ── */
-    #screen-name { background: var(--off-white); }
-    .name-body { padding: 24px 20px; flex: 1; display: flex; flex-direction: column; }
-    .name-desc { font-size: 14px; color: var(--gray-text); line-height: 1.65; margin-bottom: 20px; }
-    .name-input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--gray-mid); border-radius: var(--radius-md); font-size: 16px; color: var(--text-dark); background: var(--white); font-family: var(--font-sans); margin-bottom: 12px; }
-    .name-input:focus { outline: none; border-color: var(--green-mid); }
-
-    /* ── EMAIL SUCCESS ── */
-    #screen-email-success { background: var(--off-white); }
-    .email-success-body { padding: 24px 24px 32px; flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; min-height: 0; }
-    .email-success-icon { font-size: 56px; }
-    .email-success-title { font-family: var(--font-serif); font-size: 26px; color: var(--text-dark); }
-    .email-success-sub { font-size: 14px; color: var(--gray-text); line-height: 1.65; max-width: 300px; }
   </style>
 </head>
 <body>
@@ -406,131 +380,77 @@
     </div>
   </div>
 
-  <!-- REWARD -->
-  <div id="screen-reward" class="screen">
-    <div class="reward-hero">
-      <div style="font-size:40px;margin-bottom:12px;">🎉</div>
-      <div class="reward-title">Pint confirmed!</div>
-      <div class="reward-pub-name" id="rewardPubName">Irish pub</div>
+  <!-- DETAILS — first-time user: email + nickname in one screen -->
+  <div id="screen-details" class="screen">
+    <div class="details-hero">
+      <div class="details-craic" id="detailsCraic">5,000</div>
+      <div class="details-craic-label">$CRAIC earned</div>
+      <div class="details-pub" id="detailsPub"></div>
     </div>
-    <div class="reward-amount-card">
-      <div class="reward-num" id="rewardAmount">5,000</div>
-      <div class="reward-token">$CRAIC earned</div>
+    <!-- Full pint photo — natural height, nothing cropped -->
+    <div id="detailsPhotoWrap" style="display:none;background:#111;position:relative;">
+      <img id="detailsPhoto" src="" alt="Your pint" style="width:100%;height:auto;display:block;" />
     </div>
-    <div id="walletSuccessBar" class="wallet-success-bar hidden">✅ <span id="walletSuccessMsg">$CRAIC sent to your wallet!</span></div>
-    <div id="walletErrorBar" class="wallet-error-bar"></div>
-    <div class="wallet-options">
-      <div class="wallet-section-label">Where do we send your $CRAIC?</div>
-      <div class="wallet-opt" id="emailWalletBtn" style="border-color: var(--green-mid); background: #f0fdf4;">
-        <div class="wallet-opt-icon">📧</div>
-        <div><div class="wallet-opt-title">Email it to me</div><div class="wallet-opt-sub">We'll email you a link to collect your $CRAIC</div></div>
+    <!-- Compact inputs side by side -->
+    <div style="padding:14px 20px 0;display:flex;gap:10px;">
+      <div style="flex:1;min-width:0;">
+        <div class="details-label">Email</div>
+        <input class="details-input" type="email" id="detailsEmail" placeholder="your@email.com" autocomplete="email" inputmode="email" enterkeyhint="next" />
       </div>
-      <div class="wallet-opt" style="opacity:0.5;cursor:not-allowed;pointer-events:none;">
-        <div class="wallet-opt-icon" style="background:#888;color:#fff;font-size:18px;">👛</div>
-        <div>
-          <div class="wallet-opt-title">Connect Wallet <span style="font-size:11px;background:#888;color:#fff;border-radius:4px;padding:2px 6px;margin-left:6px;font-weight:600;">Coming Soon</span></div>
-          <div class="wallet-opt-sub">MetaMask, Coinbase & more — launching shortly</div>
-        </div>
+      <div style="flex:1;min-width:0;">
+        <div class="details-label">Nickname</div>
+        <input class="details-input" type="text" id="detailsName" placeholder="Dublin Dave..." maxlength="30" autocomplete="off" inputmode="text" enterkeyhint="done" />
       </div>
     </div>
-    <div id="txLinkContainer" class="hidden tx-link-wrap"><a id="txLink" href="#" target="_blank" class="tx-link">View $CRAIC on BaseScan 🔗</a></div>
-  </div>
-
-  <!-- EMAIL SUCCESS -->
-  <div id="screen-email-success" class="screen">
-    <div class="screen-header">
-      <div class="screen-header-title">$CRAIC saved ☘️</div>
-      <div class="screen-header-sub">Check your inbox</div>
+    <div style="padding:12px 20px 32px;display:flex;flex-direction:column;gap:8px;">
+      <button class="btn btn-gold" id="saveDetailsBtn">Save and see my reward →</button>
+      <button class="btn btn-ghost" id="skipDetailsBtn" style="font-size:13px;padding:10px;">Skip — stay anonymous</button>
     </div>
-    <div class="email-success-body">
-      <div class="email-success-icon">📬</div>
-      <div class="email-success-title">On its way!</div>
-      <p class="email-success-sub">We've saved your <strong id="emailSuccessAmount">5,000</strong> $CRAIC. Check your email for the claim link — paste your wallet address to receive it.</p>
-      <div style="width:100%;margin-top:16px;">
-        <button class="btn btn-gold" id="emailSuccessContinueBtn">Continue →</button>
-      </div>
+    <!-- hidden fields kept for compatibility -->
+    <div style="display:none;">
+      <input id="emailInput" /><input id="nameInput" />
+      <span id="emailSuccessAmount"></span>
+      <textarea id="shareText"></textarea><span id="charCount"></span>
     </div>
   </div>
 
-  <!-- EMAIL -->
-  <div id="screen-email" class="screen">
-    <div class="screen-header">
-      <div class="step-dots"><div class="step-dot on"></div><div class="step-dot on"></div><div class="step-dot on"></div><div class="step-dot on"></div></div>
-      <div class="screen-header-title">Save your $CRAIC</div>
-      <div class="screen-header-sub">We'll hold it until you're ready</div>
+  <!-- SUCCESS — well done screen for first-time and returning users -->
+  <div id="screen-success" class="screen">
+    <div class="success-hero">
+      <div class="success-greeting" id="successGreeting">Sláinte! ☘️</div>
+      <div class="success-pub" id="successPub"></div>
+      <div class="success-craic" id="successCraic">5,000</div>
+      <div class="success-craic-label">$CRAIC on its way to your email</div>
     </div>
-    <div class="email-body">
-      <p class="email-desc">Your $CRAIC is safe with us. Drop your email and we'll send a claim link whenever you're ready to set up a wallet.</p>
-      <input class="email-input" type="email" id="emailInput" placeholder="your@email.com" autocomplete="email" inputmode="email" enterkeyhint="done" />
-      <div class="btn-stack mt-auto">
-        <button class="btn btn-gold" id="saveEmailBtn">Save my $CRAIC →</button>
-        <button class="btn btn-ghost" id="backFromEmailBtn">← Back</button>
-      </div>
+    <div class="success-stats">
+      <div class="success-stat"><div class="success-stat-num" id="successPintCount">—</div><div class="success-stat-lbl">pints verified</div></div>
+      <div class="success-stat"><div class="success-stat-num" id="successRank">#—</div><div class="success-stat-lbl">leaderboard</div></div>
     </div>
-  </div>
-
-  <!-- NAME -->
-  <div id="screen-name" class="screen">
-    <div class="screen-header">
-      <div class="step-dots"><div class="step-dot on"></div><div class="step-dot on"></div><div class="step-dot on"></div><div class="step-dot on"></div></div>
-      <div class="screen-header-title">What's your name? ☘️</div>
-      <div class="screen-header-sub">How you'll appear on the leaderboard</div>
+    <div class="success-photo-wrap" id="successPhotoWrap">
+      <img id="successPhoto" src="" alt="Your pint" />
     </div>
-    <div class="name-body">
-      <p class="name-desc">Pick a name and own your spot on the leaderboard. Or skip and stay anonymous — no pressure.</p>
-      <input class="name-input" type="text" id="nameInput" placeholder="e.g. The Pint King, Dublin Dave..." maxlength="30" autocomplete="off" inputmode="text" enterkeyhint="done" />
-      <div class="btn-stack mt-auto">
-        <button class="btn btn-gold" id="saveNameBtn">Set my name →</button>
-        <button class="btn btn-ghost" id="skipNameBtn">Skip — stay anonymous</button>
-      </div>
+    <div class="success-actions">
+      <button class="btn btn-dark" id="successLeaderboardBtn">🏆 See the leaderboard</button>
+      <button class="btn btn-gold" id="successShareBtn">📸 Share your pint</button>
+      <button class="btn btn-ghost" id="successHomeBtn">← Back to home</button>
     </div>
-  </div>
-
-  <!-- SHARE -->
-  <div id="screen-share" class="screen" style="background:#000;">
-    <div style="padding:18px 20px 14px;">
-      <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:2px;">Share on X 🍺</div>
-      <div style="font-size:12px;color:rgba(255,255,255,0.45);">The craic spreads faster with a post</div>
-    </div>
-    <div id="sharePintPhotoWrap" style="display:none;position:relative;margin:0 32px 14px;border-radius:14px;overflow:hidden;background:#111;flex-shrink:0;">
-      <img id="sharePintPhoto" src="" style="width:100%;max-height:32vh;object-fit:contain;display:block;" />
-      <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);white-space:nowrap;background:rgba(0,0,0,0.7);border-radius:999px;padding:6px 14px;display:flex;align-items:center;gap:6px;">
-        <span style="font-size:14px;">👇</span>
-        <span style="font-size:11px;font-weight:600;color:#fff;">Hold photo to save to camera roll</span>
-      </div>
-    </div>
-    <div style="padding:0 16px 12px;">
-      <textarea id="shareText" rows="3" style="width:100%;padding:12px 14px;border:1.5px solid rgba(255,255,255,0.15);border-radius:12px;font-size:13px;line-height:1.6;color:#fff;background:rgba(255,255,255,0.07);font-family:var(--font-sans);resize:none;box-sizing:border-box;"></textarea>
-    </div>
-    <div style="padding:0 16px 40px;display:flex;flex-direction:column;gap:10px;">
-      <button class="btn" id="postToXBtn" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#fff;color:#000;font-weight:700;border-radius:999px;padding:16px;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="black"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        Post to X
-      </button>
-      <button class="btn btn-ghost" id="skipShareBtn" style="width:100%;color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.2);">Skip →</button>
-    </div>
-    <div style="display:none;"><span id="charCount">0</span><input type="checkbox" id="inclPhoto" checked><input type="checkbox" id="inclLocation" checked><input type="checkbox" id="inclCraic" checked><p id="savePintPhotoTip"></p><a id="savePintPhotoBtn" href="#"></a><button id="iPostedBtn"></button></div>
-  </div>
-
-  <!-- CONFIRM -->
-  <div id="screen-confirm" class="screen">
-    <div class="confirm-hero">
-      <div class="confirm-tick">✓</div>
-      <div class="confirm-title" id="confirmTitle">Pint claimed!</div>
-      <div class="confirm-sub" id="confirmSub">Your pint is on the board</div>
-    </div>
-    <div class="confirm-stats">
-      <div class="stat-block"><div class="stat-num" id="confirmCraic">5,000</div><div class="stat-lbl">$CRAIC earned</div></div>
-      <div class="stat-block"><div class="stat-num" id="confirmPintCount">—</div><div class="stat-lbl">pints verified</div></div>
-      <div class="stat-block"><div class="stat-num" id="confirmRank">#—</div><div class="stat-lbl">leaderboard</div></div>
-    </div>
-    <div class="milestone-card">
-      <div style="font-size:18px;flex-shrink:0;margin-top:1px;">🏆</div>
-      <div class="milestone-text">Verify <strong>4 more pints</strong> to unlock the <strong>Regular</strong> badge</div>
-    </div>
-    <div class="post-preview-card" id="confirmPostPreview"></div>
-    <div class="confirm-body">
-      <button class="btn btn-dark" id="seeLeaderboardBtn">See the leaderboard</button>
+    <!-- hidden elements kept for wallet connect compatibility -->
+    <div style="display:none;">
+      <div id="walletSuccessBar"><span id="walletSuccessMsg"></span></div>
+      <div id="walletErrorBar"></div>
+      <div id="txLinkContainer"><a id="txLink" href="#"></a></div>
+      <div id="confirmCraic"></div><div id="confirmPintCount"></div><div id="confirmRank"></div>
+      <div id="rewardAmount"></div><div id="rewardPubName"></div>
+      <div id="shareAmount"></div><div id="sharePubName"></div>
+      <div id="sharePintPhotoWrap"><img id="sharePintPhoto" src=""/></div>
+      <div id="confirmPostPreview"></div>
+      <div class="milestone-text"></div>
+      <button id="seeLeaderboardBtn"></button>
+      <button id="emailSuccessContinueBtn"></button>
+      <button id="saveNameBtn"></button><button id="skipNameBtn"></button>
+      <button id="saveEmailBtn"></button><button id="backFromEmailBtn"></button>
+      <button id="postToXBtn"></button><button id="skipShareBtn"></button><button id="iPostedBtn"></button>
+      <button id="emailWalletBtn"></button>
     </div>
   </div>
 
@@ -698,6 +618,12 @@
     </div>
   </div>
 
+  <!-- FLOATING SHARE PILL — persists across screens after verification -->
+  <div id="floatingSharePill">
+    <span class="pill-label">📸 Share your pint</span>
+    <span class="pill-dismiss" id="floatingShareDismiss">✕</span>
+  </div>
+
   <!-- CLAIM OVERLAY — shown when returning from Coinbase Wallet deep link -->
   <div id="claimOverlay">
     <div class="claim-icon">🍺</div>
@@ -746,44 +672,46 @@
     on('shutterBtn',        function(e){if(e&&e.stopPropagation)e.stopPropagation();takePhoto();});
     on('tryAgainBtn',       startCamera);
     on('backFromErrorBtn',  function(){showScreen('landing');});
-    on('emailWalletBtn',    function(){showScreen('email');});
-    on('emailSuccessContinueBtn', showNameScreen);
-    on('saveNameBtn',      handleSaveName);
-    on('skipNameBtn',      function(){showScreen('confirm');});
-    on('saveEmailBtn',      handleEmailSave);
-    on('backFromEmailBtn',  function(){showScreen('reward');});
-    on('postToXBtn', function(){
-      var text = document.getElementById('shareText').value || '';
-      var url = 'https://x.com/intent/post?text=' + encodeURIComponent(text);
-      window.location.href = url;
-    });
-    on('iPostedBtn', function(){ showScreen('landing'); });
-    on('skipShareBtn', function(){ showScreen('landing'); });
-    on('seeLeaderboardBtn', function(){
-      lbFromScreen='confirm';
-      // Bust cache so fresh data loads immediately after verify
+    // New screens
+    on('saveDetailsBtn',    handleSaveDetails);
+    on('skipDetailsBtn',    handleSkipDetails);
+    on('successLeaderboardBtn', function(){
+      lbFromScreen='success';
       loadLiveData(true).then(()=>{
-        showScreen('leaderboard');
-        switchLb('regulars');
-        // Retry once after 1.5s in case Firestore propagation was slightly delayed
-        setTimeout(()=>loadLiveData(true).then(()=>switchLb(currentLbTab)), 1500);
+        showScreen('leaderboard'); switchLb('regulars');
+        setTimeout(()=>loadLiveData(true).then(()=>switchLb(currentLbTab)),1500);
       });
     });
-    on('lbBackBtn',         function(){if(lbFromScreen==='confirm'){showScreen('share');}else{showScreen('landing');}});
+    on('successShareBtn',   handleSuccessShare);
+    on('successHomeBtn',    function(){showScreen('landing');});
+    // Floating share pill
+    on('floatingSharePill', handleSuccessShare);
+    on('floatingShareDismiss', function(e){ e.stopPropagation(); hideFloatingSharePill(); });
+    // Legacy stubs (elements exist hidden for compatibility)
+    on('emailWalletBtn',    function(){});
+    on('emailSuccessContinueBtn', function(){showScreen('success');});
+    on('saveNameBtn',       function(){showScreen('success');});
+    on('skipNameBtn',       function(){showScreen('success');});
+    on('saveEmailBtn',      function(){showScreen('success');});
+    on('backFromEmailBtn',  function(){showScreen('landing');});
+    on('postToXBtn',        function(){});
+    on('iPostedBtn',        function(){showScreen('landing');});
+    on('skipShareBtn',      function(){showScreen('landing');});
+    on('seeLeaderboardBtn', function(){
+      lbFromScreen='success';
+      loadLiveData(true).then(()=>{showScreen('leaderboard');switchLb('regulars');});
+    });
+    on('lbBackBtn',         function(){showScreen(lbFromScreen==='success'?'success':'landing');});
     on('lbBackBtn2',        function(){showScreen(lbFromScreen||'landing');});
     on('leaderboardBtn',    function(){lbFromScreen='landing';showScreen('leaderboard');loadLiveData().then(()=>switchLb('regulars'));});
     on('pubSelectorCancel', function(){document.getElementById('pubSelector').classList.remove('active');pendingVerification=null;startCamera();});
-    document.getElementById('shareText').addEventListener('input', function() {
-      updateCharCount();
-      updatePostToXLink();
+    document.getElementById('shareText').addEventListener('input', function(){});
+    setTimeout(function(){}, 500);
+    document.getElementById('detailsName').addEventListener('keydown',function(e){
+      if(e.key==='Enter'){e.preventDefault();handleSaveDetails();}
     });
-    // Set initial href once share text is ready
-    setTimeout(updatePostToXLink, 500);
-    document.getElementById('nameInput').addEventListener('keydown',function(e){
-      if(e.key==='Enter'){e.preventDefault();handleSaveName();}
-    });
-    document.getElementById('emailInput').addEventListener('keydown',function(e){
-      if(e.key==='Enter'){e.preventDefault();handleEmailSave();}
+    document.getElementById('detailsEmail').addEventListener('keydown',function(e){
+      if(e.key==='Enter'){e.preventDefault();document.getElementById('detailsName').focus();}
     });
   }
 
@@ -997,42 +925,169 @@
   function handleSuccess(result){
     verificationResult=result;pendingVerification=null;
     if(result.result_ref) localStorage.setItem('pop_result_ref', result.result_ref);
-    const craic=result.craic_amount||5000,pubName=result.pub_name||'Irish pub',country=result.country_name||'';
-    const setEl=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
-    setEl('rewardAmount',craic.toLocaleString());
-    setEl('rewardPubName',pubName+(country?' · '+country:''));
-    setEl('shareAmount',craic.toLocaleString());
-    setEl('sharePubName',pubName);
-    setEl('confirmCraic',craic.toLocaleString());
-    if(result.tx_hash){const tl=document.getElementById('txLink');if(tl)tl.href=`https://basescan.org/tx/${result.tx_hash}`;const tc=document.getElementById('txLinkContainer');if(tc)tc.classList.remove('hidden');}
-    // Show pint photo on share screen if available
+    const craic=result.craic_amount||5000, pubName=result.pub_name||'Irish pub', country=result.country_name||'';
     const photoUrl = result.photo_url || '';
-    const photoWrap = document.getElementById('sharePintPhotoWrap');
-    const photoImg = document.getElementById('sharePintPhoto');
-    if (photoUrl) {
-      photoImg.src = photoUrl;
-      photoWrap.style.display = 'block';
-    } else {
-      photoWrap.style.display = 'none';
-    }
-    updateShareText(pubName,craic);showScreen('reward');
+
+    // Populate success screen stats (runs in background)
     loadLiveData().then(()=>{
       const myName = localStorage.getItem('pop_display_name') || '';
-      const myPints = (pintsDataRaw || []).filter(p => p.user_id === userId || (myName && p.display_name === myName));
+      const myPints = (pintsDataRaw||[]).filter(p=>p.user_id===userId||(myName&&p.display_name===myName));
       const myCount = myPints.length || 1;
       const users = lbData.users || [];
       let myRank = users.length + 1;
-      if (myName) { const idx = users.findIndex(u => u.name === myName); if (idx !== -1) myRank = idx + 1; }
-      setEl('confirmPintCount', myCount);
-      setEl('confirmRank', '#' + myRank);
-      const remaining = Math.max(0, 5 - myCount);
-      const milestoneEl = document.querySelector('.milestone-text');
-      if (milestoneEl) {
-        milestoneEl.innerHTML = remaining <= 0
-          ? '🎉 You\'ve unlocked the <strong>Regular</strong> badge!'
-          : 'Verify <strong>' + remaining + ' more pint' + (remaining !== 1 ? 's' : '') + '</strong> to unlock the <strong>Regular</strong> badge';
-      }
-    }).catch(()=>{ setEl('confirmPintCount', 1); setEl('confirmRank', '#—'); });
+      if(myName){const idx=users.findIndex(u=>u.name===myName);if(idx!==-1)myRank=idx+1;}
+      const setEl=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+      setEl('successPintCount', myCount);
+      setEl('successRank', '#'+myRank);
+    }).catch(()=>{});
+
+    // Always populate success screen
+    const name = localStorage.getItem('pop_display_name') || '';
+    document.getElementById('successGreeting').textContent = name ? 'Sláinte, '+name+'! ☘️' : 'Sláinte! ☘️';
+    document.getElementById('successPub').textContent = pubName + (country ? ' · '+country : '');
+    document.getElementById('successCraic').textContent = craic.toLocaleString();
+    const photoWrap = document.getElementById('successPhotoWrap');
+    const photoImg  = document.getElementById('successPhoto');
+    if(photoUrl){ photoImg.src=photoUrl; photoWrap.style.display='block'; }
+    else { photoWrap.style.display='none'; }
+
+    // Also wire photo into details screen
+    const detailsPhotoWrap = document.getElementById('detailsPhotoWrap');
+    const detailsPhoto     = document.getElementById('detailsPhoto');
+    if(photoUrl && detailsPhotoWrap){ detailsPhoto.src=photoUrl; detailsPhotoWrap.style.display='block'; }
+    else if(detailsPhotoWrap){ detailsPhotoWrap.style.display='none'; }
+
+    // Route: first-time user → details screen; returning → success screen directly
+    const hasEmail = !!localStorage.getItem('pop_email');
+    const hasName  = !!localStorage.getItem('pop_display_name');
+    if(!hasEmail || !hasName){
+      // First time — show combined email + name screen
+      document.getElementById('detailsCraic').textContent = craic.toLocaleString();
+      document.getElementById('detailsPub').textContent = pubName + (country ? ' · '+country : '');
+      showScreen('details');
+    } else {
+      // Returning user — fire email silently in background, go straight to success
+      _sendEmailSilent();
+      showScreen('success');
+    }
+    // Show floating share pill — persists across all screens this session
+    showFloatingSharePill();
+  }
+
+  function showFloatingSharePill(){
+    const pill = document.getElementById('floatingSharePill');
+    if(pill) pill.classList.add('active');
+  }
+
+  function hideFloatingSharePill(){
+    const pill = document.getElementById('floatingSharePill');
+    if(pill) pill.classList.remove('active');
+  }
+
+  // Send email silently for returning users (no UI interaction needed)
+  async function _sendEmailSilent(){
+    const email = localStorage.getItem('pop_email');
+    if(!email) return;
+    try {
+      await fetch('/api/verify', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          action:'save_email', email,
+          user_id: userId,
+          result_ref: verificationResult?.result_ref || localStorage.getItem('pop_result_ref') || null
+        })
+      });
+    } catch(e){ console.error('silent email error:', e); }
+  }
+
+  async function handleSaveDetails(){
+    const emailInput = document.getElementById('detailsEmail');
+    const nameInput  = document.getElementById('detailsName');
+    const email = emailInput.value.trim();
+    const name  = nameInput.value.trim();
+    const btn   = document.getElementById('saveDetailsBtn');
+
+    if(!email || !email.includes('@')){
+      emailInput.focus();
+      emailInput.style.borderColor='var(--danger)';
+      return;
+    }
+    emailInput.style.borderColor='';
+    emailInput.blur(); nameInput.blur();
+    btn.disabled=true; btn.textContent='Saving...';
+
+    // Save email to localStorage + backend
+    localStorage.setItem('pop_email', email);
+    // Save name if provided
+    if(name){ localStorage.setItem('pop_display_name', name); }
+
+    try {
+      await Promise.race([
+        fetch('/api/verify',{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            action:'save_email', email,
+            user_id: userId,
+            result_ref: verificationResult?.result_ref || localStorage.getItem('pop_result_ref') || null
+          })
+        }),
+        new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),10000))
+      ]);
+    } catch(e){ console.error('save_email error:', e); }
+
+    if(name){
+      try {
+        await Promise.race([
+          fetch('/api/verify',{
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({
+              action:'save_name', display_name:name,
+              user_id: userId,
+              result_ref: verificationResult?.result_ref || localStorage.getItem('pop_result_ref') || null
+            })
+          }),
+          new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),6000))
+        ]);
+      } catch(e){ console.error('save_name error:', e); }
+    }
+
+    btn.disabled=false; btn.textContent='Save and see my reward →';
+
+    // Update success screen greeting with name
+    if(name){
+      document.getElementById('successGreeting').textContent = 'Sláinte, '+name+'! ☘️';
+    }
+    showScreen('success');
+  }
+
+  function handleSkipDetails(){
+    // Still fire email silently if they somehow have one stored
+    _sendEmailSilent();
+    showScreen('success');
+  }
+
+  function handleSuccessShare(){
+    hideFloatingSharePill();
+    const photoUrl = verificationResult?.photo_url || '';
+    const pubName  = verificationResult?.pub_name  || 'an Irish pub';
+    const craic    = verificationResult?.craic_amount || 5000;
+    const text     = '🍺 Just verified a pint at '+pubName+'\nEarned '+craic.toLocaleString()+' $CRAIC @Craic_Lab\nproof-of-pint.com #ProofOfPint';
+    if(navigator.share && photoUrl){
+      fetch(photoUrl).then(r=>r.blob()).then(blob=>{
+        const file = new File([blob], 'my-pint.jpg', {type:'image/jpeg'});
+        if(navigator.canShare && navigator.canShare({files:[file]})){
+          navigator.share({files:[file], text});
+        } else {
+          navigator.share({text, url:'https://proof-of-pint.com'});
+        }
+      }).catch(()=>{
+        navigator.share({text, url:'https://proof-of-pint.com'}).catch(()=>{});
+      });
+    } else if(navigator.share){
+      navigator.share({text, url:'https://proof-of-pint.com'}).catch(()=>{});
+    } else {
+      window.location.href = 'https://x.com/intent/post?text='+encodeURIComponent(text);
+    }
   }
 
   async function handleConnectWallet() {
