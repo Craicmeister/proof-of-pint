@@ -649,6 +649,11 @@
   <script>
   'use strict';
   let userLocation=null,stream=null,pendingVerification=null,verificationResult=null,pintsData=[],pintsDataRaw=[],lbData={},lbFromScreen='landing';
+  function getCookie(name){
+    const match = document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)');
+    return match ? decodeURIComponent(match[2]) : null;
+  }
+
   function getSessionId(){
     let s=localStorage.getItem('pop_session');
     if(!s){s='web_'+Math.random().toString(36).slice(2,11);localStorage.setItem('pop_session',s);}
@@ -1016,8 +1021,9 @@
     emailInput.blur(); nameInput.blur();
     btn.disabled=true; btn.textContent='Saving...';
 
-    // Save email to localStorage + backend
+    // Save email to localStorage + cookie (cookie survives Samsung Browser clearing localStorage)
     localStorage.setItem('pop_email', email);
+    document.cookie = 'pop_email=' + encodeURIComponent(email) + '; max-age=31536000; path=/; SameSite=Lax';
     // Save name if provided
     if(name){ localStorage.setItem('pop_display_name', name); }
 
@@ -1334,6 +1340,7 @@
     }
     // Persist email locally so restoreName() can use it as fallback
     localStorage.setItem('pop_email', email);
+    document.cookie = 'pop_email=' + encodeURIComponent(email) + '; max-age=31536000; path=/; SameSite=Lax';
     // Always advance to success screen
     document.getElementById('emailSuccessAmount').textContent =
       (verificationResult?.craic_amount || 5000).toLocaleString();
@@ -1606,7 +1613,8 @@
     }
 
     // Step 2 — fall back to email lookup (survives localStorage clearing)
-    const savedEmail = localStorage.getItem('pop_email');
+    // Check localStorage first, then cookie (cookie survives Samsung Browser wipes)
+    const savedEmail = localStorage.getItem('pop_email') || getCookie('pop_email');
     if (savedEmail) {
       try {
         const res = await fetch('/api/verify', {
