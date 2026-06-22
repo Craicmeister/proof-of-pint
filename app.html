@@ -655,8 +655,10 @@
   }
 
   function getSessionId(){
-    let s=localStorage.getItem('pop_session');
-    if(!s){s='web_'+Math.random().toString(36).slice(2,11);localStorage.setItem('pop_session',s);}
+    let s=localStorage.getItem('pop_session')||getCookie('pop_session');
+    if(!s){s='web_'+Math.random().toString(36).slice(2,11);}
+    localStorage.setItem('pop_session',s);
+    document.cookie='pop_session='+encodeURIComponent(s)+'; max-age=31536000; path=/; SameSite=Lax';
     return s;
   }
   let userId=localStorage.getItem('pop_wallet')||getSessionId();
@@ -1024,8 +1026,11 @@
     // Save email to localStorage + cookie (cookie survives Samsung Browser clearing localStorage)
     localStorage.setItem('pop_email', email);
     document.cookie = 'pop_email=' + encodeURIComponent(email) + '; max-age=31536000; path=/; SameSite=Lax';
-    // Save name if provided
-    if(name){ localStorage.setItem('pop_display_name', name); }
+    // Save name to localStorage + cookie (cookie survives Samsung Browser clearing localStorage)
+    if(name){
+      localStorage.setItem('pop_display_name', name);
+      document.cookie='pop_name='+encodeURIComponent(name)+'; max-age=31536000; path=/; SameSite=Lax';
+    }
 
     try {
       await Promise.race([
@@ -1697,10 +1702,15 @@
 
   // ── Restore name from Firestore if localStorage was cleared ──
   async function restoreName() {
-    if (localStorage.getItem('pop_display_name')) return; // already have it
+    // Step 0 — cookie survives Samsung Browser localStorage wipes, check it first
+    const cookieName = getCookie('pop_name');
+    if (cookieName && !localStorage.getItem('pop_display_name')) {
+      localStorage.setItem('pop_display_name', cookieName);
+    }
+    if (localStorage.getItem('pop_display_name')) return;
 
-    // Step 1 — try session ID lookup
-    const sessionId = localStorage.getItem('pop_session');
+    // Step 1 — try session ID lookup (check cookie too in case localStorage was wiped)
+    const sessionId = localStorage.getItem('pop_session') || getCookie('pop_session');
     if (sessionId) {
       try {
         const res = await fetch('/api/verify', {
@@ -1711,13 +1721,13 @@
         const data = await res.json();
         if (data.status === 'success' && data.display_name) {
           localStorage.setItem('pop_display_name', data.display_name);
+          document.cookie='pop_name='+encodeURIComponent(data.display_name)+'; max-age=31536000; path=/; SameSite=Lax';
           return;
         }
       } catch (e) { /* silent fail — try email next */ }
     }
 
     // Step 2 — fall back to email lookup (survives localStorage clearing)
-    // Check localStorage first, then cookie (cookie survives Samsung Browser wipes)
     const savedEmail = localStorage.getItem('pop_email') || getCookie('pop_email');
     if (savedEmail) {
       try {
@@ -1729,6 +1739,7 @@
         const data = await res.json();
         if (data.status === 'success' && data.display_name) {
           localStorage.setItem('pop_display_name', data.display_name);
+          document.cookie='pop_name='+encodeURIComponent(data.display_name)+'; max-age=31536000; path=/; SameSite=Lax';
         }
       } catch (e) { /* silent fail — name screen will show as normal */ }
     }
