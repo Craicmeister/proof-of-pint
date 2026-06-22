@@ -1077,23 +1077,127 @@
     const photoUrl = verificationResult?.photo_url || '';
     const pubName  = verificationResult?.pub_name  || 'an Irish pub';
     const craic    = verificationResult?.craic_amount || 5000;
-    const text     = '🍺 Just verified a pint at '+pubName+'\nEarned '+craic.toLocaleString()+' $CRAIC @Craic_Lab\nproof-of-pint.com #ProofOfPint';
-    if(navigator.share && photoUrl){
-      fetch(photoUrl).then(r=>r.blob()).then(blob=>{
-        const file = new File([blob], 'my-pint.jpg', {type:'image/jpeg'});
-        if(navigator.canShare && navigator.canShare({files:[file]})){
-          navigator.share({files:[file], text});
-        } else {
-          navigator.share({text, url:'https://proof-of-pint.com'});
-        }
-      }).catch(()=>{
-        navigator.share({text, url:'https://proof-of-pint.com'}).catch(()=>{});
-      });
+    const caption  = 'Pint verified at '+pubName+'. Earned '+craic.toLocaleString()+' $CRAIC. #ProofOfPint';
+
+    if(photoUrl){
+      _buildAndSharePintCard(photoUrl, pubName, craic, caption);
     } else if(navigator.share){
-      navigator.share({text, url:'https://proof-of-pint.com'}).catch(()=>{});
+      navigator.share({text: caption, url:'https://proof-of-pint.com'}).catch(()=>{});
     } else {
-      window.location.href = 'https://x.com/intent/post?text='+encodeURIComponent(text);
+      window.location.href = 'https://x.com/intent/post?text='+encodeURIComponent(caption);
     }
+  }
+
+  async function _buildAndSharePintCard(photoUrl, pubName, craic, caption){
+    // Card dimensions (1080px wide — Instagram story safe)
+    const CW=1080, HDRH=130, PHOTOH=680, BODYH=260, FTRRH=110, RADIUS=32;
+    const TOTALH = HDRH+PHOTOH+BODYH+FTRRH;
+    const GREEN='#46b46e', DARK='#0a0a12', DARKCARD='#13131f',
+          BORDER='#2a2a40', MUTED='rgba(255,255,255,0.45)', CRAICBLUE='#4d6dff';
+
+    // Load photo + logo in parallel
+    function loadImg(src){ return new Promise((res,rej)=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>res(i);i.onerror=rej;i.src=src;});}
+    let photo, logo;
+    try{ [photo, logo] = await Promise.all([loadImg(photoUrl), loadImg('/craic.png').catch(()=>null)]); }
+    catch(e){ navigator.share&&navigator.share({text:caption,url:'https://proof-of-pint.com'}).catch(()=>{}); return; }
+
+    const cv=document.createElement('canvas');
+    cv.width=CW; cv.height=TOTALH;
+    const ctx=cv.getContext('2d');
+
+    // Helper: rounded rect
+    function rr(x,y,w,h,r,fill){
+      ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+      ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+      ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+      ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+      if(fill){ctx.fillStyle=fill;ctx.fill();}
+    }
+
+    // Background
+    rr(0,0,CW,TOTALH,RADIUS,DARK);
+
+    // ── HEADER (green) ──
+    ctx.save();ctx.beginPath();ctx.moveTo(RADIUS,0);ctx.lineTo(CW-RADIUS,0);
+    ctx.quadraticCurveTo(CW,0,CW,RADIUS);ctx.lineTo(CW,HDRH);ctx.lineTo(0,HDRH);
+    ctx.lineTo(0,RADIUS);ctx.quadraticCurveTo(0,0,RADIUS,0);ctx.closePath();
+    ctx.fillStyle=GREEN;ctx.fill();ctx.restore();
+
+    // Logo circle
+    const PAD=48, LSIZ=68, LY=(HDRH-LSIZ)/2;
+    if(logo){
+      ctx.save();ctx.beginPath();ctx.arc(PAD+LSIZ/2,LY+LSIZ/2,LSIZ/2,0,Math.PI*2);ctx.clip();
+      ctx.drawImage(logo,PAD,LY,LSIZ,LSIZ);ctx.restore();
+    }
+    ctx.fillStyle='#fff';ctx.font='500 40px DM Sans,system-ui,sans-serif';ctx.textBaseline='alphabetic';
+    ctx.fillText('Proof of Pint',PAD+LSIZ+20,HDRH/2+4);
+    ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='400 26px DM Sans,system-ui,sans-serif';
+    ctx.fillText('Verified on Base',PAD+LSIZ+20,HDRH/2+38);
+
+    // Verified badge (top-right)
+    const BW=200,BH=48,BX=CW-PAD-BW,BY=(HDRH-BH)/2;
+    rr(BX,BY,BW,BH,BH/2,'rgba(0,0,0,0.25)');
+    ctx.fillStyle='#fff';ctx.font='500 24px DM Sans,system-ui,sans-serif';
+    ctx.textAlign='center';ctx.fillText('✓  Verified',BX+BW/2,BY+BH/2+9);ctx.textAlign='left';
+
+    // ── PHOTO ──
+    const PY=HDRH;
+    ctx.save();ctx.beginPath();ctx.rect(0,PY,CW,PHOTOH);ctx.clip();
+    const sc=Math.max(CW/photo.width,PHOTOH/photo.height);
+    const sw=photo.width*sc,sh=photo.height*sc;
+    ctx.drawImage(photo,(CW-sw)/2,PY+(PHOTOH-sh)/2,sw,sh);
+    ctx.fillStyle='rgba(10,10,18,0.3)';ctx.fillRect(0,PY,CW,PHOTOH);
+    ctx.restore();
+
+    // ── BODY ──
+    const BY2=HDRH+PHOTOH;
+    ctx.fillStyle=DARKCARD;ctx.fillRect(0,BY2,CW,BODYH);
+
+    ctx.fillStyle='#fff';ctx.font='500 48px DM Sans,system-ui,sans-serif';
+    ctx.fillText(pubName,PAD,BY2+70);
+
+    ctx.fillStyle=MUTED;ctx.font='400 30px DM Sans,system-ui,sans-serif';
+    const username=localStorage.getItem('pop_display_name')||'';
+    ctx.fillText(username?'@'+username:'proof-of-pint.com',PAD,BY2+116);
+
+    ctx.strokeStyle=BORDER;ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(PAD,BY2+140);ctx.lineTo(CW-PAD,BY2+140);ctx.stroke();
+
+    ctx.fillStyle=CRAICBLUE;ctx.font='500 64px DM Sans,system-ui,sans-serif';
+    ctx.textAlign='right';ctx.fillText('+'+craic.toLocaleString(),CW-PAD,BY2+70);
+    ctx.fillStyle=MUTED;ctx.font='400 26px DM Sans,system-ui,sans-serif';
+    ctx.fillText('$CRAIC earned',CW-PAD,BY2+108);ctx.textAlign='left';
+
+    // ── FOOTER ──
+    const FY=BY2+BODYH;
+    ctx.save();ctx.beginPath();ctx.moveTo(0,FY);ctx.lineTo(CW,FY);
+    ctx.lineTo(CW,FY+FTRRH-RADIUS);ctx.quadraticCurveTo(CW,FY+FTRRH,CW-RADIUS,FY+FTRRH);
+    ctx.lineTo(RADIUS,FY+FTRRH);ctx.quadraticCurveTo(0,FY+FTRRH,0,FY+FTRRH-RADIUS);
+    ctx.lineTo(0,FY);ctx.closePath();ctx.fillStyle='#0d0d1a';ctx.fill();ctx.restore();
+
+    ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='400 28px DM Sans,system-ui,sans-serif';
+    ctx.fillText(caption,PAD,FY+FTRRH/2+10);
+
+    // Export + share
+    cv.toBlob(async function(blob){
+      if(!blob){navigator.share&&navigator.share({text:caption,url:'https://proof-of-pint.com'}).catch(()=>{});return;}
+      const file=new File([blob],'proof-of-pint.png',{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){
+        try{ await navigator.share({files:[file],text:caption}); }
+        catch(e){ if(e.name!=='AbortError'){ _fallbackDownload(blob,caption); } }
+      } else if(navigator.share){
+        navigator.share({text:caption,url:'https://proof-of-pint.com'}).catch(()=>{});
+      } else {
+        _fallbackDownload(blob,caption);
+      }
+    },'image/png');
+  }
+
+  function _fallbackDownload(blob, caption){
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='proof-of-pint.png';a.click();
+    URL.revokeObjectURL(url);
+    navigator.clipboard&&navigator.clipboard.writeText(caption).catch(()=>{});
   }
 
   async function handleConnectWallet() {
