@@ -649,6 +649,7 @@
   <script>
   'use strict';
   let userLocation=null,stream=null,pendingVerification=null,verificationResult=null,pintsData=[],pintsDataRaw=[],lbData={},lbFromScreen='landing';
+  let _preparedShareFile=null,_preparedShareCaption='';
   function getCookie(name){
     const match = document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)');
     return match ? decodeURIComponent(match[2]) : null;
@@ -935,6 +936,12 @@
     const craic=result.craic_amount||5000, pubName=result.pub_name||'Irish pub', country=result.country_name||'';
     const photoUrl = result.photo_url || '';
 
+    // Pre-build the share card in the background NOW, while user reads their result.
+    // This means by the time they tap Share, navigator.share() can fire instantly
+    // inside the tap gesture (required by Samsung/Android browsers) instead of
+    // after a network+canvas delay, which silently blocks the share on those browsers.
+    _prepareShareCard();
+
     // Populate success screen stats (runs in background)
     loadLiveData().then(()=>{
       const myName = localStorage.getItem('pop_display_name') || '';
@@ -1079,13 +1086,17 @@
 
   function handleSuccessShare(){
     hideFloatingSharePill();
-    const photoUrl = verificationResult?.photo_url || '';
-    const pubName  = verificationResult?.pub_name  || 'an Irish pub';
-    const craic    = verificationResult?.craic_amount || 5000;
-    const caption  = 'Pint verified at '+pubName+'. Earned '+craic.toLocaleString()+' $CRAIC. #ProofOfPint';
+    const caption = _preparedShareCaption ||
+      ('Pint verified at '+(verificationResult?.pub_name||'an Irish pub')+'. Earned '+
+       (verificationResult?.craic_amount||5000).toLocaleString()+' $CRAIC. #ProofOfPint');
 
-    if(photoUrl){
-      _buildAndSharePintCard(photoUrl, pubName, craic, caption);
+    // IMPORTANT: navigator.share() must be called with no async delay before it,
+    // right inside this click handler, or Samsung/Android browsers silently
+    // refuse it. That's why the file is built ahead of time in _prepareShareCard().
+    if(_preparedShareFile && navigator.canShare && navigator.canShare({files:[_preparedShareFile]})){
+      navigator.share({files:[_preparedShareFile], text: caption}).catch(function(e){
+        if(e && e.name!=='AbortError'){ _fallbackDownload(_preparedShareFile, caption); }
+      });
     } else if(navigator.share){
       navigator.share({text: caption, url:'https://proof-of-pint.com'}).catch(()=>{});
     } else {
@@ -1093,7 +1104,29 @@
     }
   }
 
-  async function _buildAndSharePintCard(photoUrl, pubName, craic, caption){
+  // Kicked off in the background as soon as verification succeeds (see handleSuccess).
+  // Builds the shareable image card ahead of time and caches it, so the actual
+  // click handler above can call navigator.share() synchronously.
+  async function _prepareShareCard(){
+    const photoUrl = verificationResult?.photo_url || '';
+    const pubName  = verificationResult?.pub_name  || 'an Irish pub';
+    const craic    = verificationResult?.craic_amount || 5000;
+    const caption  = 'Pint verified at '+pubName+'. Earned '+craic.toLocaleString()+' $CRAIC. #ProofOfPint';
+    _preparedShareCaption = caption;
+    _preparedShareFile = null;
+    if(!photoUrl) return;
+    try{
+      const blob = await _buildPintCardBlob(photoUrl, pubName, craic, caption);
+      if(blob) _preparedShareFile = new File([blob],'proof-of-pint.png',{type:'image/png'});
+    }catch(e){
+      // Card build failed (e.g. photo host missing CORS headers, tainting the canvas).
+      // Leave _preparedShareFile null — handleSuccessShare() will fall back to a
+      // text-only share instead of doing nothing.
+    }
+  }
+
+  async function _buildPintCardBlob(photoUrl, pubName, craic, caption){
+
     // Card dimensions (1080px wide — Instagram story safe)
     const CW=1080, HDRH=130, PHOTOH=680, BODYH=260, FTRRH=110, RADIUS=32;
     const TOTALH = HDRH+PHOTOH+BODYH+FTRRH;
@@ -1102,9 +1135,7 @@
 
     // Load photo + logo in parallel
     function loadImg(src){ return new Promise((res,rej)=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>res(i);i.onerror=rej;i.src=src;});}
-    let photo, logo;
-    try{ [photo, logo] = await Promise.all([loadImg(photoUrl), loadImg('/craic.png').catch(()=>null)]); }
-    catch(e){ navigator.share&&navigator.share({text:caption,url:'https://proof-of-pint.com'}).catch(()=>{}); return; }
+    const [photo, logo] = await Promise.all([loadImg(photoUrl), loadImg('/craic.png').catch(()=>null)]);
 
     const cv=document.createElement('canvas');
     cv.width=CW; cv.height=TOTALH;
@@ -1183,19 +1214,17 @@
     ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='400 28px DM Sans,system-ui,sans-serif';
     ctx.fillText(caption,PAD,FY+FTRRH/2+10);
 
-    // Export + share
-    cv.toBlob(async function(blob){
-      if(!blob){navigator.share&&navigator.share({text:caption,url:'https://proof-of-pint.com'}).catch(()=>{});return;}
-      const file=new File([blob],'proof-of-pint.png',{type:'image/png'});
-      if(navigator.canShare&&navigator.canShare({files:[file]})){
-        try{ await navigator.share({files:[file],text:caption}); }
-        catch(e){ if(e.name!=='AbortError'){ _fallbackDownload(blob,caption); } }
-      } else if(navigator.share){
-        navigator.share({text:caption,url:'https://proof-of-pint.com'}).catch(()=>{});
-      } else {
-        _fallbackDownload(blob,caption);
+    // Export to a blob and hand it back — this function only BUILDS the card.
+    // The actual navigator.share() call happens in handleSuccessShare(), fired
+    // synchronously on tap, using the file this returns (cached ahead of time).
+    return new Promise(function(resolve){
+      try{
+        cv.toBlob(function(blob){ resolve(blob||null); }, 'image/png');
+      }catch(e){
+        // Tainted canvas (e.g. photo host missing CORS headers) throws here.
+        resolve(null);
       }
-    },'image/png');
+    });
   }
 
   function _fallbackDownload(blob, caption){
